@@ -773,18 +773,6 @@ Here, \( A \) represents the predicted boundary points set, and \( B \) represen
 %% 4.4.3 Discussion
 \subsubsection{Discussion}\label{subsubsec4_4_3}
 
-\begin{figure}[t]
-    \centering
-    \subfigure[] {\includegraphics[width=0.27\linewidth]{merged_rendered_images_1_reduced_sat.png}}
-    \subfigure[] {\includegraphics[width=0.27\linewidth]{merged_rendered_images_2_reduced_sat.png}}
-    \subfigure[] {\includegraphics[width=0.27\linewidth]{merged_rendered_images_3_reduced_sat.png}}
-    \subfigure[] {\includegraphics[width=0.27\linewidth]{merged_rendered_images_4_reduced_sat.png}}
-    \subfigure[] {\includegraphics[width=0.27\linewidth]{merged_rendered_images_5_reduced_sat.png}}
-    \subfigure[] {\includegraphics[width=0.27\linewidth]{merged_rendered_images_6_reduced_sat.png}}
-    \caption{Examples of challenging scenarios for our method. (a)-(c) illustrate the scenarios with supernumerary teeth, while (d)-(f) present the situations where there is excessive loss of tooth morphology.}
-    \label{fig:figure_constraints_examples}
-\end{figure}
-
 \hspace{2em}The superior performance of PASegNet can be attributed to its innovative dual-branch architecture and attention-guided fusion module. By integrating the position-aware branch that captures global spatial relationships between teeth with the boundary-aware branch that focuses on local geometric details, our approach achieves a more comprehensive understanding of dental morphology. The attention-guided feature fusion dynamically balances global contextual information with fine-grained local features, enabling more accurate segmentation in complex scenarios such as abnormal tooth positions and varying morphologies. This ability to simultaneously process global position information and local boundary details allows PASegNet to effectively handle challenging cases where conventional single-branch methods typically fail. Additionally, our novel loss functions further enhance the model's capability to accurately locate tooth centroids and delineate boundaries, contributing to the overall robustness of the segmentation results.
 
 \hspace{2em}Despite promising results, PASegNet has limitations. Performance decreases with extremely crowded or severely malposed teeth, as shown in Fig. \ref{fig:figure_constraints_examples}. This is because the manner of cascading in the G-Branch cannot adapt well to the positioning of supernumerary teeth. Moreover, excessive tooth substance loss can also affect the algorithm's ability to localize teeth. While our approach effectively utilizes geometric features, current evaluation requires validation across more diverse populations and scanning devices. Future research should incorporate anatomical prior knowledge through pretraining, integrate multimodal imaging data sources \cite{tian2023survey,kot2025evolution,pan2025mdgformer}, and explore model compression for clinical settings. These steps will close the research-to-application gap and enhance the algorithm’s clinical usability.

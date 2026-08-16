@@ -1,0 +1,806 @@
+%% 
+%% Copyright 2007-2025 Elsevier Ltd
+%% 
+%% This file is part of the 'Elsarticle Bundle'.
+%% ---------------------------------------------
+%% 
+%% It may be distributed under the conditions of the LaTeX Project Public
+%% License, either version 1.3 of this license or (at your option) any
+%% later version.  The latest version of this license is in
+%%    http://www.latex-project.org/lppl.txt
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 1999/12/01 or later.
+%% 
+%% The list of all files belonging to the 'Elsarticle Bundle' is
+%% given in the file `manifest.txt'.
+%% 
+%% Template article for Elsevier's document class `elsarticle'
+%% with numbered style bibliographic references
+%% SP 2008/03/01
+%% $Id: elsarticle-template-num.tex 272 2025-01-09 17:36:26Z rishi $
+%%
+% \documentclass[preprint,12pt]{elsarticle}
+
+%% Use the option review to obtain double line spacing
+%% \documentclass[authoryear,preprint,review,12pt]{elsarticle}
+
+%% Use the options 1p,twocolumn; 3p; 3p,twocolumn; 5p; or 5p,twocolumn
+%% for a journal layout:
+%% \documentclass[final,1p,times]{elsarticle}
+%% \documentclass[final,1p,times,twocolumn]{elsarticle}
+\documentclass[final,3p,times]{elsarticle}
+% \documentclass[final,3p,times,twocolumn]{elsarticle}
+%% \documentclass[final,5p,times]{elsarticle}
+%% \documentclass[final,5p,times,twocolumn]{elsarticle}
+
+%% For including figures, graphicx.sty has been loaded in
+%% elsarticle.cls. If you prefer to use the old commands
+%% please give \usepackage{epsfig}
+
+%% The amssymb package provides various useful mathematical symbols
+\usepackage{amssymb}
+%% The amsmath package provides various useful equation environments.
+\usepackage{amsmath}
+%% The amsthm package provides extended theorem environments
+%% \usepackage{amsthm}
+
+\usepackage{caption}
+\usepackage{subfigure}
+\usepackage{graphicx,float}
+
+%% The lineno packages adds line numbers. Start line numbering with
+%% \begin{linenumbers}, end it with \end{linenumbers}. Or switch it on
+%% for the whole article with \linenumbers.
+%% \usepackage{lineno}
+
+\journal{Expert Systems with Applications}
+
+\biboptions{sort&compress}
+
+%%%%% Fig. 加粗
+\usepackage{newtxtext,newtxmath}
+\makeatletter
+% 1) 图前缀改为 Fig. 并加粗
+\renewcommand{\figurename}{Fig.}
+\renewcommand{\fnum@figure}{\textbf{\figurename~\thefigure}}
+% 2) 图专用的 makecaption：冒号→句点
+\newcommand\figure@makecaption[2]{%
+  \vskip\abovecaptionskip
+  \small
+  \sbox\@tempboxa{\fnum@figure. #2}%  ← 把冒号换成句点
+  \ifdim \wd\@tempboxa >\hsize
+    \fnum@figure. #2\par
+  \else
+    \global\@minipagefalse
+    \hb@xt@\hsize{\hfil\box\@tempboxa\hfil}%
+  \fi
+  \vskip\belowcaptionskip}
+% 3) 让 figure 环境使用我们自定义的 makecaption
+\let\els@figure\figure
+\let\els@endfigure\endfigure
+\renewenvironment{figure}[1][htbp]{%
+  \let\@makecaption\figure@makecaption % 仅在此环境中生效
+  \els@figure[#1]%
+}{\els@endfigure}
+\makeatother
+
+%%%%% Table 修改格式
+\usepackage{caption}
+% 设置表格标题加粗且去掉冒号
+\captionsetup[table]{
+  labelfont=bf,
+%   textfont=bf,
+  labelsep=none
+}
+
+%%%%% 增加伪代码
+\usepackage[ruled,linesnumbered]{algorithm2e}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bm}
+
+\begin{document}
+\begin{frontmatter}
+    
+
+%% Title, authors and addresses
+
+%% use the tnoteref command within \title for footnotes;
+%% use the tnotetext command for theassociated footnote;
+%% use the fnref command within \author or \affiliation for footnotes;
+
+%% and the form \ead[url] for the home page:
+%% \title{Title\tnoteref{label1}}
+%% \tnotetext[label1]{}
+%% \author{Name\corref{cor1}\fnref{label2}}
+
+%% \ead[url]{home page}
+%% \fntext[label2]{}
+%% \cortext[cor1]{}
+%% \affiliation{organization={},
+%%             addressline={},
+%%             city={},
+%%             postcode={},
+%%             state={},
+%%             country={}}
+%% \fntext[label3]{}
+
+\title{Patient-Specific 3D Dental Crown Generation via Directed Signed Deformable Dual Grids and Multiscale Conditional Flow Matching}
+
+%% use the corref command within \author for corresponding author footnotes;
+% \author[a,b]{Jialei Wang\corref{cor1}}
+% \author[a,b]{Jialei Wang\corref{cor1}}\ead{wangjialei@zju.edu.cn}
+% \author[a]{Shuyou Zhang}\ead{zsy@zju.edu.cn}
+% \author[b,c]{Yan Tian}\ead{tianyan@zjgsu.edu.cn}
+
+\author[a,b,c]{Jialei Wang}
+\ead{wangjialei@zju.edu.cn}
+\author[a,b]{Kang Wang \corref{cor1}}
+\ead{kang.wang@zju.edu.cn}
+\author[c,d]{Yan Tian}
+\ead{tianyan@zjgsu.edu.cn}
+\author[a,b]{Shuyou Zhang}
+\ead{zsy@zju.edu.cn}
+
+%% Author affiliation
+\affiliation[a]{
+Department={State Key Laboratory of Fluid Power and Mechatronic Systems, School of Mechanical Engineering,},
+organization={Zhejiang University},
+            % addressline={}, 
+            city={Hangzhou},
+            postcode={310058}, 
+            state={Zhejiang},
+            country={China}}
+
+\affiliation[b]{
+Department={Zhejiang Key Laboratory of Advanced Equipment Manufacturing and Measurement Technology, School of Mechanical Engineering,},
+organization={Zhejiang University},
+            % addressline={}, 
+            city={Hangzhou},
+            postcode={310058}, 
+            state={Zhejiang},
+            country={China}}
+
+\affiliation[c]{organization={Shining3D Tech Co., Ltd},
+            addressline={1398 Xiangbin Road}, 
+            city={Hangzhou},
+            postcode={311200}, 
+            country={China}}
+
+\affiliation[d]{organization={School of Computer Science and Information Engineering, Zhejiang Gongshang University},
+            addressline={18 Xuezheng Road}, 
+            city={Hangzhou},
+            postcode={310018}, 
+            country={China}}
+
+%% use the cortext command for theassociated footnote;
+\cortext[cor1]{Corresponding author.}
+
+
+%% Abstract
+\begin{abstract}
+%% Text of abstract
+Accurate 3D tooth segmentation and labeling is essential for orthodontics and dentistry, serving as a cornerstone for treatment planning and diagnostics. However, current methods often fail to effectively integrate global and local information, particularly at tooth boundaries, which are crucial for segmentation tasks. To address these issues, we introduce PASegNet, a novel dual-branch deep learning framework designed for precise 3D tooth segmentation. The framework consists of two branches: a position-aware branch employs dynamic graph convolutional networks (DGCNN) to extract global features and generate tooth centroid activation maps. Simultaneously, a boundary-aware branch combines heat kernel signature (HKS) features to capture detailed local geometry and spatial relationships. An innovative attention-guided fusion module (AFM) adaptively balances the information from both branches, while novel loss functions further refine the segmentation results. Extensive evaluations across multiple datasets reveal that PASegNet achieves a mean Intersection over Union (mIoU) of 93.68\% and a boundary IoU of 82.56\% for dental instance segmentation. These results illustrate the algorithm's superior accuracy and robustness over existing state-of-the-arts, thereby demonstrating its substantial potential and value for clinical dental applications.
+\end{abstract}
+
+%%Graphical abstract
+\begin{graphicalabstract}
+%\includegraphics{grabs}
+\end{graphicalabstract}
+
+%%Research highlights
+\begin{highlights}
+
+\item Research highlight 1
+
+
+\item Research highlight 2
+
+
+\item Research highlight 3
+
+
+\item Research highlight 4
+
+
+\end{highlights}
+
+%% Keywords
+\begin{keyword}
+Dental crown generation\sep Flow matching \sep Flexible dual grids \sep Digital dental restoration
+\end{keyword}
+
+\end{frontmatter}
+
+%% Add \usepackage{lineno} before \begin{document} and uncomment 
+%% following line to enable line numbers
+%% \linenumbers
+
+%% main text
+%%
+
+\section{Introduction}\label{sec1}
+\setlength{\parindent}{0pt}
+
+\hspace{2em}The integration of intraoral scanners (IOS) into clinical practice has revolutionized the acquisition of high-precision 3D dental models, offering sub-millimeter accuracy in digital representations of dental arches \cite{ahmed2024digital, cerghizan2025accuracy}. Automated and accurate 3D tooth segmentation provides fundamental support for orthodontic monitoring and disease localization \cite{eggmann2024recent}. They facilitate the creation of personalized treatment plans and deliver detailed 3D models. This automation enhances clinical efficiency and reduces the time needed compared to manual methods. However, the automation of 3D dental image segmentation continues to present significant challenges. Clinical complexities such as diverse tooth morphologies, inter-tooth crowding, misalignment, scanning noise, missing teeth, and complex shapes substantially compromise the effectiveness and reliability of segmentation algorithms.
+
+\hspace{2em}A spectrum of fully automated instance segmentation methods for 3D dental meshes has been developed, encompassing both traditional methods and deep learning-based ones. Traditional geometry-based methods often rely on geometric features and prior knowledge of tooth shapes, including curvature-based approaches \cite{miyazaki2020teeth}, clustering dental point clouds \cite{deng2020dbscan}, and the harmonic field method \cite{zhang2020automatic}. However, these traditional geometric methods encounter significant challenges when dealing with complex tooth arrangements and morphological variations. They tend to be sensitive to noise and artifacts in the data, which can lead to inaccurate segmentation results.
+
+\hspace{2em}Meanwhile, deep learning-based dental technology has emerged, marking not only a profound integration of artificial intelligence (AI) with oral medicine but also a pivotal milestone in the transition from digital dentistry to intelligent dentistry~\cite{tian2021efficient,tian2021dcpr,zhao2026innovative}. These methods can be principally divided into point-cloud, surface, and graph-based methods. Point-based methods \cite{tian20223d,mao2024cursegnet,wu2024point} directly process discrete point-cloud data, using coordinates and normal vectors to learn boundary features. Graph-based methods \cite{liu2024mesh, farazi2025recipe}, in contrast, extract features from tooth surfaces or patches. By leveraging network structures like graph convolutional networks (GCN) to incorporate the spatial and structural information of tooth surfaces, these methods provide a more comprehensive representation for boundary feature extraction and analysis.
+
+\hspace{2em}Despite these advancements, current deep learning-based approaches exhibit critical limitations in capturing local boundary details while preserving global contextual information, resulting in insufficient precision for clinical applications~\cite{li2023position}. Several dual-branch and fusion-based architectures have attempted to reconcile this trade-off~\cite{wang2026style}; however, they either require labor-intensive post-processing that precludes end-to-end optimization~\cite{zheng2022teethgnn}, or fail to adaptively balance global and local features in challenging scenarios~\cite{wu2022two,wang2024graph}. To address these limitations, we introduce PASegNet, a novel dual-branch framework for enhanced 3D tooth segmentation. Unlike prior methods that treat global and local features as independent tasks, our PASegNet integrates a position-aware branch that leverages global contextual information to model spatial relationships between adjacent teeth and surrounding structures, guiding accurate centroid identification through activation maps. Meanwhile, a boundary-aware branch focuses on local geometry to capture fine-grained details beyond simple coordinates and normals, ensuring precise delineation of tooth boundaries. Additionally, PASegNet employs an improved attention-guided fusion module that adaptively adjusts the contributions of each branch by balancing the weights of different modules, further enhancing its ability to handle challenging dental irregularities.
+
+\hspace{2em}The main contributions of this paper are summarized as follows:
+
+\vspace{0.1em}
+
+\hspace{1em}• PASegNet is proposed as an innovative end-to-end framework for precise instance segmentation of teeth in 3D dental models. It features a dual-branch architecture that simultaneously provides tooth location information and 3D mesh segmentation results.
+
+\hspace{1em}• An improved AFM integrated with a dynamic attention mechanism is introduced. This strategy adaptively adjusts the contributions of each branch by balancing the weights of different modules, thereby enhancing the model's capacity to handle complex dental scenarios and ensuring more accurate segmentation.
+
+\hspace{1em}• Multiple loss functions, including centroid-guided loss, local region loss, and boundary-constrained loss, are designed. These functions focus on different aspects of the features, ensuring that both tooth regional information and boundary details are effectively captured.
+
+\hspace{1em}• The method is validated on the public datasets Teeth3DS \cite{ben2022teeth3ds} and 3DTeethSeg \cite{ben20233dteethseg}. Experiments demonstrate that the method outperforms existing methods in terms of segmentation accuracy and robustness, making it a promising solution for clinical applications in 3D dental model segmentation.
+
+%% 2
+\section{Related work}\label{sec2}
+
+\hspace{2em}In the realm of 3D tooth segmentation, various methodologies have been proposed to address the complex geometric structures and diverse shapes of teeth. These approaches can be broadly categorized into point-based methods, surface and graph-based methods, and multi-view methods, each with its unique advantages and challenges.
+
+%% 2.1
+\subsection{Point Cloud-based Methods}\label{subsec2_1}
+
+\hspace{2em}Point cloud-based methods have been widely used in 3D tooth segmentation due to their ability to directly process raw point cloud data. Qiu et al.~\cite{qiu2022darch} proposed a weakly annotated training approach to train the segmentation network using only a few annotated teeth from each dental model. Through the integration of an initial feature extractor and an attention-weighted local aggregator into PointNet++, Yuan et al.~\cite{yuan2023full} achieved precise delineation of the tooth--gingival margin. Recently, Transformers have advanced point cloud analysis: Point Transformer evolved from self-attention to grouped attention and serialized mapping~\cite{wu2025spiking}, while Mamba3D~\cite{han2024mamba3d} and Point Cloud Mamba~\cite{zhang2025point} emerged as linear-complexity alternatives via space-filling curves and bidirectional modeling. In dentistry, Wu et al.~\cite{wu2024transformer} proposed PointRegion, a Transformer-based 3D tooth segmentation network that partitions the point cloud into regions to reduce computational complexity and memory usage. Xi et al.~\cite{xi20253d} introduced CrossTooth, extending the Point Transformer architecture with curvature-based vertex retention to strengthen hierarchical attention modeling at crown-gingiva junctions.
+
+\hspace{2em}At the same time, point cloud-based methods face several challenges. First, point cloud data is irregular and sparse, making it difficult to capture the complete and accurate structure of teeth, especially in areas with few points. Second, these methods struggle to effectively represent local geometric details due to the lack of inherent local structure information. Third, point cloud processing is computationally intensive due to the large amount of data, necessitating downsampling techniques that often lead to loss of fine-grained details critical for precise margin delineation. Furthermore, performance is highly dependent on data characteristics such as resolution and noise levels from different intraoral scanners. Most critically, existing point-based methods including the recent transformer and Mamba architectures primarily focus on general 3D scenes and lack mechanisms specifically designed for capturing the intricate boundary characteristics between adjacent teeth, which is essential for clinically accurate tooth segmentation.
+
+\begin{figure*}[t]  % [t] 表示尽量放在页面顶部
+    \centering % 图片居中
+    \includegraphics[width=1.0\textwidth]{frame.pdf}
+    \caption{Overall architecture of the proposed PASegNet framework. The network comprises two parallel branches: the G branch leverages global contextual information to identify tooth positions, while the L branch focuses on local geometric details for boundary delineation. The Fusion branch integrates features from both branches to produce accurate tooth instance segmentation.}
+    \label{fig:figure_overall_architecture} 
+\end{figure*}
+
+%% 2.2
+\subsection{Surface and Graph-based Methods}\label{subsec2_2}
+
+\hspace{2em}Surface and graph-based methods have also shown promise in this field. Early works include iMeshSegNet~\cite{wu2022two}, which captures multi-scale features via vertex attributes, and STSNet~\cite{liu2022hierarchical}, employing self-supervised pre-training for label-efficient learning. These approaches were later complemented by dilated convolutions for enlarged receptive fields~\cite{krenmayr2024dilatedtoothsegnet} and multi-stage geometric processing strategies~\cite{rekik2025tseglab}. Recently, this paradigm has shifted toward transformer architectures, initially through general-purpose mesh segmentation methods (MeT~\cite{vecchio2023met}, GeoTransformer~\cite{farazi2025recipe}), and subsequently to dental applications where Duan et al.~\cite{duan20233d} pioneered graph transformer modules to significantly improve boundary classification accuracy.
+
+\hspace{2em}These surface and graph-based approaches have offered fresh perspectives for 3D tooth segmentation. Yet, these methods also encounter hurdles like the requirement for accurate graph construction and the computational complexity of graph-based models~\cite{wang2025distilling,wang2024breast}. Moreover, existing mesh transformers designed for general shapes lack specialized mechanisms for dental applications, particularly regarding precise boundary delineation. Future work should focus on dental-specific architectures that jointly leverage global positional information and fine-grained local geometric details.
+
+%% 2.3
+\subsection{Multi-view Methods}\label{subsec2_3}
+\hspace{2em}Owing to the widespread use of 2D image recognition, multi-view methods project 3D teeth models onto multiple 2D views and then transform the results back to 3D space for segmentation. Huang et al. \cite{huang2024iossam} proposed IOSSAM, a multi-view method that uses occlusal and dental crown prompters to generate segmentation prompts. It converts 2D results into 3D via view-aware label diffusion, enhancing tooth segmentation accuracy and robustness with limited labeled data. Similarly, Tibor Kubík et al. \cite{kubik2024lmvsegrnn} presented LMVSegRNN, which captures intricate tooth shapes and spatial relationships by leveraging unique features and complementary information from different views. This method is advantageous for segmenting teeth in unusual positions, rotated, or closely located.
+
+\hspace{2em}Nevertheless, multi-view methods have several limitations. Projecting 3D data into multiple 2D views can lead to information loss between different views, which may affect the accuracy of the final segmentation results. These methods also require careful alignment and registration of the multiple views to ensure consistency. Overall, multi-view methods offer a unique approach to 3D tooth segmentation.
+
+\hspace{2em}Existing 3D tooth segmentation methods struggle to simultaneously capture local details and global context, causing inaccuracies in boundary delineation and tooth localization. These methods suffer from decoupled processing without adaptive integration. In contrast, our PASegNet bridges this gap through a dual-branch architecture inspired by Wang et al.~\cite{wang2024graph}: one branch captures position-aware global features for robust tooth localization, while the other extracts HKS-based boundary-sensitive details via spectral geometry. Unlike existing approaches that process these hierarchies independently, our attention-guided fusion module dynamically balances both streams, enabling simultaneous exploitation of mesh topology and dental-specific boundary awareness. This unified design outperforms both single-branch transformers and conventional dual-branch architectures by achieving adaptive coupling between global positioning and local geometry, ensuring superior segmentation accuracy and robustness in challenging clinical scenarios.
+
+%% 3
+\section{Method}\label{sec3}
+
+%% 3.1
+\subsection{Overview}\label{subsec3_1}
+
+\hspace{2em}Fig. \ref{fig:figure_overall_architecture} presents the overall framework of PASegNet. The network takes vertices’ coordinates (N × 3 matrices) and heat kernel signature (HKS) \cite{sun2009concise} features (N × 16 matrices) as inputs, where N is the total number of vertices. Each mesh element is annotated as one of C = 33 semantic classes, and the network outputs an N × C probability matrix for segmenting the mesh. The end-to-end architecture comprises two branches: the G branch with the Position-Aware Module (PAM) for global context capture and the L branch with the Boundary-Aware Module (BAM) for local detail extraction. The Attention-guided Fusion Module (AFM) integrates information from both branches to balance global and local features. 
+
+\hspace{2em}Different from existing methods \cite{mao2024cursegnet,liu2024geo,rekik2025tseglab}, the above-mentioned improvements enable simultaneous processing of global tooth-position info and local boundary details, effectively handling complex dental cases such as missing teeth and crowding. The following sections will provide detailed introductions to these modules.
+
+%% 3.2
+\subsection{Position-Aware Module}\label{subsec3_2}
+
+\hspace{2em}Due to the varying sparsity of the input mesh, we apply classical Farthest Point Sampling (FPS)~\cite{eldar1997farthest} only in the position-aware G branch, where uniform spatial coverage improves learning of inter-tooth spatial relationships and reduces computational cost. Anatomically critical boundary vertices are preserved by the boundary-aware L branch, which processes full-resolution HKS features without downsampling. The encoder is inspired by the Dynamic Graph CNN (DGCNN) \cite{wang2019dynamic}, using EdgeConv to dynamically construct neighborhood graphs that capture local neighborhoods for robust global feature extraction. The feature extraction process in EdgeConv can be mathematically expressed as:
+
+\begin{equation}
+f_k = \max_{j \in \mathcal{N}(i)} \left( \theta \left( \|x_i - x_j\| \right) \right)
+\end{equation}
+
+where \(\mathcal{N}(i)\) denotes the dynamically constructed neighborhood of point \(i\), and \(\theta\) is a multi-layer perceptron (MLP) that transforms the edge features. Here, \(x_i\) and \(x_j\) represent the feature vectors of the central point and its neighbor, respectively. The operation \(\|x_i - x_j\|\) captures the relative positional relationship between points, enabling the network to learn both local geometric structures and spatial dependencies.
+
+\hspace{2em}Among architectures for global feature extraction, we systematically evaluated EdgeConv against attention-only mechanisms and traditional graph convolution networks. We selected EdgeConv for the following reasons: (1) Dynamic adaptability: EdgeConv dynamically computes $k$-nearest neighbors in the feature space, adapting to varying densities and geometric configurations inherent. (2) Computational efficiency: Compared to self-attention mechanisms with $\mathcal{O}(N^2)$ complexity, EdgeConv maintains $\mathcal{O}(NK)$ complexity where $K$ is the number of neighbors, making it suitable for high-resolution dental scans. 
+
+\hspace{2em}To aggregate local features and learn global shape features, we stack multiple EdgeConv layers. This feature aggregation process can be formulated using a hierarchical graph pooling mechanism:
+
+\begin{equation}
+G^{(l)} = \bigcup_{k=1}^{K^{(l)}} f_k^{(l)}
+\end{equation}
+
+where \(G^{(l)}\) represents the global features at the \(l\)-th layer, and \(K^{(l)}\) is the number of features at that layer. 
+
+\begin{figure}[t]
+    \centering
+    \subfigure[Feature x1]{\includegraphics[width=0.27\linewidth]{DGCNN-EdgeConv_1.png}}
+    \subfigure[Feature x2]{\includegraphics[width=0.27\linewidth]{DGCNN-EdgeConv_2.png}}
+    \subfigure[Feature x3]{\includegraphics[width=0.27\linewidth]{DGCNN-EdgeConv_3.png}}
+     \raisebox{-0.12\height}{\subfigure{\includegraphics[width=0.05\linewidth,height=0.28\linewidth]{DGCNN-EdgeConv_4.png}}}
+    \raisebox{0.05\height}{\rotatebox{90}{\parbox{2.0cm}{\centering\fontsize{8pt}{8pt}\selectfont Feature activate}}}
+    \caption{Feature activation maps of cascaded EdgeConv layers. The visualization shows the progression from x1 to x3, representing features at different network depths. The color intensity indicates feature strength, with brighter regions corresponding to stronger activations as the network transitions from local to global feature representations.}\label{fig:figure_DGCNN_features}
+\end{figure} 
+
+\hspace{2em}As shown in Fig. \ref{fig:figure_DGCNN_features}, we utilized Grad-CAM-based \cite{selvaraju2020grad} visualization to display the feature activation maps of cascading EdgeConv layers (x1, x2, and x3). By calculating the standard deviation of each point's features relative to its neighbors, we created a global feature quantification metric. A smaller standard deviation indicates more globalized features. The global feature indicator distribution, highlighted by brighter areas in the visualization, demonstrates the network's shift in focus from local to global features. Guided by this information, we found that reducing the number of EdgeConv layers still allows for effective global information extraction. To enhance feature extraction efficiency, our approach simplified the DGCNN structure by using only three cascaded EdgeConv layers.
+
+\hspace{2em}Subsequently, a cascade of MLP layers progressively reduces dimensionality to extract high-level global features. This dimensionality reduction can be formulated as a nonlinear transformation:
+
+\begin{equation}
+F = \text{MLP}(G) = \sigma \left( W \cdot \text{BN}(G) + b \right)
+\end{equation}
+
+where \(W\) and \(b\) are learnable parameters, \(\text{BN}(\cdot)\) denotes batch normalization, and \(\sigma\) is the activation function.
+
+\begin{figure}[H]
+    \centering
+    \subfigure[UpperJaw]{\includegraphics[width=0.4\linewidth]{merged_heatmaps_1.png}}
+    \subfigure[LowerJaw]{\includegraphics[width=0.4\linewidth]{merged_heatmaps_2.png}}
+    \caption{Visualization of the tooth position heatmap using Gaussian distribution. The brighter areas represent higher probability of tooth centroids, showing how the model learns to identify individual teeth positions.}\label{fig:figure_heatmap}
+\end{figure}
+
+\hspace{2em}By combining multi-scale information, the model can more effectively learn global shape characteristics. The architecture connects Adaptive-Max-Pooling and Fully Connected (FC) modules to enable direct output of a tooth location heatmap \cite{li2024spatial}, based on a gaussian distribution as shown in Fig. \ref{fig:figure_heatmap}. This innovative approach allows the model to efficiently capture the global information of tooth positions, significantly enhancing the accuracy and robustness of 3D tooth segmentation.
+
+
+% 热力图算法伪代码
+%  \begin{algorithmic}[1]
+%     \Function{GenerateToothHeatmap}{$M, C, \sigma$}
+%         \State \textbf{Input:} Mesh $M$, tooth centroids $C = \{c_1, c_2, ..., c_n\}$, Gaussian width $\sigma$
+%         \State \textbf{Output:} Heatmap $H$ for each vertex in $M$
+%         \State Initialize heatmap $H$ with zeros for all vertices in $M$
+%         \For{each vertex $v$ in $M$}
+%             \For{each centroid $c_i$ in $C$}
+%                 \State $d \gets \text{distance}(v, c_i)$
+%                 \State $H[v] \gets H[v] + \exp(-d^2/(2\sigma^2))$
+%             \EndFor
+%             \State Normalize $H[v]$ to range $[0, 1]$
+%         \EndFor
+%         \State \Return $H$
+%     \EndFunction
+% \end{algorithmic}
+
+
+\hspace{2em}Positional information plays a crucial role in coordinate-dependent computer vision tasks by enabling neural networks to learn spatial relationships and structural constraints. In our task, positional data facilitates the accurate identification of tooth numbers among adjacent teeth and enables precise delineation of boundaries between individual teeth \cite{krenmayr2024dilatedtoothsegnet}.
+
+%% 3.3
+\subsection{Boundary-Aware Module}\label{subsec3_3}
+
+\hspace{2em}Accurately segmenting the boundaries of individual teeth has always been a major challenge in this field \cite{gong2021boundary}. Relying solely on coordinates and normals makes it difficult to obtain sufficient local information. To solve this problem, we introduced the HKS as a relative regional embedding, which is a geometry-based feature. Based on heat diffusion, HKS can accurately capture the local geometric information of 3D shapes and better grasp the local geometric details of teeth. For a vertex \( v \) on the mesh, the HKS is defined as a function in a temporal domain:
+\begin{equation}
+\text{HKS}(v, t) = \sqrt{\frac{\phi_0(v)}{4\pi t}} \sum_{i=1}^{\infty} e^{-\lambda_i t} \phi_i(v)^2
+\end{equation}
+
+where \( t \) represents different time scales. \( \lambda_i \) and \( \phi_i(v) \) denote the eigenvalues of the Laplace–Beltrami operator and their associated eigenfunctions evaluated at vertex \( v \).
+
+\hspace{2em}We chose HKS over curvature-based embeddings and spectral descriptors for following reasons: (1) Multi-scale representation: Different from single-scale curvature features (Gaussian or mean curvature), HKS captures geometric information across multiple scales through the time parameter $t$, providing richer boundary characterization. (2) Noise robustness: Curvature features are sensitive to mesh noise and irregularities, whereas HKS demonstrates superior stability due to its diffusion-based formulation. (3) Intrinsic property: HKS is intrinsic to the surface geometry and invariant to isometric deformations, making it robust to scanning artifacts. (4) Computational tractability: Compared to spectral descriptors like Wave Kernel Signature (WKS)~\cite{aubry2011wave} that require extensive eigendecomposition, HKS can be efficiently approximated via truncated eigenvalue expansion.
+
+\hspace{2em}To further enhance the precision of boundary delineation, we combine HKS features with graph structures \cite{bhatti2023deep}. This is achieved by constructing a graph \( G = (V, E) \), where \( V \) represents the vertices of the dental model, and \( E \) represents the edges connecting neighboring vertices. The HKS features are then propagated through the graph using a graph convolution operation:
+
+\begin{equation}    
+    H^{(l+1)} = \text{GCN}(H^{(l)}, A) = \sigma \left( \tilde{D}^{-\frac{1}{2}} \tilde{A} \tilde{D}^{-\frac{1}{2}} H^{(l)} W^{(l)} \right)
+\end{equation}
+
+Here, \( H^{(l)} \) is the feature matrix at layer \( l \), \( \tilde{A} = A + I \) is the adjacency matrix with added self-connections, \( \tilde{D} \) is the degree matrix of \( \tilde{A} \), and \( W^{(l)} \) is the learnable weight matrix at layer  \( l \). By integrating HKS features with graph structures, the BAM can effectively utilize both local geometric details and structural relationships.
+
+%% 3.4
+\subsection{Attention-guided Fusion Module}\label{subsec3_4}
+
+\hspace{2em}AFM serves as the critical integration component, dynamically integrating global and local features to address complex dental segmentation challenges. Fig. \ref{fig:fusion_module_architecture} illustrates its detailed architecture. Features from both branches are processed through a transformer-based mechanism, enabling adaptive feature weighting based on geometric contexts to handle diverse morphological variations in dental structures.
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=0.7\textwidth, keepaspectratio]{aff_frame.pdf}
+    \caption{Architecture of the proposed Attention-guided Fusion Module. The module takes local features, global features, and vertex positions as input, and outputs fused features that effectively combine local geometric details with global contextual information through dynamic attention mechanisms.}\label{fig:fusion_module_architecture}
+\end{figure*}
+
+\hspace{2em}The module takes three inputs: global features from the G Branch for overall shape understanding, local features from the L Branch for vertex-level geometric details, and 3D coordinates for geometry-aware position encoding. The AFM consists of three core components: Geometry-aware Position Encoding, Additive Feature Fusion, and Dynamic Multi-Head Attention, each described in detail below.
+
+\bigskip
+
+\textbf{Geometry-aware Position Encoding.} Standard Transformer architectures~\cite{hassija2025transformers} rely on self-attention mechanisms but inherently lack spatial awareness. Conventional position encoding methods, including sinusoidal functions and learned embeddings, are designed for sequential or grid-structured data and fail to capture the complex 3D spatial relationships essential for dental mesh analysis. To address this limitation, we propose a geometry-aware position encoding mechanism that directly leverages 3D vertex coordinates:
+
+\begin{equation} \mathbf{P} = \mathbf{V} \mathbf{W}_{pos} + \mathbf{b}_{pos} \end{equation}
+
+where $\mathbf{V} \in \mathbb{R}^{N \times 3}$ represents vertex coordinates, $\mathbf{W}_{pos} \in \mathbb{R}^{3 \times {d}_{G}}$ and $\mathbf{b}_{pos} \in \mathbb{R}^{{d}_{G}}$ are learnable position encoding parameters, $d_G$ is the global feature dimension. This formulation enables the model to learn geometric embeddings suited for complex dental surface representation.
+
+
+% 伪代码
+\begin{algorithm}[t]
+    \SetAlgoLined
+    \SetKwInOut{KwInput}{Input}
+    \SetKwInOut{KwOutput}{Output}
+    \SetKwInOut{KwParams}{Parameters}
+    
+    \caption{Attention-guided Fusion Module (AFM)}
+    \label{alg:afm}
+    \KwInput{$\mathbf{F}_L \in \mathbb{R}^{N \times d_L}$ (local feature), 
+             $\mathbf{F}_G \in \mathbb{R}^{N \times d_G}$ (global feature), 
+             $\mathbf{V} \in \mathbb{R}^{N \times 3}$ (vertex coordinate)}
+    \KwOutput{$\mathbf{F}_{\text{out}} \in \mathbb{R}^{N \times C}$ (fused feature)}
+    \KwParams{$h$ (initial number of attention heads, default $h=8$)}
+
+    \tcp{Stage 1: Feature Projection and Geometry-aware Encoding (Corresponds to Fig. 4 left)}
+    $\mathbf{P} \leftarrow \mathbf{V} \cdot \mathbf{W}_{\text{pos}} + \mathbf{b}_{\text{pos}}$ \tcp*{Geometry-aware position encoding}
+    $\mathbf{F}_{\text{combined}} \leftarrow \mathbf{F}_L + \mathbf{F}_G + \mathbf{P}$ \tcp*{Additive feature fusion}
+    
+    \tcp{Stage 2: Dynamic Multi-Head Attention (Corresponds to Fig. 4 lower-right)}
+    \eIf{$d_G \bmod h \neq 0$}{
+        $h^* \leftarrow \max\left(1, \frac{d_G}{\lfloor d_G/h \rfloor + 1}\right)$ \tcp*{Dynamic head adjustment}
+    }{
+        $h^* \leftarrow h$ \tcp*{Use initial head count}
+    }
+    $d_h \leftarrow d_G / h^*$ \tcp*{Dimension per head}
+
+    % $\mathbf{Q}, \mathbf{K}, \mathbf{V} \leftarrow \text{Linear}(\mathbf{F}_{\text{combined}}) \times 3$ \tcp*{Projections}
+    \tcp{Linear projections for Q, K, V}
+    $\mathbf{Q} \leftarrow \mathbf{F}_{\text{combined}} \mathbf{W}_Q, \quad \mathbf{K} \leftarrow \mathbf{F}_{\text{combined}} \mathbf{W}_K, \quad \mathbf{V} \leftarrow \mathbf{F}_{\text{combined}} \mathbf{W}_V$\;
+    
+    \tcp{Multi-head attention computation}
+    \For{$i = 1$ \KwTo $h^*$}{
+        $\text{Attn}_i \leftarrow \text{softmax}\left(\mathbf{Q}_i \mathbf{K}_i^\top / \sqrt{d_h}\right) \cdot \mathbf{V}_i$\;
+    }
+    $\mathbf{F}_{\text{attn}} \leftarrow \text{Concat}(\text{Attn}_1, \ldots, \text{Attn}_{h^*}) \cdot \mathbf{W}_O$\; 
+    
+    \tcp{Stage 3: Residual Connection and Feed-Forward (Corresponds to Fig. 4 right)}
+    $\mathbf{F}_{\text{norm}} \leftarrow \text{LayerNorm}(\mathbf{F}_{\text{attn}} + \mathbf{F}_{\text{combined}})$ \tcp*{Residual + LayerNorm}
+    $\mathbf{F}_{\text{ffn}} \leftarrow \text{Linear}_{\text{out}}(\text{ReLU}(\text{Linear}_{\text{in}}(\mathbf{F}_{\text{norm}})))$ \tcp*{Feed-Forward}
+    $\mathbf{F}_{\text{out}} \leftarrow \text{LayerNorm}(\mathbf{F}_{\text{ffn}} + \mathbf{F}_{\text{norm}})$ \tcp*{Final residual + LayerNorm}
+    
+    \Return{$\mathbf{F}_{\text{out}}$}
+\end{algorithm}
+
+
+\textbf{Additive Feature Fusion.} An additive feature-fusion strategy is introduced for efficient integration of multi-source features while preserving dimensional consistency:
+
+\begin{equation} \mathbf{F}_{combined} = \mathbf{F}_L + \mathbf{F}_G + \mathbf{P} \end{equation}
+
+Here, $\mathbf{F}_L$, $\mathbf{F}_G$, and $\mathbf{P}$ denote the local feature, global feature, and position-encoded feature, respectively. Compared to concatenation-based fusion, the proposed strategy preserves feature dimensions while enabling direct channel-wise interaction and maintaining computational efficiency, thereby achieving an optimal balance between performance and cost without parameter inflation.
+
+\bigskip
+
+\textbf{Dynamic Multi-Head Attention.} The details of the module are shown in the lower-right corner of Fig. \ref{fig:fusion_module_architecture}. This module takes the fused feature $\mathbf{F}_{\text{combined}}$ as input and employs the standard attention mechanism. For each vertex $i$, we compute the query, key, and value vectors through linear projections:
+\begin{equation}
+\mathbf{Q}_i = \mathbf{F}_{\text{combined}}[i] \cdot \mathbf{W}_Q, \quad \mathbf{K}_i = \mathbf{F}_{\text{combined}}[i] \cdot \mathbf{W}_K, \quad \mathbf{V}_i = \mathbf{F}_{\text{combined}}[i] \cdot \mathbf{W}_V
+\end{equation}
+where $\mathbf{W}_Q, \mathbf{W}_K, \mathbf{W}_V \in \mathbb{R}^{d_G \times d_h}$ are learnable projection matrices, and $d_h$ denotes the dimension per attention head.
+
+\hspace{2em}The core innovation lies in dynamically adjusting the number of attention heads $h^*$, based on the feature dimension $d_G$:
+\begin{equation}
+h^* = \max\left(1, \left\lfloor \frac{d_G}{h} \right\rfloor + 1\right) \quad \text{if } d_G \bmod h \neq 0
+\end{equation}
+where $h$ is the initial head count. This mechanism ensures that the number of attention heads is dynamically adjusted to maintain compatibility with the feature dimensions, optimizing computational efficiency and model performance.
+
+\hspace{2em}The AFM dynamically balances contributions between global positional information and local geometric details, treating the centroid heatmap as a complementary prior. In complex dentitions such as crowded teeth, it adaptively refines coarse localization with boundary features, reducing centroid reliance when local boundaries indicate clearer separation, thereby resolving ambiguities and semantic inconsistencies. The detailed algorithmic procedure is summarized in Algorithm~\ref{alg:afm}.
+
+%% 3.5
+\subsection{Loss Function}\label{subsec3_5}
+
+\hspace{2em}We introduce three efficient loss functions to further enhance performance, including centroid-guided loss \cite{zhao2024few}, local region loss, and boundary-constrained loss \cite{tan2023boundary}. These functions can effectively improve the accuracy and robustness of segmentation models.
+
+\bigskip
+
+\textbf{Centroid Guided Loss.} The centroid guided loss is designed to accurately locate tooth centroids. It is defined as:
+
+\begin{equation} 
+L_{centroid}=\frac{1}{N}\sum_{i=1}^N\left\|C_i-\hat{C}_i\right\|^2
+\end{equation}
+where \( N \) denotes the number of teeth. \( C_{i} \) corresponds to the reference centroid of the \( i-th \) tooth. While \(\hat{C}_{i}\) signifies the predicted centroid of the \( i-th \) tooth.
+
+\bigskip
+
+\textbf{Local Region Loss.} Local region loss focuses on precise segmentation within local regions. It is defined as:
+\begin{equation}
+L_{local}=\frac{1}{M}\sum_{j=1}^M\left(1-\frac{2\cdot TP_j}{TP_j+FP_j+FN_j}\right)
+\end{equation}
+where \( M \) is the number of local regions, \( TP_j \) refers to the true positive count for the \( j-th \) local region, \( FP_j \) denotes the false-positive count within the \( j-th \) local region, and \( FN_j \) denotes the false-negative count within the \( j-th \) local region.
+
+\setlength{\parindent}{0pt}
+\hspace{2em}This loss function aims to maximize the Dice coefficient within each local region, ensuring precise segmentation.
+
+\bigskip
+
+\textbf{Boundary-Constrained Loss.} The boundary-constrained loss ensures clear and accurate delineation of tooth boundaries. It is defined as
+\begin{equation}
+L_{boundary}=\frac{1}{K}\sum_{k=1}^K\left(1-\frac{\left|B_k\cap\hat{B}_k\right|}{\left|B_k\cup\hat{B}_k\right|}\right)
+\end{equation}
+where \( K \) is the number of boundaries, \( B_k \) is associated with the ground-truth boundary of the \( k-th \) tooth, and \(\hat{B}_{k}\) pertains to the predicted boundary of the \( k-th \) tooth.
+
+\setlength{\parindent}{0pt}
+\hspace{2em}This loss function minimizes the boundary distance between the predicted and true boundaries, ensuring accurate delineation.
+
+\bigskip
+
+\textbf{Final Loss Function.} The final loss function combines the above three losses with appropriate weights:
+\begin{equation}
+L_{final} = \alpha \cdot L_{centroid} + \beta \cdot L_{local} + \gamma \cdot L_{boundary}
+\label{eq:final_loss}
+\end{equation}
+where \( \alpha \), \( \beta \) and \( \gamma \) are hyperparameters that balance the contributions of each loss function.
+
+\setlength{\parindent}{0pt}
+
+\hspace{2em}This comprehensive loss function ensures that the model achieves high accuracy in both centroid localization, local region segmentation, and boundary delineation. By integrating these complementary loss components, the model becomes more robust to variations in dental morphology and arrangement, effectively handling cases with complex tooth geometry. 
+
+%% 4
+\section{Experimental and Discussions}\label{sec4}
+
+%% 4.1 
+\subsection{Dataset}\label{subsec4_1}
+
+\hspace{2em}In the course of our experiments, we made use of several public datasets with a view to assess PASegNet's performance. The Teeth3DS dataset \cite{ben2022teeth3ds}, with 1800 high-precision intraoral 3D scans, offers a comprehensive representation of diverse dental conditions, from normal to pathological, with detailed FDI notation-based annotations. Meanwhile, the 3DTeethSeg dataset \cite{ben20233dteethseg}, consisting of 900 high-resolution 3D dental meshes, provides sufficient tooth morphology variability to challenge segmentation algorithms. These datasets collectively cover a wide range of dental scenarios, including complex cases like missing teeth, severe misalignment, crowding, dental restorations, and anatomical anomalies. Following standard protocols, we randomly split the datasets into training (70\%), validation (15\%), and testing (15\%) sets, ensuring similar complex case distribution across all splits, thereby enabling a thorough evaluation of our method's robustness in various clinical situations.
+
+%% 4.2 
+\subsection{Evaluation metrics}\label{subsec4_2}
+
+\hspace{2em}To assess the segmentation performance, we employed the following metrics:
+
+\bigskip
+
+\hspace{2em} \textbf{Overall Accuracy (OA):} \hspace{1em} OA is a metric used to evaluate the overall accuracy of tooth segmentation \cite{zhang2021tsgcnet}. It is defined as the ratio of correctly predicted grids to the total number of grids, expressed mathematically as:
+
+\begin{equation}
+\mathrm{OA}=\frac{N_{\mathrm{correct}}}{N_{\mathrm{total}}}
+\end{equation}
+
+where \( N_{correct} \) denotes the number of correctly predicted grids, and \( N_{total} \) represents the total number of grids. This metric reflects the model's general ability to segment accurately.
+
+\bigskip
+
+\hspace{2em} \textbf{Mean Intersection over Union (mIoU):} \hspace{1em}\( mIoU \)  is a measure of how well segmentation results match with ground truth annotations \cite{zhao2021two}. Its calculation formula is:
+
+\begin{equation}
+mIoU=\frac{1}{k+1}\sum_{i=0}^k\frac{p_{ii}}{\sum_{j=0}^kp_{ij}+\sum_{j=0}^kp_{ji}-p_{ii}}
+\end{equation}
+
+where \( k+1 \) represents the number of segmentation categories, \( p_{ij} \) denotes the probability that a grid predicted to belong to category i actually belongs to category j, and \( p_{ii} \) denotes the count of samples accurately predicted.
+
+\bigskip
+
+\hspace{2em} \textbf{Boundary Intersection over Union (B-IoU):} \hspace{1em}B-IoU is a metric specifically designed to evaluate the accuracy of tooth boundary segmentation, as referenced in \cite{cho2021weighted}. Its calculation formula is:
+
+\begin{equation}
+B\mathrm{-}IoU=\frac{\|A\cap B\|}{\|A\cup B\|}
+\end{equation}
+
+Here, \( A \) represents the predicted boundary points set, and \( B \) represents the ground truth boundary points set.
+
+\setlength{\parindent}{0pt}
+\hspace{2em}These formulas can help evaluate the performance of 3D tooth segmentation models, particularly in handling complex tooth arrangements and shape variations.
+
+%% 4.3 
+\subsection{Implementation Details}\label{subsec4_3}
+
+\hspace{2em}Prior to training, all dental meshes undergo coordinate normalization: each mesh is centered at its centroid and scaled to fit within a unit sphere. This preprocessing ensures consistent scale across samples from different scanners and datasets, mitigating scale sensitivity. We adopted an end-to-end training approach to streamline the process and enable unified optimization. Specifically, the learning rate was initialized at $0.001$ with cosine annealing; the AdamW optimizer was employed with weight decay $0.01$; and a batch size of $8$ was selected to balance memory usage and stability. By combining optimized FPS sampling with this training strategy, PASegNet achieves practical efficiency for clinical 3D tooth segmentation.
+
+\hspace{2em}For the loss function hyperparameters $\alpha$, $\beta$, and $\gamma$ in Eq.~\ref{eq:final_loss}, we conducted a systematic grid search on the validation set, exploring weight combinations in the range $[0.1, 1.0]$ with a step size of $0.1$. Each configuration was evaluated based on validation mIoU and B-IoU metrics. The final weights ($\alpha=0.3$, $\beta=0.4$, $\gamma=0.3$) were selected to balance centroid localization, regional accuracy, and boundary precision, with the slightly higher $\beta$ reflecting the importance of local region segmentation accuracy.
+
+\hspace{2em}Systematic timing experiments on an NVIDIA RTX 3090 GPU demonstrate that PASegNet achieves an average inference time of 0.85 s per dental model (10,000 vertices) with only 4.2 GB GPU memory, enabling deployment on standard mid-range clinical workstations and real-time clinical applications. The architecture exhibits robust scalability across varying mesh resolutions (5,000 to 50,000 vertices), maintaining mIoU variance below 1.5\% with linear complexity relative to vertex count. This scalable AI infrastructure allows seamless integration into downstream clinical workflows, serving as a foundational segmentation engine for comprehensive digital dentistry solutions.
+
+\begin{table*}[h]
+    \captionsetup{
+      justification=raggedright,
+      singlelinecheck=false,
+      margin=2.35cm    % ← 调整此值以和表格左边对齐
+    }
+    \caption{\\Performance comparison with state-of-the-art methods}\label{table_network_performance_compare}%
+    \vspace{-8pt} 
+    \centering
+    \begin{tabular}{lccccc}
+        \hline
+        Method & OA(\%) & mIoU(\%) & B-IoU(\%) & Params(M) & FLOPs(G) \\ \hline
+        DGCNN \cite{wang2019dynamic} & 85.72 & 76.43 & 69.22 & 3.5 & 3.8 \\
+        IOSSAM \cite{huang2024iossam} & 87.89 & 84.23 & 78.15 & 9.2 & 14.8 \\
+        SimpSegNet \cite{jana20233d} & 88.45 & 74.70 & 68.67 & 4.8 & 5.1 \\
+        Geo-Net \cite{liu2024geo} & 88.76 & 80.91 & 80.45 & 10.2 & 5.8 \\
+        CurSegNet \cite{mao2024cursegnet} & 89.12 & 81.45 & 81.67 & 2.6 & 2.5 \\
+        TSegLab \cite{rekik2025tseglab} & 89.56 & 85.13 & 79.28 & 12.3 & 22.5 \\
+        \textbf{Ours} & \textbf{90.98} & \textbf{93.68} & \textbf{82.56} & 5.8 & 5.3 \\ \hline
+    \end{tabular}
+\end{table*}
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=1.0\textwidth]{merged_rendered_images.png}
+    \caption{Visual evaluation of segmentation results across methods. Comparison between existing approaches and our PASegNet on representative dental cases. Our method demonstrates enhanced accuracy in challenging scenarios including crowded dentition, tooth misalignments, and complex morphologies.}\label{fig:figure_visual_segment_results}
+\end{figure*}
+
+
+%% 4.4
+\subsection{Results and Analysis}\label{subsec4}
+
+%% 4.4.1 Experiment Result
+\subsubsection{Experiment Result}\label{subsubsec4_4_1}
+
+\setlength{\parindent}{0pt}
+
+\hspace{2em}To validate the effectiveness of our proposed method, we conducted a comprehensive comparative analysis against several state-of-the-art techniques. Considering the efficacy, domain relevance, and reproducibility of all listed approaches, the comparison included the following methods: DGCNN \cite{wang2019dynamic}, SimpSegNet \cite{jana20233d}, Geo-Net \cite{liu2024geo} and CurSegNet \cite{mao2024cursegnet}, TSegLab \cite{rekik2025tseglab}. The quantitative results are provided in Table \ref{table_network_performance_compare}. To ensure fair comparison, all methods were trained and evaluated under identical experimental conditions using the same datasets and preprocessing techniques. It is important to note that our evaluation focuses exclusively on the direct outputs from the neural networks without any post-processing steps or external auxiliary models. This approach allows for a more objective assessment of each model's intrinsic capabilities in handling the challenging task of 3D dental instance segmentation. As demonstrated in the results, our proposed PASegNet consistently outperforms existing methods across all evaluation metrics, particularly in handling complex dental morphologies.
+
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[width=1.0\textwidth]{segmentation results.png}
+%     \caption{Visualization of representative segmentation results comparing with four competing methods and our method.}\label{fig:figure5}
+% \end{figure}
+
+
+\hspace{2em}We also conducted qualitative experiments to assess the segmentation results shown in Fig. \ref{fig:figure_visual_segment_results}. Our method shows superior performance, especially in handling complex cases like wisdom teeth, crowded teeth, or misalignments. It accurately labels most teeth and effectively manages misaligned and worn teeth through semantics-guided segmentation and adaptive feature fusion. Additionally, our approach excels in local geometric feature extraction. These results confirm that our design is more effective and accurate for this segmentation task.
+
+\begin{figure}[t]
+    \centering
+    \subfigure[Time Step: 0.001]{\includegraphics[width=0.35\linewidth]{combined_rendered_views_1t.png}}
+    \subfigure[Time Step: 0.1]{\includegraphics[width=0.35\linewidth]{combined_rendered_views_2t.png}}
+    \subfigure[Time Step: 10.0]{\includegraphics[width=0.35\linewidth]{combined_rendered_views_3t.png}}
+    \subfigure[Time Step: 1000.0]{\includegraphics[width=0.35\linewidth]{combined_rendered_views_4t.png}}
+    \caption{Visualization of heat diffusion at different timescales. The HKS features capture tooth boundary information with increasing diffusion over time, revealing detailed local geometry at small timescales (a) and broader structural information at larger timescales (d).}\label{fig:figure_diffusion_timestep}
+\end{figure}
+
+\begin{table}[h]
+    \captionsetup{
+      justification=raggedright,
+      singlelinecheck=false,
+      margin=4.6cm    % ← 调整此值以和表格左边对齐
+    }
+    \caption{\\Feature regions based on timescales}\label{tab:table_feature_timescales}
+    \vspace{-8pt} 
+    \centering
+    \begin{tabular}{p{4.0cm}cc}
+        \hline
+        Feature Scale & Range \\ \hline
+        Extremely Local Features & \( t \leq 0.01 \) \\
+        Local Features & \( 0.01 < t \leq 1.0 \) \\
+        Medium-Scale Features & \( 1.0 < t \leq 100.0 \) \\
+        Global Features & \( t > 100.0 \) \\ \hline
+    \end{tabular}
+\end{table}
+
+%% 4.4.2
+\subsubsection{Ablation Study}\label{subsubsec4_4_2}
+
+%%%% Ablation Study 1
+\bigskip
+
+\textbf{Effectiveness of the timescale parameter.} As shown in Fig. \ref{fig:figure_diffusion_timestep}, the timescale parameter is pivotal in HKS feature extraction and representation, as it governs the extent and intensity of heat diffusion. When the timescale is small, heat diffusion is confined to local regions, enabling HKS to capture delicate local geometric features such as edges and corners. As the timescale increases, the diffusion spreads to broader areas. Table \ref{tab:table_feature_timescales} details the relationship between timescale and feature regions. The timescale parameter is essential for achieving a balance between local and global information while maintaining stability and distinctiveness. In this scheme, the HKS focuses on local feature extraction, and the timescale is set to 0.01 to maintain computational efficiency.
+
+
+\hspace{2em}The HKS features extracted by the BAM provide valuable local information, which serves as a complement to the global information captured by the position-aware Module (G branch). This merging of local and global context permits the model to attain more precise and stable segmentation outcomes.
+
+
+%%%% Ablation Study 2
+\bigskip
+
+\textbf{Effectiveness of feature and architecture choices.} To validate our design choices, we conducted systematic ablation studies (Table~\ref{table_feature_representation}). For local geometric descriptors, HKS outperforms curvature by encoding multi-scale intrinsic geometry through heat diffusion, achieving a mIoU improvement of 4.76\% (93.68\% vs. 88.92\%). Additionally, HKS demonstrates superior robustness to scanning artifacts compared to WKS~\cite{aubry2011wave} due to its inherent smoothing property. For global feature architectures, EdgeConv outperforms both PointNeXt~\cite{qian2022pointnext} and Point Transformer V3 (PTv3)~\cite{wu2024point} through dynamic graph construction that adaptively captures local relationships, achieving the highest B-IoU of 82.56\% while maintaining computational efficiency suitable for clinical deployment. These results confirm that the combination of HKS and EdgeConv optimally balances segmentation accuracy and efficiency.
+
+\begin{table*}[h]
+    \captionsetup{
+      justification=raggedright,
+      singlelinecheck=false,
+      margin=2.35cm    % ← 调整此值以和表格左边对齐
+    }
+    \caption{\\Ablation study on feature descriptors and architectures}\label{table_feature_representation}%
+    \vspace{-8pt} 
+    \centering
+    \begin{tabular}{lcccc}
+        \hline
+        Local Feature & Global Architecture & OA(\%) & mIoU(\%) & B-IoU(\%) \\ \hline
+        Curvature & EdgeConv  & 87.45 & 88.92 & 76.24 \\
+        WKS       & EdgeConv  & 89.67 & 92.06 & 80.13 \\
+        HKS       & PointNeXt & 89.12 & 91.35 & 79.85 \\
+        HKS       & PTv3      & 90.67 & 93.41 & 81.78 \\
+        \textbf{HKS(Ours)} & \textbf{EdgeConv(Ours)} & \textbf{90.98} & \textbf{93.68} & \textbf{82.56} \\ \hline
+    \end{tabular}
+\end{table*}
+
+\bigskip
+
+\textbf{Effectiveness of feature fusion module.} The feature fusion module is crucial for integrating local and global features. To evaluate the effectiveness of our method, we compared the proposed Attention-guided Fusion Module with several baseline methods, with the results in Table \ref{table_fusion_module_compare}. The experiments used the Teeth3DS \cite{ben2022teeth3ds} and 3DTeethSeg \cite{ben20233dteethseg} datasets, evaluating the OA and the mIoU. Baseline methods included simple concatenation, maximum pooling fusion, graph convolution fusion, and attention gating.
+
+\hspace{2em}As shown in Table~\ref{table_fusion_module_compare}, both IoU and accuracy demonstrate progressive improvements with advancing fusion strategies. AFM effectively integrates global and local features through additive fusion that preserves feature dimensionality. Its dynamic attention-head mechanism further aligns computational complexity with $d_G$ without indiscriminately increasing parameters. Consequently, the observed performance gains are attributable to dual-branch complementarity rather than parameter-capacity inflation, thereby maintaining reasonable model complexity.
+
+\begin{table*}[h]
+    \captionsetup{
+      justification=raggedright,
+      singlelinecheck=false,
+      margin=2.9cm    % ← 调整此值以和表格左边对齐
+    }
+    \caption{\\ Comparison of different feature fusion methods}\label{table_fusion_module_compare}
+    \vspace{-8pt} 
+    \centering
+    \begin{tabular}{llll}
+        \hline
+        Method & OA~(\%) & mIoU~(\%) & Parameters \\ \hline
+        Simple Concatenation        & 82.31 & 89.14 & 2.1M \\
+        Maximum Pooling Fusion      & 83.27 & 90.52 & 1.8M \\
+        Graph Convolution Fusion    & 85.41 & 91.57 & 3.2M \\
+        Attention Gating Fusion     & 86.54 & 92.16 & 2.7M \\
+        \textbf{Attention-guided Fusion (Ours)} & \textbf{90.98} & \textbf{93.68} & 2.4M \\ \hline
+    \end{tabular}
+\end{table*}
+
+%%%% Ablation Study 3
+\bigskip
+\textbf{Effectiveness of dual-branch architecture.} To investigate the effectiveness of our dual-branch architecture and the contribution of HKS features to tooth boundary segmentation, we compared different network configurations. Table \ref{table_ablation_study} presents the quantitative results on both datasets, with particular focus on boundary segmentation accuracy measured by B-IoU.
+
+\begin{table*}[t]
+    \captionsetup{
+      justification=raggedright,
+      singlelinecheck=false,
+      margin=2.35cm    % ← 调整此值以和表格左边对齐
+    }
+    \caption{\\ Ablation study on network architecture and feature representations}\label{table_ablation_study}%
+    \vspace{-8pt} 
+    \centering
+    \begin{tabular}{p{4.0cm}cccc}
+        \hline
+        Method & OA (\%) & mIoU (\%) & B-IoU (\%) & Parameters \\ \hline
+        DGCNN (single-branch) & 86.45 & 78.92 & 73.67 & 3.2M \\
+        HKS (single-branch) & 87.32 & 80.14 & 75.23 & 3.5M \\
+        \textbf{Dual-branch (Ours)} & \textbf{90.98} & \textbf{93.68} & \textbf{82.56} & 5.8M \\ \hline
+        \multicolumn{5}{l}{\footnotesize \textit{Note: All methods trained on Teeth3DS dataset with identical settings.}} \\
+    \end{tabular}
+\end{table*}
+
+\begin{figure}[H]
+    \centering
+    \subfigure[DGCNN]{\includegraphics[width=0.28\linewidth]{CombinedView_Ablation_Experiment2_1.png}}
+    \subfigure[DGCNN + HKS]{\includegraphics[width=0.28\linewidth]{CombinedView_Ablation_Experiment2_2.png}}
+    \subfigure[Ground truth]{\includegraphics[width=0.28\linewidth]{CombinedView_Ablation_Experiment2_3.png}}
+    \caption{Comparison of tooth boundary segmentation results. (a) DGCNN (single-branch) shows inaccuracies at complex boundaries. (b) DGCNN + HKS (dual-branch) demonstrates improved boundary delineation. (c) Ground truth. The red circles highlight areas with challenging conditions.}\label{fig:figure_boundary_comparison}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \subfigure[HKS]{\includegraphics[width=0.28\linewidth]{CombinedView_Ablation_Experiment1_1.png}}
+    \subfigure[DGCNN + HKS]{\includegraphics[width=0.28\linewidth]{CombinedView_Ablation_Experiment1_2.png}}
+    \subfigure[Ground truth]{\includegraphics[width=0.28\linewidth]{CombinedView_Ablation_Experiment1_3.png}}
+    \caption{Comparison of segmentation results for tooth area. (a) Single-branch HKS model showing segmentation errors in certain tooth regions. (b)  DGCNN + HKS (dual-branch) architecture with improved accuracy. (c) Ground truth segmentation. The red circles highlight areas with challenging conditions.}\label{fig:figure_toothnumer_comparison}
+\end{figure}
+
+
+\hspace{2em}The ablation results presented in Table \ref{table_ablation_study}, together with the visualizations in Fig. \ref{fig:figure_boundary_comparison} and Fig. \ref{fig:figure_toothnumer_comparison}, clearly demonstrate the complementary advantages of the proposed dual-branch architecture and the incorporation of HKS features. The baseline DGCNN (single-branch) model achieves reasonable overall accuracy; however, it exhibits limited boundary precision, particularly in regions with complex geometry or adjacent teeth, as reflected by a B-IoU of only 73.67\%. Introducing HKS features in a single-branch configuration enhances local boundary delineation (B-IoU increases to 75.23\%), but this approach remains susceptible to missing or misclassified tooth regions due to the absence of global contextual information. In contrast, the dual-branch architecture, which effectively integrates global contextual features from the position-aware branch with local geometric details from the boundary-aware branch, achieves superior performance (B-IoU 82.56\%, mIoU 93.68\%).
+
+\begin{figure}[t]
+    \centering
+    \subfigure[Total Loss Curves]{\includegraphics[width=0.33\linewidth]{training_curves_1.png}}
+    \subfigure[mIoU Curves] {\includegraphics[width=0.33\linewidth]{training_curves_2.png}}
+    \subfigure[B-IoU Curves]{\includegraphics[width=0.33\linewidth]{training_curves_3.png}}
+    \caption{Training performance of different loss functions. (a) Total Loss Curves show the "Final Loss" combination achieves the lowest loss. (b) mIoU Curves indicate "Final Loss" outperforms others by 5-8 percentage points. (c) B-IoU Curves reveal "Final Loss" and "Boundary Only" have better boundary detection. Integrating multiple losses improves segmentation accuracy.}\label{fig:figure_train_curves}
+\end{figure}
+
+
+\hspace{2em}As illustrated in Fig. \ref{fig:figure_boundary_comparison}, the dual-branch model yields clearer and more accurate tooth boundaries compared to single-branch baselines. Furthermore, Fig. \ref{fig:figure_toothnumer_comparison} demonstrates that the dual-branch approach not only improves boundary precision but also maintains global semantic consistency, thereby reducing errors such as missing or merged teeth. These findings confirm that the integration of global and local features is essential for achieving robust and high-quality 3D tooth segmentation in challenging clinical scenarios.
+
+
+%%%% Ablation Study 4
+
+\bigskip
+
+\textbf{Effectiveness of different loss function.} To validate the effectiveness of different loss function combinations, we conducted ablation studies with four configurations: Centroid Only, Local Only, Boundary Only, and Final Loss, as shown in Fig. \ref{fig:figure_train_curves}. Results demonstrated significant differentiation: Centroid Only showed stable but limited performance (mIoU \~70\%); Local Only exhibited rapid early convergence but overfitting after 120 epochs; Boundary Only encountered training difficulties with plateau phases yet achieved superior boundary IoU (87\%); Final Loss displayed complex dynamics with initial instability during the first 40 epochs due to multi-objective optimization, followed by synergistic advantages in the intermediate phase, ultimately achieving optimal performance, validating the efficacy of collaborative multi-loss optimization.
+
+%% 4.4.3 Discussion
+\subsubsection{Discussion}\label{subsubsec4_4_3}
+
+\begin{figure}[t]
+    \centering
+    \subfigure[] {\includegraphics[width=0.27\linewidth]{merged_rendered_images_1_reduced_sat.png}}
+    \subfigure[] {\includegraphics[width=0.27\linewidth]{merged_rendered_images_2_reduced_sat.png}}
+    \subfigure[] {\includegraphics[width=0.27\linewidth]{merged_rendered_images_3_reduced_sat.png}}
+    \subfigure[] {\includegraphics[width=0.27\linewidth]{merged_rendered_images_4_reduced_sat.png}}
+    \subfigure[] {\includegraphics[width=0.27\linewidth]{merged_rendered_images_5_reduced_sat.png}}
+    \subfigure[] {\includegraphics[width=0.27\linewidth]{merged_rendered_images_6_reduced_sat.png}}
+    \caption{Examples of challenging scenarios for our method. (a)-(c) illustrate the scenarios with supernumerary teeth, while (d)-(f) present the situations where there is excessive loss of tooth morphology.}
+    \label{fig:figure_constraints_examples}
+\end{figure}
+
+\hspace{2em}The superior performance of PASegNet can be attributed to its innovative dual-branch architecture and attention-guided fusion module. By integrating the position-aware branch that captures global spatial relationships between teeth with the boundary-aware branch that focuses on local geometric details, our approach achieves a more comprehensive understanding of dental morphology. The attention-guided feature fusion dynamically balances global contextual information with fine-grained local features, enabling more accurate segmentation in complex scenarios such as abnormal tooth positions and varying morphologies. This ability to simultaneously process global position information and local boundary details allows PASegNet to effectively handle challenging cases where conventional single-branch methods typically fail. Additionally, our novel loss functions further enhance the model's capability to accurately locate tooth centroids and delineate boundaries, contributing to the overall robustness of the segmentation results.
+
+\hspace{2em}Despite promising results, PASegNet has limitations. Performance decreases with extremely crowded or severely malposed teeth, as shown in Fig. \ref{fig:figure_constraints_examples}. This is because the manner of cascading in the G-Branch cannot adapt well to the positioning of supernumerary teeth. Moreover, excessive tooth substance loss can also affect the algorithm's ability to localize teeth. While our approach effectively utilizes geometric features, current evaluation requires validation across more diverse populations and scanning devices. Future research should incorporate anatomical prior knowledge through pretraining, integrate multimodal imaging data sources \cite{tian2023survey,kot2025evolution,pan2025mdgformer}, and explore model compression for clinical settings. These steps will close the research-to-application gap and enhance the algorithm’s clinical usability.
+
+%% 5
+\section{Conclusion}\label{sec5}
+
+\hspace{2em}We presented PASegNet, a novel dual-branch framework for 3D tooth instance segmentation that effectively addresses challenges in dental morphologies through its position-aware and boundary-aware branches. The innovative attention-guided feature fusion mechanism and specialized loss functions further enhance the model's performance by optimizing centroid localization and boundary delineation simultaneously. Experimental results demonstrate that our approach outperforms state-of-the-art methods in segmentation accuracy and boundary detection precision. The clinical impact of PASegNet extends beyond technical improvements. By providing accurate and automated tooth segmentation, it can simplify orthodontic workflows, accelerate treatment planning, and enable more precise interventions. As a fundamental algorithm, PASegNet can serve as a basis for various dental design software applications, including automatic tooth arrangement, computer-aided diagnosis, and orthodontic treatment monitoring, positioning it to play a significant role in advancing automated analysis of 3D dental models for clinical applications.
+
+
+
+\bibliographystyle{elsarticle-num} 
+\bibliography{sn-bibliography}% common bib file
+
+\end{document}
+
+\endinput
+%%
+%% End of file `main.tex'.

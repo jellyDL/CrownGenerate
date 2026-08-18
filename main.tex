@@ -193,16 +193,16 @@ Personalized dental crown design is a critical step in digital restorative workf
 \begin{highlights}
 
 \item Research highlight 1
-
+An oriented signed flexible dual grid captures high-resolution crown geometry.
 
 \item Research highlight 2
-
+Two-stage conditional flow matching generates crown structure and local detail.
 
 \item Research highlight 3
-
+Multiscale conditioning integrates dental arches, 3D margin lines, and FDI codes.
 
 \item Research highlight 4
-
+The method outperforms baselines in geometry and source-blinded technician ratings.
 
 \end{highlights}
 
@@ -235,13 +235,13 @@ Personalized crown design \sep Crown generation\sep Conditional flow matching \s
 
 \vspace{0.1em}
 
-\hspace{1em}• PASegNet is proposed as an innovative end-to-end framework for precise instance segmentation of teeth in 3D dental models. It features a dual-branch architecture that simultaneously provides tooth location information and 3D mesh segmentation results.
+\hspace{1em}• Introduce an oriented signed flexible dual-grid representation that encodes geometry, truncated signed distances, and oriented surface normals in high-resolution sparse cells, with a sparse variational autoencoder learning the corresponding latent representation.
 
-\hspace{1em}• An improved AFM integrated with a dynamic attention mechanism is introduced. This strategy adaptively adjusts the contributions of each branch by balancing the weights of different modules, thereby enhancing the model's capacity to handle complex dental scenarios and ensuring more accurate segmentation.
+\hspace{1em}• Develop a two-stage conditional flow-matching framework comprising Structure and Feature stages to generate sparse occupancy and geometric features at active coordinates. Dual-level supervision in the latent space and on decoded surfaces preserves geometric details and surface continuity.
 
-\hspace{1em}• Multiple loss functions, including centroid-guided loss, local region loss, and boundary-constrained loss, are designed. These functions focus on different aspects of the features, ensuring that both tooth regional information and boundary details are effectively captured.
+\hspace{1em}• Design a three-level conditioning scheme that integrates the maxillary and mandibular dentitions, the 3D margin line, and the FDI tooth code at the global, voxel-aligned, and coordinate-neighborhood levels, thereby coordinating tooth-position semantics, margin geometry, and dentition-level spatial relationships.
 
-\hspace{1em}• The method is validated on the public datasets Teeth3DS \cite{ben2022teeth3ds} and 3DTeethSeg \cite{ben20233dteethseg}. Experiments demonstrate that the method outperforms existing methods in terms of segmentation accuracy and robustness, making it a promising solution for clinical applications in 3D dental model segmentation.
+\hspace{1em}• Validate the method through geometric evaluations and source-blinded assessments by dental technicians. Compared with the baselines, it achieves better geometric reconstruction and dental spatial compatibility and receives higher ratings for overall design quality and laboratory usability.
 
 %% 2
 \section{Related work}\label{sec2}

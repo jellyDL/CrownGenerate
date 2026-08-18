@@ -25,9 +25,10 @@
 
 本文的主要贡献如下：
 
-1. 提出面向牙冠外部形态的定向有符号柔性双网格表示，在稀疏高分辨率活动单元中联合编码双网格几何、局部符号距离与定向法向，为复杂咬合面和颈部轮廓提供统一的几何载体。
-2. 构建牙科多尺度条件流匹配机制，使上下颌局部牙列、人工三维颈缘线和FDI牙位语义在全局、体素及坐标邻域三个层面共同调控Structure/Feature两阶段生成，并通过解码表面联合监督增强局部形态与表面连续性。
-3. 在自建数据集上开展统一协议下的几何评价和专业技师来源盲评；结果表明，所提方法相较纳入的代表性方法具有更好的几何重建表现和实验室可用性。该结论限定于离线后牙单冠外部形态CAD初稿，不代表临床有效性或直接制造能力。
+1. 提出定向有符号柔性双网格，以高分辨率稀疏单元编码几何、截断有符号距离与法向，经稀疏变分自编码器获得潜变量。
+2. 构建Structure/Feature两阶段条件流匹配框架，生成稀疏占位及活动坐标特征，通过双层监督保持几何细节和表面连续性。
+3. 设计全局、体素对齐和坐标邻域三级条件，融合上下颌牙列、三维颈缘线与FDI牙位，协调牙位、颈缘和牙列空间关系。
+4. 几何评价与技师来源盲评显示，本方法在几何重建、空间协调、设计质量及实验室可用性上优于基线。
 
 ## 2 相关工作
 
@@ -412,31 +413,31 @@ CD_{L1}=\frac{1}{2}\left[
 5. Hosseinimanesh G, Alsheghri A, Keren J, Cheriet F, Guibault F. Personalized dental crown design: a point-to-mesh completion network. Med Image Anal. 2025;101:103439. doi:10.1016/j.media.2024.103439.
 6. Pukanec D, Kubík T, Španěl M. From synthetic data to real restorations: diffusion model for patient-specific dental crown completion. In: Proceedings of the 21st International Conference on Computer Vision Theory and Applications (VISAPP 2026). 2026:734-742. doi:10.5220/0014646500004084.
 7. Lipman Y, Chen RTQ, Ben-Hamu H, Nickel M, Le M. Flow matching for generative modeling. ICLR. 2023. arXiv:2210.02747.
-8. Xiang J, Lv Z, Xu S, et al. Structured 3D latents for scalable and versatile 3D generation. Proc IEEE/CVF Conf Comput Vis Pattern Recognit. 2025:21469-21480.
+8. Xiang J, Lv Z, Xu S, et al. Structured 3D latents for scalable and versatile 3D generation. Proc IEEE/CVF Conf Comput Vis Pattern Recognit. 2025:21469-21480. doi:10.1109/CVPR52734.2025.02000.
 9. Xiang J, Chen X, Xu S, et al. Native and compact structured latents for 3D generation. 2025. arXiv:2512.14692.
-10. He X, Zou ZX, Chen CH, et al. SparseFlex: high-resolution and arbitrary-topology 3D shape modeling. Proc IEEE/CVF Int Conf Comput Vis. 2025:14822-14833.
-11. Li DY, Zhao W, Chen Y, et al. Pixal3D: pixel-aligned 3D generation from images. In: SIGGRAPH Conference Papers '26. 2026. doi:10.1145/3799902.3811175.
-12. Wu S, Lin Y, Zhang F, et al. Direct3D-S2: gigascale 3D generation made easy with spatial sparse attention. In: Proceedings of the 39th Conference on Neural Information Processing Systems (NeurIPS 2025). 2025.
+10. He X, Zou ZX, Chen CH, et al. SparseFlex: high-resolution and arbitrary-topology 3D shape modeling. Proc IEEE/CVF Int Conf Comput Vis. 2025:14822-14833. doi:10.1109/ICCV51701.2025.01375.
+11. Li DY, Zhao W, Chen Y, et al. Pixal3D: pixel-aligned 3D generation from images. In: SIGGRAPH Conference Papers '26. 2026:1-12. doi:10.1145/3799902.3811175.
+12. Wu S, Lin Y, Zhang F, et al. Direct3D-S2: gigascale 3D generation made easy with spatial sparse attention. Adv Neural Inf Process Syst. 2025;38:189214-189240. doi:10.52202/085713-5688.
 13. Li Y, Zou ZX, Liu Z, et al. TripoSG: high-fidelity 3D shape synthesis using large-scale rectified flow models. 2025. arXiv:2502.06608.
-14. Hunyuan3D Team. Hunyuan3D 2.0: scaling diffusion models for high resolution textured 3D assets generation. 2025. arXiv:2501.12202.
-15. Tencent Hunyuan. Hunyuan3D 2.1: from images to high-fidelity 3D assets with production-ready PBR material. 2025. arXiv:2506.15442.
-16. Ye C, Wu Y, Lu Z, et al. Hi3DGen: high-fidelity 3D geometry generation from images via normal bridging. Proc IEEE/CVF Int Conf Comput Vis. 2025:25050-25061.
-17. Li W, Toisoul A, Monnier T, et al. MeshFlow: efficient artistic mesh generation via MeshVAE and flow-based diffusion transformer. Proc IEEE/CVF Conf Comput Vis Pattern Recognit. 2025:5849-5858.
+14. Zhao Z, Lai Z, Lin Q, et al. Hunyuan3D 2.0: scaling diffusion models for high resolution textured 3D assets generation. 2025. arXiv:2501.12202.
+15. Hunyuan3D Team, Yang S, Yang M, et al. Hunyuan3D 2.1: from images to high-fidelity 3D assets with production-ready PBR material. 2025. arXiv:2506.15442.
+16. Ye C, Wu Y, Lu Z, et al. Hi3DGen: high-fidelity 3D geometry generation from images via normal bridging. Proc IEEE/CVF Int Conf Comput Vis. 2025:25050-25061. doi:10.1109/ICCV51701.2025.02323.
+17. Li W, Toisoul A, Monnier T, et al. MeshFlow: efficient artistic mesh generation via MeshVAE and flow-based diffusion transformer. Proc IEEE/CVF Conf Comput Vis Pattern Recognit. 2026. arXiv:2606.04621.
 18. Zhao T, Zhang Y, Long H, et al. LATO: 3D mesh flow matching with structured topology preserving latents. 2026. arXiv:2603.06357.
 19. Wang H, Guo YC, Liu YT, et al. FACE: a face-based autoregressive representation for high-fidelity and efficient mesh generation. 2026. arXiv:2603.01515.
 20. Tochilkin D, Pankratz D, Liu Z, et al. TripoSR: fast 3D object reconstruction from a single image. 2024. arXiv:2403.02151.
 21. Peng S, Jiang C, Liao Y, Niemeyer M, Pollefeys M, Geiger A. Shape as points: a differentiable Poisson solver. Adv Neural Inf Process Syst. 2021;34:13032-13044.
-22. Lorensen WE, Cline HE. Marching cubes: a high resolution 3D surface construction algorithm. ACM SIGGRAPH Comput Graph. 1987;21(4):163-169. doi:10.1145/37401.37422.
+22. Lorensen WE, Cline HE. Marching cubes: a high resolution 3D surface construction algorithm. ACM SIGGRAPH Comput Graph. 1987;21(4):163-169. doi:10.1145/37402.37422.
 23. TencentARC. Pixal3D [computer software]. GitHub. Revision cdbb2bbffbf4e6f298b5f2af3d1d76a8d823d2af. Accessed 2026 Aug 16. Available from: https://github.com/TencentARC/Pixal3D. MIT License.
 24. Microsoft. TRELLIS.2 [computer software]. GitHub. Revision 75fbf0183001ed9876c8dbb35de6b68552ee08bd. Accessed 2026 Aug 16. Available from: https://github.com/microsoft/TRELLIS.2. MIT License.
 25. Ho J, Salimans T. Classifier-free diffusion guidance. 2022. arXiv:2207.12598.
-26. Su J, Lu Y, Pan S, Murtadha A, Wen B, Liu Y. RoFormer: enhanced transformer with rotary position embedding. Neurocomputing. 2024;568:127063. doi:10.1016/j.neucom.2023.127063.
+26. Su J, Ahmed MHM, Lu Y, Pan S, Bo W, Liu Y. RoFormer: enhanced transformer with rotary position embedding. Neurocomputing. 2024;568:127063. doi:10.1016/j.neucom.2023.127063.
 27. Hu EJ, Shen Y, Wallis P, et al. LoRA: low-rank adaptation of large language models. In: International Conference on Learning Representations. 2022. arXiv:2106.09685.
-28. Dao T, Fu DY, Ermon S, Rudra A, Ré C. FlashAttention: fast and memory-efficient exact attention with IO-awareness. Adv Neural Inf Process Syst. 2022;35:16344-16359.
+28. Dao T, Fu DY, Ermon S, Rudra A, Ré C. FlashAttention: fast and memory-efficient exact attention with IO-awareness. Adv Neural Inf Process Syst. 2022;35:16344-16359. doi:10.52202/068431-1189.
 29. Mongan J, Moy L, Kahn CE Jr. Checklist for Artificial Intelligence in Medical Imaging (CLAIM): a guide for authors and reviewers. Radiol Artif Intell. 2020;2(2):e200029. doi:10.1148/ryai.2020200029.
 30. von Elm E, Altman DG, Egger M, et al. The Strengthening the Reporting of Observational Studies in Epidemiology (STROBE) statement: guidelines for reporting observational studies. PLoS Med. 2007;4(10):e296. doi:10.1371/journal.pmed.0040296.
 31. Kottner J, Audigé L, Brorson S, et al. Guidelines for Reporting Reliability and Agreement Studies (GRRAS) were proposed. J Clin Epidemiol. 2011;64(1):96-106. doi:10.1016/j.jclinepi.2010.03.002.
 32. Vasey B, Nagendran M, Campbell B, et al. Reporting guideline for the early-stage clinical evaluation of decision support systems driven by artificial intelligence: DECIDE-AI. Nat Med. 2022;28(5):924-933. doi:10.1038/s41591-022-01772-9.
-33. Wei L, Liu C, Zhang W, et al. MADCrowner: margin-aware dental crown design with template deformation and refinement. 2026. arXiv:2603.04771.
+33. Wei L, Liu C, Zhang W, et al. MADCrowner: margin-aware dental crown design with template deformation and refinement. Med Image Anal. 2026;112:104113. doi:10.1016/j.media.2026.104113.
 34. Yang S, Han JY, Lim SH, et al. DCrownFormer+: morphology-aware mesh generation and refinement transformer for dental crown prosthesis from 3D scan data of preparation and antagonist teeth. Med Image Anal. 2025;105:103717. doi:10.1016/j.media.2025.103717.
-35. Wei L, Liu C, Zhang W, et al. VBCD: a voxel-based framework for personalized dental crown design. In: Medical Image Computing and Computer Assisted Intervention - MICCAI 2025. 2025. arXiv:2507.17205.
+35. Wei L, Liu C, Zhang W, et al. VBCD: a voxel-based framework for personalized dental crown design. In: Medical Image Computing and Computer Assisted Intervention - MICCAI 2025. Lecture Notes in Computer Science. 2025;15967:627-636. doi:10.1007/978-3-032-04984-1_60.

@@ -236,13 +236,13 @@ Personalized crown design \sep Crown generation\sep Conditional flow matching \s
 
 \vspace{0.1em}
 
-\hspace{1em}• Introduce an oriented signed flexible dual-grid representation that encodes geometry, truncated signed distances, and oriented surface normals in high-resolution sparse cells, with a sparse variational autoencoder learning the corresponding latent representation.
+\hspace{1em}• Introduce an oriented signed Flexible Dual Grid (FDG) representation that encodes geometry, truncated signed distances, and oriented surface normals in high-resolution sparse cells. A sparse variational autoencoder subsequently compresses this representation into a compact latent space.
 
-\hspace{1em}• Develop a two-stage conditional flow-matching framework comprising Structure and Feature stages to generate sparse occupancy and geometric features at active coordinates. Dual-level supervision in the latent space and on decoded surfaces preserves geometric details and surface continuity.
+\hspace{1em}• Develop a two-stage conditional flow-matching framework comprising Structure Flow and Feature Flow, which model sparse occupancy and local geometric features, respectively. Dual-level supervision in the latent space and on decoded surfaces preserves geometric details and surface continuity.
 
-\hspace{1em}• Design a three-level conditioning scheme that integrates the maxillary and mandibular dentitions, the 3D margin line, and the FDI tooth code at the global, voxel-aligned, and coordinate-neighborhood levels, thereby coordinating tooth-position semantics, margin geometry, and dentition-level spatial relationships.
+\hspace{1em}• Design a three-level conditioning scheme that integrates the maxillary and mandibular dentitions, the 3D margin line, and the FDI tooth designation at the global, voxel-aligned, and coordinate-neighborhood levels, thereby coordinating tooth-position semantics, margin geometry, and dentition-level spatial relationships.
 
-\hspace{1em}• Validate the method through geometric evaluations and source-blinded assessments by dental technicians. Compared with the baselines, it achieves better geometric reconstruction and dental spatial compatibility and receives higher ratings for overall design quality and laboratory usability.
+\hspace{1em}• Validate the method through geometric evaluations and source-blinded assessments by dental technicianson an in-house dataset. Compared with the baselines, it achieves better geometric reconstruction and dental spatial compatibility and receives higher ratings for overall design quality and laboratory usability.
 
 %% 2
 \section{Related work}\label{sec2}

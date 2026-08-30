@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 ROOT = Path(__file__).resolve().parent
 ASSET_DIR = ROOT / "assets" / "method_framework"
 FIG_WIDTH_IN = 180.0 / 25.4
-FIG_HEIGHT_IN = 54.0 / 25.4
+FIG_HEIGHT_IN = 60.0 / 25.4
 
 COLORS = {
     "ink": "#24313C",
@@ -44,6 +44,7 @@ mpl.rcParams.update(
         "font.size": 6.0,
         "text.color": COLORS["ink"],
         "svg.fonttype": "none",
+        "svg.hashsalt": "crown-generate-oriented-fdg",
         "pdf.fonttype": 42,
         "figure.facecolor": "white",
         "savefig.facecolor": "white",
@@ -115,8 +116,8 @@ def leader(ax, points, *, color, lw=0.55, style=(0, (2.0, 1.7)), zorder=7):
 
 
 def panel_heading(ax, x, label, title):
-    ax.text(x, 6.77, f"({label})", ha="left", va="center", fontsize=6.8, fontweight="bold")
-    ax.text(x + 0.55, 6.77, title, ha="left", va="center", fontsize=6.3, fontweight="semibold")
+    ax.text(x, 7.50, f"({label})", ha="left", va="center", fontsize=6.8, fontweight="bold")
+    ax.text(x + 0.55, 7.50, title, ha="left", va="center", fontsize=6.3, fontweight="semibold")
 
 
 def iso(origin, x, y, z, scale=0.84):
@@ -232,10 +233,10 @@ def draw_crown_support(ax):
     asset_loaded = place_png(
         ax,
         ASSET_DIR / "reference_cad.png",
-        0.70,
-        1.03,
-        5.65,
-        5.25,
+        0.62,
+        1.30,
+        5.95,
+        5.55,
         zorder=2,
     )
     if not asset_loaded:
@@ -245,11 +246,11 @@ def draw_crown_support(ax):
         ax.add_patch(
             Polygon(crown, closed=True, facecolor=COLORS["surface"], edgecolor=COLORS["surface_edge"], alpha=0.82, zorder=2)
         )
-    selection = (3.35, 4.06)
+    selection = (3.42, 4.42)
     ax.add_patch(
         Circle(
             selection,
-            0.66,
+            0.70,
             facecolor="none",
             edgecolor=COLORS["amber"],
             linewidth=1.12,
@@ -269,12 +270,29 @@ def draw_crown_support(ax):
                 zorder=6,
             )
         )
-    ax.text(3.35, 1.00, "active cells near the reference surface", ha="center", va="center", fontsize=4.8, color=COLORS["muted"])
-    leader(ax, [(4.02, 4.30), (6.75, 4.30), (8.15, 4.48)], color=COLORS["amber"], lw=0.82, style=(0, (2.2, 1.8)), zorder=6)
+    ax.text(
+        3.45,
+        0.83,
+        r"surface-neighborhood active set $\{c_j\}$",
+        ha="center",
+        va="center",
+        fontsize=4.9,
+        color=COLORS["muted"],
+    )
+    ax.text(
+        3.45,
+        0.46,
+        r"$R=1024,\quad \Delta=2h/R\approx0.0234\ \mathrm{mm}$",
+        ha="center",
+        va="center",
+        fontsize=4.55,
+        color=COLORS["blue_dark"],
+    )
+    leader(ax, [(4.12, 4.66), (6.62, 4.66), (7.95, 4.75)], color=COLORS["amber"], lw=0.82, style=(0, (2.2, 1.8)), zorder=6)
 
 
 def draw_local_fdg(ax):
-    panel_heading(ax, 7.92, "b", "Local oriented signed FDG")
+    panel_heading(ax, 7.70, "b", "Local oriented signed FDG")
     origin = (10.28, 1.74)
     # Light local background establishes a grid without suggesting dense storage.
     for cell in ((0, 0, 0), (1, 0, 0), (2, 0, 0), (3, 0, 0), (0, 1, 0), (1, 1, 0), (2, 1, 0), (3, 1, 0), (1, 2, 0), (2, 2, 0)):
@@ -286,6 +304,8 @@ def draw_local_fdg(ax):
 
     x_j = iso(origin, 2.5, 1.5, 0.5)
     p_j = (11.30, 4.08)
+    n_face_end = (11.53, 4.66)
+    n_interp_end = (12.02, 4.76)
     v_j = (11.57, 3.78)
     b_j = ((10.82, 3.30), (11.76, 3.55), (11.04, 4.06))
     ax.add_patch(Circle(x_j, 0.065, facecolor=COLORS["blue"], edgecolor=COLORS["white"], linewidth=0.30, zorder=9))
@@ -303,25 +323,63 @@ def draw_local_fdg(ax):
     for point in b_j:
         ax.add_patch(Circle(point, 0.047, facecolor=COLORS["white"], edgecolor=COLORS["amber_dark"], linewidth=0.55, zorder=10))
     ax.plot([x_j[0], p_j[0]], [x_j[1], p_j[1]], color=COLORS["blue"], linewidth=0.78, linestyle=(0, (2.0, 1.5)), zorder=9)
-    arrow(ax, p_j, (11.88, 4.73), color=COLORS["purple"], lw=0.95, scale=6.0, zorder=10)
+    arrow(ax, p_j, n_face_end, color=COLORS["muted"], lw=0.72, style=(0, (1.6, 1.3)), scale=5.2, zorder=9)
+    arrow(ax, p_j, n_interp_end, color=COLORS["purple"], lw=0.95, scale=6.0, zorder=10)
 
     ax.text(x_j[0] - 0.38, x_j[1] - 0.24, r"$x_j$", ha="center", va="center", fontsize=5.0, color=COLORS["blue_dark"], zorder=11)
     ax.text(p_j[0] - 0.48, p_j[1] + 0.20, r"$p_j$", ha="center", va="center", fontsize=5.0, color=COLORS["blue_dark"], zorder=11)
-    ax.text(10.60, 3.84, r"$d_j$", ha="center", va="center", fontsize=5.0, color=COLORS["blue_dark"], zorder=11)
-    ax.text(12.01, 4.83, r"$n_j$", ha="center", va="center", fontsize=5.0, color=COLORS["purple_dark"], zorder=11)
+    ax.text(10.92, 3.56, r"$d_j<0$", ha="center", va="center", fontsize=4.75, color=COLORS["blue_dark"], zorder=11)
+    ax.text(11.35, 4.82, r"$n_j^f$", ha="center", va="center", fontsize=4.65, color=COLORS["muted"], zorder=11)
+    ax.text(12.12, 4.86, r"$n_j$", ha="center", va="center", fontsize=5.0, color=COLORS["purple_dark"], zorder=11)
     ax.text(11.88, 3.70, r"$v_j$", ha="center", va="center", fontsize=5.0, color=COLORS["amber_dark"], zorder=11)
     ax.text(12.40, 3.42, r"$b_j$", ha="center", va="center", fontsize=5.0, color=COLORS["amber_dark"], zorder=11)
     leader(ax, [(12.22, 3.46), (11.96, 3.50), (11.76, 3.55)], color=COLORS["amber_dark"], lw=0.45, style="-", zorder=9)
-    ax.text(8.18, 1.07, "inactive cells", ha="left", va="center", fontsize=4.5, color=COLORS["muted"])
-    ax.add_patch(Rectangle((7.92, 0.91), 0.17, 0.17, facecolor=COLORS["inactive"], edgecolor=COLORS["grid"], linewidth=0.35, alpha=0.75, zorder=8))
-    ax.text(12.12, 1.07, "active surface cells", ha="left", va="center", fontsize=4.5, color=COLORS["amber_dark"])
-    ax.add_patch(Rectangle((11.88, 0.91), 0.17, 0.17, facecolor=COLORS["amber_fill"], edgecolor=COLORS["amber"], linewidth=0.40, alpha=0.85, zorder=8))
+    ax.text(9.70, 2.45, r"active cell $c_j$", ha="center", va="center", fontsize=4.55, color=COLORS["amber_dark"], zorder=11)
+    leader(ax, [(10.12, 2.52), (10.65, 2.67), (11.06, 2.73)], color=COLORS["amber_dark"], lw=0.42, style="-", zorder=9)
+
+    # The derivation callout separates the face-normal sign from the encoded normal.
+    callout_x, callout_y, callout_w, callout_h = 13.63, 2.02, 2.92, 4.02
+    ax.add_patch(
+        Rectangle(
+            (callout_x, callout_y),
+            callout_w,
+            callout_h,
+            facecolor="#FAFCFD",
+            edgecolor=COLORS["line"],
+            linewidth=0.55,
+            zorder=2,
+        )
+    )
+    ax.text(15.09, 5.72, r"At active cell $c_j$", ha="center", va="center", fontsize=5.05, fontweight="semibold", color=COLORS["ink"], zorder=8)
+    ax.text(15.09, 5.26, r"$\xi_j=c_j+0.5$", ha="center", va="center", fontsize=4.65, color=COLORS["blue_dark"], zorder=8)
+    ax.text(15.09, 4.86, r"$x_j=2h(\xi_j/R-0.5)$", ha="center", va="center", fontsize=4.45, color=COLORS["blue_dark"], zorder=8)
+    ax.plot([13.88, 16.30], [4.53, 4.53], color=COLORS["line"], linewidth=0.42, zorder=4)
+    ax.text(15.09, 4.26, r"nearest surface point $p_j$", ha="center", va="center", fontsize=4.25, color=COLORS["muted"], zorder=8)
+    ax.text(15.09, 3.81, r"$s_j=\mathrm{sign}[(x_j-p_j)^\top n_j^f]$", ha="center", va="center", fontsize=4.05, color=COLORS["ink"], zorder=8)
+    ax.text(15.09, 3.34, r"$d_j=\mathrm{clip}(s_j\|x_j-p_j\|_2/\Delta,-3,3)$", ha="center", va="center", fontsize=3.85, color=COLORS["blue_dark"], zorder=8)
+    ax.plot([13.88, 16.30], [3.00, 3.00], color=COLORS["line"], linewidth=0.42, zorder=4)
+    ax.text(15.09, 2.70, r"$n_j^f$: face normal (sign)", ha="center", va="center", fontsize=4.15, color=COLORS["muted"], zorder=8)
+    ax.text(15.09, 2.34, r"$n_j$: interpolated normal (encoded)", ha="center", va="center", fontsize=4.15, color=COLORS["purple_dark"], zorder=8)
+
+    ax.text(8.08, 0.77, "inactive (not stored)", ha="left", va="center", fontsize=4.45, color=COLORS["muted"])
+    ax.add_patch(Rectangle((7.82, 0.61), 0.17, 0.17, facecolor=COLORS["inactive"], edgecolor=COLORS["grid"], linewidth=0.35, alpha=0.75, zorder=8))
+    ax.text(11.56, 0.77, r"active (stores $g_j$)", ha="left", va="center", fontsize=4.45, color=COLORS["amber_dark"])
+    ax.add_patch(Rectangle((11.30, 0.61), 0.17, 0.17, facecolor=COLORS["amber_fill"], edgecolor=COLORS["amber"], linewidth=0.40, alpha=0.85, zorder=8))
+    ax.text(15.05, 0.77, "non-watertight CAD: local sign", ha="center", va="center", fontsize=4.10, color=COLORS["muted"])
 
 
 def draw_geometry_code(ax):
-    panel_heading(ax, 18.20, "c", "Per-cell geometry code")
-    ax.text(20.77, 5.65, r"shared active coordinate $c_j$", ha="center", va="center", fontsize=4.9, color=COLORS["muted"])
-    x, y, width, height = 18.40, 3.12, 3.25, 1.22
+    panel_heading(ax, 17.18, "c", "Geometry code and sparse latent")
+    ax.text(
+        19.05,
+        6.60,
+        r"FDG attributes at $c_j$: $3+3+1+3=10$ channels",
+        ha="center",
+        va="center",
+        fontsize=4.65,
+        color=COLORS["muted"],
+    )
+    x, y, width, height = 17.34, 4.78, 3.42, 1.30
     item_width = width / 4.0
     fields = (
         (r"$v_j$", COLORS["amber_fill"], COLORS["amber_dark"]),
@@ -342,50 +400,75 @@ def draw_geometry_code(ax):
                 zorder=5,
             )
         )
-        ax.text(cell_x + item_width / 2, y - 0.27, label, ha="center", va="center", fontsize=5.35, color=edge, zorder=8)
-    # Small field-specific icons keep the code legible without numerical channel counts.
+        ax.text(cell_x + item_width / 2, y + 0.28, label, ha="center", va="center", fontsize=5.15, color=edge, zorder=8)
+
+    # Field-specific icons distinguish offsets, crossing bits, distance, and orientation.
     ax.add_patch(
-        Polygon([(18.81, 3.87), (18.91, 3.77), (18.81, 3.67), (18.71, 3.77)], closed=True, facecolor=COLORS["amber"], edgecolor=COLORS["amber_dark"], linewidth=0.42, zorder=8)
+        Polygon(
+            [(17.77, 5.83), (17.88, 5.72), (17.77, 5.61), (17.66, 5.72)],
+            closed=True,
+            facecolor=COLORS["amber"],
+            edgecolor=COLORS["amber_dark"],
+            linewidth=0.42,
+            zorder=8,
+        )
     )
     for offset in (-0.13, 0.0, 0.13):
-        ax.add_patch(Circle((19.63 + offset, 3.77), 0.042, facecolor=COLORS["white"], edgecolor=COLORS["amber_dark"], linewidth=0.42, zorder=8))
-    ax.plot([20.20, 20.55], [3.58, 3.99], color=COLORS["blue"], linewidth=0.68, linestyle=(0, (2.0, 1.4)), zorder=8)
-    arrow(ax, (21.16, 3.58), (21.16, 4.03), color=COLORS["purple"], lw=0.78, scale=4.9, zorder=8)
-    ax.text(20.03, 2.47, r"$g_j=[v_j-0.5,\ b_j-0.5,\ d_j,\ n_j]$", ha="center", va="center", fontsize=4.95, fontweight="semibold", color=COLORS["ink"])
-    arrow(ax, (21.72, 3.72), (22.10, 3.72), color=COLORS["amber"], lw=0.92, scale=5.6, zorder=8)
-    ax.add_patch(
-        Rectangle((22.15, 3.05), 1.20, 1.34, facecolor="#F9FBFC", edgecolor=COLORS["blue"], linewidth=0.74, zorder=5)
-    )
+        ax.add_patch(Circle((18.62 + offset, 5.72), 0.042, facecolor=COLORS["white"], edgecolor=COLORS["amber_dark"], linewidth=0.42, zorder=8))
+    ax.plot([19.16, 19.50], [5.55, 5.90], color=COLORS["blue"], linewidth=0.68, linestyle=(0, (2.0, 1.4)), zorder=8)
+    arrow(ax, (20.34, 5.53), (20.34, 5.94), color=COLORS["purple"], lw=0.78, scale=4.9, zorder=8)
+
+    channel_centers = [x + (index + 0.5) * item_width for index in range(4)]
+    for center, channels in zip(channel_centers, ("3", "3", "1", "3")):
+        ax.text(center, 4.55, channels, ha="center", va="center", fontsize=4.1, color=COLORS["muted"], zorder=8)
+    ax.text(19.05, 4.13, r"$g_j=[v_j-0.5,\ b_j-0.5,\ d_j,\ n_j]\in\mathbb{R}^{10}$", ha="center", va="center", fontsize=4.0, fontweight="semibold", color=COLORS["ink"])
+    ax.text(19.05, 3.66, r"$v_j\in[0,1]^3,\quad b_j\in\{0,1\}^3$", ha="center", va="center", fontsize=4.05, color=COLORS["amber_dark"])
+    ax.text(19.05, 3.26, r"$d_j\in[-3,3],\quad n_j\in\mathbb{R}^3$", ha="center", va="center", fontsize=4.05, color=COLORS["blue_dark"])
+
+    arrow(ax, (20.84, 5.43), (21.22, 5.43), color=COLORS["amber"], lw=0.90, scale=5.4, zorder=8)
+    ax.add_patch(Rectangle((21.27, 4.74), 0.86, 1.42, facecolor="#F9FBFC", edgecolor=COLORS["blue"], linewidth=0.74, zorder=5))
+    ax.text(21.70, 5.45, "Sparse\nVAE", ha="center", va="center", fontsize=4.4, fontweight="semibold", color=COLORS["blue_dark"], linespacing=0.95, zorder=8)
+    arrow(ax, (22.18, 5.43), (22.55, 5.43), color=COLORS["blue"], lw=0.90, scale=5.4, zorder=8)
+
+    latent_x, latent_y = 22.60, 4.74
+    ax.add_patch(Rectangle((latent_x, latent_y), 1.02, 1.42, facecolor="#F9FBFC", edgecolor=COLORS["blue"], linewidth=0.74, zorder=5))
     for row in range(3):
         for col in range(3):
             ax.add_patch(
                 Rectangle(
-                    (22.36 + col * 0.21, 3.34 + row * 0.21),
-                    0.14,
-                    0.14,
+                    (22.77 + col * 0.20, 5.02 + row * 0.20),
+                    0.13,
+                    0.13,
                     facecolor=COLORS["blue"] if (row, col) in ((0, 1), (1, 1), (1, 2), (2, 0)) else COLORS["white"],
                     edgecolor="#91B7CF",
                     linewidth=0.24,
                     zorder=7,
                 )
             )
-    ax.text(22.75, 4.73, "Sparse geometry VAE", ha="center", va="center", fontsize=4.9, fontweight="semibold", color=COLORS["blue_dark"])
-    ax.text(20.77, 1.08, "FDG geometry + oriented surface cues", ha="center", va="center", fontsize=4.75, color=COLORS["muted"])
+    ax.text(23.11, 6.57, r"$Z=(O,F)$", ha="center", va="center", fontsize=4.9, fontweight="semibold", color=COLORS["blue_dark"], zorder=8)
+    ax.text(22.45, 3.78, r"$O\subset\{0,\ldots,63\}^3$", ha="center", va="center", fontsize=4.1, color=COLORS["blue_dark"], zorder=8)
+    ax.text(22.45, 3.37, r"$F\in\mathbb{R}^{|O|\times32}$", ha="center", va="center", fontsize=4.1, color=COLORS["blue_dark"], zorder=8)
+
+    ax.plot([17.45, 23.60], [2.72, 2.72], color=COLORS["line"], linewidth=0.45, zorder=2)
+    ax.text(18.78, 2.34, r"surface-sparse FDG on $1024^3$", ha="center", va="center", fontsize=4.35, color=COLORS["amber_dark"])
+    arrow(ax, (20.30, 2.34), (21.05, 2.34), color=COLORS["muted"], lw=0.62, scale=4.8, zorder=8)
+    ax.text(22.37, 2.34, r"compact support on $64^3$", ha="center", va="center", fontsize=4.35, color=COLORS["blue_dark"])
+    ax.text(20.55, 1.66, "geometry, local sign, and orientation are compressed jointly", ha="center", va="center", fontsize=4.25, color=COLORS["muted"])
 
 
 def build_figure():
     fig, ax = plt.subplots(figsize=(FIG_WIDTH_IN, FIG_HEIGHT_IN))
     ax.set_xlim(0.0, 24.0)
-    ax.set_ylim(0.0, 7.2)
+    ax.set_ylim(0.0, 8.0)
     ax.set_aspect("equal")
     ax.axis("off")
     # Deliberately light structure: the visual hierarchy is the left-to-right zoom.
-    ax.plot([7.45, 7.45], [0.55, 6.42], color=COLORS["line"], linewidth=0.72, zorder=0)
-    ax.plot([17.72, 17.72], [0.55, 6.42], color=COLORS["line"], linewidth=0.72, zorder=0)
+    ax.plot([7.25, 7.25], [0.52, 7.10], color=COLORS["line"], linewidth=0.72, zorder=0)
+    ax.plot([16.85, 16.85], [0.52, 7.10], color=COLORS["line"], linewidth=0.72, zorder=0)
     draw_crown_support(ax)
     draw_local_fdg(ax)
     draw_geometry_code(ax)
-    arrow(ax, (17.45, 3.80), (18.08, 3.80), color=COLORS["amber"], lw=1.0, scale=6.0, zorder=9)
+    arrow(ax, (16.58, 5.43), (17.12, 5.43), color=COLORS["amber"], lw=1.0, scale=6.0, zorder=9)
     fig.subplots_adjust(left=0, right=1, bottom=0, top=1)
     exports = {"png": {"dpi": 600}, "pdf": {}, "svg": {}}
     for extension, kwargs in exports.items():
@@ -393,9 +476,12 @@ def build_figure():
             ROOT / f"oriented_signed_fdg_detail.{extension}",
             facecolor=COLORS["white"],
             edgecolor="none",
-            metadata={"Title": "Oriented signed flexible dual-grid representation"},
+            metadata={"Title": "Oriented signed flexible dual-grid representation", "Date": None},
             **kwargs,
         )
+    svg_path = ROOT / "oriented_signed_fdg_detail.svg"
+    svg_text = svg_path.read_text(encoding="utf-8")
+    svg_path.write_text("\n".join(line.rstrip() for line in svg_text.splitlines()) + "\n", encoding="utf-8")
     plt.close(fig)
 
 

@@ -292,76 +292,11 @@ Personalized crown design \sep Crown generation\sep Conditional flow matching \s
 \hspace{2em}The proposed design preserves high-resolution crown geometry and surface orientation through a sparse representation, integrates tooth-position, interarch, and margin constraints via multiscale conditioning, and models global structure and local anatomy through two-stage generation. The following subsections detail each module.
 
 %% 3.2
-\subsection{Position-Aware Module}\label{subsec3_2}
+\subsection{Data Preprocessing and Local Coordinates}\label{subsec3_2}
 
-\hspace{2em}Due to the varying sparsity of the input mesh, we apply classical Farthest Point Sampling (FPS)~\cite{eldar1997farthest} only in the position-aware G branch, where uniform spatial coverage improves learning of inter-tooth spatial relationships and reduces computational cost. Anatomically critical boundary vertices are preserved by the boundary-aware L branch, which processes full-resolution HKS features without downsampling. The encoder is inspired by the Dynamic Graph CNN (DGCNN) \cite{wang2019dynamic}, using EdgeConv to dynamically construct neighborhood graphs that capture local neighborhoods for robust global feature extraction. The feature extraction process in EdgeConv can be mathematically expressed as:
+\hspace{2em}This stage corresponds to input alignment and sampling in the left portion of Fig.~\ref{fig:figure_overall_architecture}(a). To remove inter-case variation in position and orientation, we construct a local orthonormal coordinate system from the margin line and dental arches. The origin \(o_i\) is defined as the mean of the margin points. The SVD direction associated with the smallest singular value of the centered margin points defines the candidate \(z\) axis; after identifying the target and opposing arches from the FDI tooth identifier, its sign is selected to point toward the mean of the nearest opposing-arch vertices. The \(y\) axis is obtained by normalizing the projection of the vector from the target-arch coordinate-wise median to \(o_i\) onto the plane orthogonal to \(z\); if this projection is degenerate, the first principal direction of the margin SVD is used. We then set \(x=y\times z\) and reorthogonalize \(y=z\times x\) to form the right-handed matrix \(A_i\), which maps world coordinates to local coordinates as \(T_i(p)=(p-o_i)A_i\). This transformation uses only the maxillary and mandibular scans, margin line, and FDI tooth identifier, without accessing the reference CAD; therefore, it introduces no target-geometry leakage during preprocessing.
 
-\begin{equation}
-f_k = \max_{j \in \mathcal{N}(i)} \left( \theta \left( \|x_i - x_j\| \right) \right)
-\end{equation}
-
-where \(\mathcal{N}(i)\) denotes the dynamically constructed neighborhood of point \(i\), and \(\theta\) is a multi-layer perceptron (MLP) that transforms the edge features. Here, \(x_i\) and \(x_j\) represent the feature vectors of the central point and its neighbor, respectively. The operation \(\|x_i - x_j\|\) captures the relative positional relationship between points, enabling the network to learn both local geometric structures and spatial dependencies.
-
-\hspace{2em}Among architectures for global feature extraction, we systematically evaluated EdgeConv against attention-only mechanisms and traditional graph convolution networks. We selected EdgeConv for the following reasons: (1) Dynamic adaptability: EdgeConv dynamically computes $k$-nearest neighbors in the feature space, adapting to varying densities and geometric configurations inherent. (2) Computational efficiency: Compared to self-attention mechanisms with $\mathcal{O}(N^2)$ complexity, EdgeConv maintains $\mathcal{O}(NK)$ complexity where $K$ is the number of neighbors, making it suitable for high-resolution dental scans. 
-
-\hspace{2em}To aggregate local features and learn global shape features, we stack multiple EdgeConv layers. This feature aggregation process can be formulated using a hierarchical graph pooling mechanism:
-
-\begin{equation}
-G^{(l)} = \bigcup_{k=1}^{K^{(l)}} f_k^{(l)}
-\end{equation}
-
-where \(G^{(l)}\) represents the global features at the \(l\)-th layer, and \(K^{(l)}\) is the number of features at that layer. 
-
-\begin{figure}[t]
-    \centering
-    \subfigure[Feature x1]{\includegraphics[width=0.27\linewidth]{DGCNN-EdgeConv_1.png}}
-    \subfigure[Feature x2]{\includegraphics[width=0.27\linewidth]{DGCNN-EdgeConv_2.png}}
-    \subfigure[Feature x3]{\includegraphics[width=0.27\linewidth]{DGCNN-EdgeConv_3.png}}
-     \raisebox{-0.12\height}{\subfigure{\includegraphics[width=0.05\linewidth,height=0.28\linewidth]{DGCNN-EdgeConv_4.png}}}
-    \raisebox{0.05\height}{\rotatebox{90}{\parbox{2.0cm}{\centering\fontsize{8pt}{8pt}\selectfont Feature activate}}}
-    \caption{Feature activation maps of cascaded EdgeConv layers. The visualization shows the progression from x1 to x3, representing features at different network depths. The color intensity indicates feature strength, with brighter regions corresponding to stronger activations as the network transitions from local to global feature representations.}\label{fig:figure_DGCNN_features}
-\end{figure} 
-
-\hspace{2em}As shown in Fig. \ref{fig:figure_DGCNN_features}, we utilized Grad-CAM-based \cite{selvaraju2020grad} visualization to display the feature activation maps of cascading EdgeConv layers (x1, x2, and x3). By calculating the standard deviation of each point's features relative to its neighbors, we created a global feature quantification metric. A smaller standard deviation indicates more globalized features. The global feature indicator distribution, highlighted by brighter areas in the visualization, demonstrates the network's shift in focus from local to global features. Guided by this information, we found that reducing the number of EdgeConv layers still allows for effective global information extraction. To enhance feature extraction efficiency, our approach simplified the DGCNN structure by using only three cascaded EdgeConv layers.
-
-\hspace{2em}Subsequently, a cascade of MLP layers progressively reduces dimensionality to extract high-level global features. This dimensionality reduction can be formulated as a nonlinear transformation:
-
-\begin{equation}
-F = \text{MLP}(G) = \sigma \left( W \cdot \text{BN}(G) + b \right)
-\end{equation}
-
-where \(W\) and \(b\) are learnable parameters, \(\text{BN}(\cdot)\) denotes batch normalization, and \(\sigma\) is the activation function.
-
-\begin{figure}[H]
-    \centering
-    \subfigure[UpperJaw]{\includegraphics[width=0.4\linewidth]{merged_heatmaps_1.png}}
-    \subfigure[LowerJaw]{\includegraphics[width=0.4\linewidth]{merged_heatmaps_2.png}}
-    \caption{Visualization of the tooth position heatmap using Gaussian distribution. The brighter areas represent higher probability of tooth centroids, showing how the model learns to identify individual teeth positions.}\label{fig:figure_heatmap}
-\end{figure}
-
-\hspace{2em}By combining multi-scale information, the model can more effectively learn global shape characteristics. The architecture connects Adaptive-Max-Pooling and Fully Connected (FC) modules to enable direct output of a tooth location heatmap \cite{li2024spatial}, based on a gaussian distribution as shown in Fig. \ref{fig:figure_heatmap}. This innovative approach allows the model to efficiently capture the global information of tooth positions, significantly enhancing the accuracy and robustness of 3D tooth segmentation.
-
-
-% 热力图算法伪代码
-%  \begin{algorithmic}[1]
-%     \Function{GenerateToothHeatmap}{$M, C, \sigma$}
-%         \State \textbf{Input:} Mesh $M$, tooth centroids $C = \{c_1, c_2, ..., c_n\}$, Gaussian width $\sigma$
-%         \State \textbf{Output:} Heatmap $H$ for each vertex in $M$
-%         \State Initialize heatmap $H$ with zeros for all vertices in $M$
-%         \For{each vertex $v$ in $M$}
-%             \For{each centroid $c_i$ in $C$}
-%                 \State $d \gets \text{distance}(v, c_i)$
-%                 \State $H[v] \gets H[v] + \exp(-d^2/(2\sigma^2))$
-%             \EndFor
-%             \State Normalize $H[v]$ to range $[0, 1]$
-%         \EndFor
-%         \State \Return $H$
-%     \EndFunction
-% \end{algorithmic}
-
-
-\hspace{2em}Positional information plays a crucial role in coordinate-dependent computer vision tasks by enabling neural networks to learn spatial relationships and structural constraints. In our task, positional data facilitates the accurate identification of tooth numbers among adjacent teeth and enables precise delineation of boundaries between individual teeth \cite{krenmayr2024dilatedtoothsegnet}.
-
+\hspace{2em}After rigid alignment, the reference CAD mesh is discretized within a fixed physical domain with half-side length \(h=12\,\mathrm{mm}\). Vertices from the maxillary and mandibular meshes are used as candidates, prioritizing those near the margin centroid; if the local candidate set is insufficient, all vertices of the corresponding arch are used as a fallback. For each arch, 4,096 points with normals are randomly sampled, and the margin line is resampled to 1,024 points. The dental-arch and margin coordinates are normalized before encoder input, whereas normals are rotated, normalized, and set to zero when degenerate. Sampling randomness is determined by a fixed seed and the case-ID hash.
 %% 3.3
 \subsection{Boundary-Aware Module}\label{subsec3_3}
 

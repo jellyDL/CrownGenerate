@@ -318,7 +318,7 @@ d_j&=\operatorname{clip}\!\left(
 g_j&=[v_j-0.5,\ b_j-0.5,\ d_j,\ n_j]\in\mathbb R^{10}.
 \end{aligned}
 \]
-This representation jointly encodes local geometry, distance, and orientation within the sparse surface neighborhood. For watertight, consistently oriented meshes, the sign of \(d_j\) denotes global inside--outside status; for non-watertight meshes, it indicates only the local direction defined by the nearest surface normal. Fig.~2 illustrates the latent encoding of sparse active cells and their oriented signed attributes.
+This representation jointly encodes local geometry, distance, and orientation within the sparse surface neighborhood. For watertight, consistently oriented meshes, the sign of \(d_j\) denotes global inside--outside status; for non-watertight meshes, it indicates only the local direction defined by the nearest surface normal. Fig.~\ref{fig:figure_oriented_signed_fdg_detail} illustrates the latent encoding of sparse active cells and their oriented signed attributes.
 
 %% 3.3.2
 \subsubsection{Sparse Geometric VAE}\label{subsubsec3_3_2}
@@ -329,9 +329,16 @@ This representation jointly encodes local geometry, distance, and orientation wi
     \centering % 图片居中
     \includegraphics[width=1.0\textwidth]{./figures/oriented_signed_fdg_detail.png}
     \caption{\textbf{Sparse representation and latent encoding of the oriented signed FDG.} (a) The reference CAD activates only crown surface-neighborhood cells on an \(R=1024\) grid, with nominal spacing \(\Delta=2h/R\). (b) For each active coordinate \(c_j\), FDG records the vertex offset \(v_j\) and axis-aligned intersection flags \(b_j\). The cell center \(x_j\) queries the nearest surface point \(p_j\); the nearest-face normal \(n_j^f\) determines the local sign of the truncated signed distance \(d_j\), while the interpolated normal \(n_j\) provides oriented surface information. (c) The four attributes form \(g_j\in\mathbb{R}^{10}\) with \(3+3+1+3\) channels and are compressed by the sparse geometric VAE into 32-dimensional local features \(F\) defined on the \(64^3\) support \(O\). Inactive cells store no geometry; for non-watertight reference meshes, the sign of \(d_j\) denotes only the local orientation defined by the nearest-surface normal.}
-    \label{fig:figure_ooriented_signed_fdg_detail} 
+    \label{fig:figure_oriented_signed_fdg_detail} 
 \end{figure*}
 
+
+\begin{figure*}[t]  % [t] 表示尽量放在页面顶部
+    \centering % 图片居中
+    \includegraphics[width=1.0\textwidth]{./figures/feature_condition_detail.png}
+    \caption{\textbf{Coordinate-level multiscale conditioning in Feature Flow.} (a) After case alignment, each coordinate \(q\) in the predicted active support \(\hat{O}\) serves as a query location; the maxillary and mandibular dentitions, three-dimensional margin line, and FDI tooth designation jointly define its case-specific context. (b) The global and voxel-aligned conditions, \(C^g\) and \(C^v\), form the cross-attention tokens. \(C^g\) and the voxel-aligned readout \(C^v(q)\) at \(q\) are injected residually into the feature token. Neighborhoods of the maxillary and mandibular dentitions and margin line form the local dental descriptor \(C^n(q)\), whereas multiscale axial neighborhoods within the predicted support define \(A(q;\hat{O})\). These signals are fused by the sparse Feature DiT to predict the local geometric feature \(\hat{F}_q\). Purple dash-dotted lines denote dental-conditioning paths, and solid blue lines denote active-support and feature paths.}
+    \label{fig:figure_feature_condition_detail} 
+\end{figure*}
 
 %% 3.4
 \subsection{Attention-guided Fusion Module}\label{subsec3_4}

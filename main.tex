@@ -306,22 +306,19 @@ Personalized crown design \sep Crown generation\sep Conditional flow matching \s
 %% 3.3.1
 \subsubsection{Oriented Signed FDG}\label{subsubsec3_3_1}
 
-\hspace{2em}The Flexible Dual Grid (FDG) stores geometry only in active cells within a surface neighborhood, thereby avoiding the construction of a high-resolution dense voxel grid~[9]. Let \(c_j\in\{0,\ldots,R-1\}^3\) denote the coordinate of an active cell at resolution \(R=1024\), and let \(\xi_j=c_j+0.5\) denote its voxel center, with local physical coordinate \(x_j=2h(\xi_j/R-0.5)\). At \(c_j\), standard FDG records the within-cell offset of the dual-grid vertex, \(v_j\in[0,1]^3\), and three axis-aligned intersection flags, \(b_j\in\{0,1\}^3\). Within the \(24\,\mathrm{mm}\) local domain, the nominal grid spacing is \(\Delta=2h/R\approx0.0234\,\mathrm{mm}\). This value specifies only the discretization resolution and should not be interpreted as the accuracy of the scan or clinical measurement.
+\hspace{2em}The Flexible Dual Grid (FDG) stores geometric information only in active cells within the crown surface neighborhood, thereby avoiding construction of a dense high-resolution voxel grid [9]. For a grid of resolution \(R\), let \(c_j\in\{0,\ldots,R-1\}^3\) denote an active cell coordinate and \(\xi_j=c_j+0.5\) its center. The corresponding local physical coordinate is \(x_j=2h(\xi_j/R-0.5)\). Standard FDG encodes the within-cell offset of the dual-grid vertex, \(v_j\in[0,1]^3\), and three axial intersection indicators, \(b_j\in\{0,1\}^3\). Its nominal spacing, \(\Delta=2h/R\), specifies the discretization resolution rather than scan or clinical measurement accuracy.
 
-\hspace{2em}Standard FDG encodes local geometry and connectivity but does not explicitly distinguish the two sides of a surface or its orientation. We therefore augment the representation with a truncated signed distance and an oriented normal. Before computing these attributes, inconsistent face winding in the reference mesh is repaired, and any watertight mesh with negative signed volume is globally reversed. Degenerate triangles are removed before nearest-surface queries. Let \(p_j\) be the closest point to \(x_j\) on the reference surface, \(n_j^f\) the unit normal of the closest triangle, and \(n_j\) the barycentrically interpolated and normalized vertex normal at \(p_j\), which is set to zero if degenerate. The oriented truncated distance and per-cell feature vector are defined as
+\hspace{2em}Standard FDG represents local geometry and connectivity but does not explicitly encode the two sides of a surface or its orientation. We therefore augment it with a truncated signed distance and an oriented normal. Before nearest-surface queries, we repair inconsistent mesh winding, reverse watertight meshes with negative signed volume, and remove degenerate triangles. Let \(p_j\) be the closest point on the reference surface to \(x_j\), \(n_j^f\) the unit normal of the closest triangle, and \(n_j\) the barycentrically interpolated and normalized vertex normal at \(p_j\), set to zero in degenerate cases. The oriented truncated signed distance and normal feature are defined as
 \[
-d_j=\operatorname{clip}\!\left(
+\begin{aligned}
+d_j&=\operatorname{clip}\!\left(
 \operatorname{sign}\!\left[(x_j-p_j)^\top n_j^f\right]
 \frac{\|x_j-p_j\|_2}{\Delta},-\tau,\tau
-\right),\quad \tau=3,
+\right),\quad \tau=3,\\
+g_j&=[v_j-0.5,\ b_j-0.5,\ d_j,\ n_j]\in\mathbb R^{10}.
+\end{aligned}
 \]
-\[
-g_j=[v_j-0.5,\ b_j-0.5,\ d_j,\ n_j]\in\mathbb{R}^{10}.
-\]
-
-\hspace{2em}The feature vector \(g_j\) captures the local geometry, connectivity, and orientation information of each active cell in the FDG.
-
-\hspace{2em}This representation retains surface-neighborhood sparsity while incorporating local distance variation and surface orientation. For watertight, consistently oriented meshes, the sign of \(d_j\) encodes the global inside--outside relation; for non-watertight meshes, it denotes only the local direction determined by the nearest-surface normal.
+This representation jointly encodes local geometry, distance, and orientation within the sparse surface neighborhood. For watertight, consistently oriented meshes, the sign of \(d_j\) denotes global inside--outside status; for non-watertight meshes, it indicates only the local direction defined by the nearest surface normal. Fig.~2 illustrates the latent encoding of sparse active cells and their oriented signed attributes.
 
 %% 3.3.2
 \subsubsection{Sparse Geometric VAE}\label{subsubsec3_3_2}

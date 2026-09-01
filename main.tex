@@ -379,18 +379,11 @@ Specifically, the active coordinates of the VAE latent representation are first 
 \subsubsection{Feature Flow}\label{subsec3_5_2}
 \label{subsubsec:feature_flow}
 
-\hspace{2em}Given an active support $S$, Feature Flow models the normalized local geometric latent variable $x_0^F(q)$ at each coordinate $q \in S$. 
-The multi-scale dental conditions defined in Section~3.4 and the structural context derived from the active support jointly form three complementary injection pathways, as shown in Fig.~3(b). 
-In the cross-attention pathway, $C_F^g$ and the flattened $C_{F,16}^v$ serve as global and coarse-scale condition tokens that can be directly accessed by Feature DiT. 
-In the residual injection pathway, $C_F^g$ and the voxel-aligned condition $C_{F,64}^v(q)$ at the query position are injected into the feature token in a residual manner. 
-In the local modulation pathway, $C_F^n(q)$ and $A(q;S)$ jointly modulate the feature token. 
+\hspace{2em}Given an active support $S$, Feature Flow models the normalized local geometric latent variable $x_0^F(q)$ at each coordinate $q \in S$. The multi-scale dental conditions defined in Section~3.4 and the structural context derived from the active support jointly form three complementary injection pathways, as shown in Fig.~3(b). 
+In the cross-attention pathway, $C_F^g$ and the flattened $C_{F,16}^v$ serve as global and coarse-scale condition tokens that can be directly accessed by Feature DiT. In the residual injection pathway, $C_F^g$ and the voxel-aligned condition $C_{F,64}^v(q)$ at the query position are injected into the feature token in a residual manner. In the local modulation pathway, $C_F^n(q)$ and $A(q;S)$ jointly modulate the feature token. 
 The structural context $A(q;S)$ is encoded from 18 axial active neighbors with dilation rates of 1, 2, and 4, and is not considered a dental condition.
 
-\hspace{2em}The feature token updated by residual injection and local modulation is fed into the sparse Feature DiT together with the noisy state $x_t^F(q)$, while accessing the global and coarse-scale conditions through cross-attention. 
-The network performs feature interactions within the support $S$ and predicts the local conditional velocity
-$v_\theta^F\bigl(x_t^F(q),t,\mathcal{C}^F(S)\bigr)$. 
-After ODE integration, the local geometric latent feature $\hat{F}_q$ is obtained. 
-During formal inference, $\hat{F}=\{\hat{F}_q \mid q \in \hat{O}\}$ and the predicted support jointly form $\hat{Z}=(\hat{O},\hat{F})$, which is then decoded by the frozen VAE.
+\hspace{2em}The feature token updated by residual injection and local modulation is fed into the sparse Feature DiT together with the noisy state $x_t^F(q)$, while accessing the global and coarse-scale conditions through cross-attention. The network performs feature interactions within the support $S$ and predicts the local conditional velocity $v_\theta^F\bigl(x_t^F(q),t,\mathcal{C}^F(S)\bigr)$. After ODE integration, the local geometric latent feature $\hat{F}_q$ is obtained. During formal inference, $\hat{F}=\{\hat{F}_q \mid q \in \hat{O}\}$ and the predicted support jointly form $\hat{Z}=(\hat{O},\hat{F})$, which is then decoded by the frozen VAE.
 
 %% 4
 \section{Experimental and Discussions}\label{sec4}

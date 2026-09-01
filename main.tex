@@ -433,6 +433,26 @@ Here, \(\mathcal L_{\mathrm{FM}}^{w}\) uses normalized temporal weighting, where
 
 \hspace{2em}Near the data endpoint, a frozen VAE computes \(\mathcal L_{\mathrm{surf}}\) without subdivision teacher forcing to enforce geometric, sign, orientation, and neighborhood consistency over overlapping FDG supports. \(\mathcal L_{\mathrm{end}}\) constrains the endpoint latent error along a short conditional Euler trajectory. Detailed loss weights and training hyperparameters are provided in Table~\ref{tab:loss_weights}.
 
+%% 3.7 
+\subsection{Continuous Oriented Field Reconstruction and Mesh Extraction} \label{subsec3_7}
+
+\hspace{2em}As shown in Fig.~\ref{fig:framework}(c), the predicted latent representation \(\hat Z=(\hat O,\hat F)\) is decoded by the frozen VAE, reconstructed as a continuous oriented field, and converted into the final candidate mesh.
+
+\hspace{2em}At inference, one candidate is generated per case. Structure Flow and Feature Flow are integrated backward from Gaussian noise to the data endpoint under conditional guidance: Structure Flow predicts and gates the active support, whereas Feature Flow generates local geometric latent features that are decoded into sparse FDG geometry, distances, and normals. Sampling and support settings are provided in Table~\ref{tab:inference_settings}.
+
+\hspace{2em}Only active cells contributing to the largest connected component of the raw FDG mesh are retained. Let \(d_j\) and \(n_j\) denote the decoded distance and normalized normal at cell center \(\xi_j\). For a query point \(y\), a neighborhood \(\mathcal N_K(y)\) is retrieved to construct a weighted local first-order distance field:
+\[
+\begin{aligned}
+\tilde d_j(y) &= d_j + (y-\xi_j)^\top n_j,\qquad
+w_j(y) = \exp\!\left(-\frac{\|y-\xi_j\|_2^2}{2\beta^2}\right),\\
+\bar d(y) &=
+\frac{\sum_{j\in\mathcal N_K(y)}w_j(y)\tilde d_j(y)}
+{\sum_{j\in\mathcal N_K(y)}w_j(y)}.
+\end{aligned}
+\]
+
+\hspace{2em}The field combines local distance and orientation information to mitigate surface discontinuities. After smoothing, connected-component filtering, and boundary cleanup, Marching Cubes extracts the zero level set~\cite{ref22}, followed by mesh cleanup and quality gating.
+
 %% 4
 \section{Experimental and Discussions}\label{sec4}
 

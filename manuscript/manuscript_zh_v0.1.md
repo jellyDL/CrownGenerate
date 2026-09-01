@@ -112,27 +112,9 @@ g_j&=[v_j-0.5,\ b_j-0.5,\ d_j,\ n_j]\in\mathbb R^{10}.
 
 上述输出分别提供病例级、体素级和坐标级牙科信息，具体的阶段分配与坐标级注入见第3.5节。
 
-
-
 ### 3.5 两阶段条件流匹配
 
-令 \(Z=(O,F)\) 表示稀疏VAE潜变量，其中 \(O\) 为活动支持，\(F\) 为定义在该支持上的局部几何特征。如图3所示，生成过程按由粗到细的顺序分为两个阶段：Structure Flow首先预测活动支持 \(\hat O\)，Feature Flow随后在支持 \(S\) 上生成局部几何潜特征。Feature Flow训练与单阶段潜变量验证时采用真实支持 \(S=O\)；端到端生成可视化、网格评价与正式推理时采用预测支持 \(S=\hat O\)。两个阶段使用相同的条件流匹配概率路径，但潜变量空间、条件集合和速度网络相互独立。
-
-
-两个阶段均采用文献[7]的条件流匹配路径。对数据潜变量 \(x_0\)、高斯噪声 \(\epsilon\sim\mathcal N(0,I)\) 和 \(t\in[0,1]\)，令 \(v_\theta\) 表示参数化条件速度场，则概率路径、目标速度、流匹配损失及数据端估计统一写为
-
-\[
-\begin{aligned}
-x_t&=(1-t)x_0+[\sigma_{\min}+(1-\sigma_{\min})t]\epsilon,\\
-u_t&=(1-\sigma_{\min})\epsilon-x_0,\\
-\mathcal L_{\mathrm{FM}}&=\mathbb E\!\left[\| v_\theta(x_t,t,C^\star)-u_t\|_2^2\right],\\
-\hat x_0&=(1-\sigma_{\min})x_t-[\sigma_{\min}+(1-\sigma_{\min})t]v_\theta(x_t,t,C^\star),
-\end{aligned}
-\]
-
-其中 \(\sigma_{\min}=10^{-5}\)，\(t=0\) 和 \(t=1\) 分别对应近数据端和噪声端；当 \(\sigma_{\min}\to0\) 时，前者退化为严格数据端。Structure Flow取 \(x_0=x_0^S\) 和 \(C^\star=C^S=(C_S^g,C_{S,16}^v)\)。Feature Flow取 \(x_0=\{x_0^F(q)\mid q\in S\}\) 和 \(C^\star=\mathcal C^F(S)=\{(C^F(q),A(q;S))\mid q\in S\}\)，其中 \(C^F(q)=(C_F^g,C_{F,16}^v,C_{F,64}^v(q),C_F^n(q))\) 为牙科条件，\(A(q;S)\) 为由活动支持导出的结构上下文。
-
-训练各阶段时，以0.1的病例级概率丢弃该阶段的全部牙科条件，以学习无分类器引导（classifier-free guidance, CFG）的无条件分支[25]。Structure Flow的无条件分支移除 \(C^S\)；Feature Flow的无条件分支移除 \(C^F(q)\)，但保留相同的支持 \(S\) 及结构上下文 \(A(q;S)\)。
+生成过程遵循由粗到细的两阶段条件流匹配框架。Structure Flow 首先从噪声中预测冠体的活动支持 \(\hat O\)，以全局条件 \(C_S^g\) 和下采样体素条件 \(C_{S,16}^v\) 为引导；Feature Flow 随后在该支持的每个坐标上生成局部几何潜特征，使用病例级、体素对齐和坐标邻域等更完整的牙科条件，并辅以活动支持导出的结构上下文。两个阶段共享同一流匹配概率路径，但潜变量空间、条件集合和速度网络相互独立。训练时以 0.1 的病例级概率丢弃全部牙科，以下将进行具体介绍。
 
 #### 3.5.1 Structure Flow
 

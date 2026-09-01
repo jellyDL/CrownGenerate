@@ -341,94 +341,26 @@ This representation jointly encodes local geometry, distance, and orientation wi
 \end{figure*}
 
 %% 3.4
-\subsection{Attention-guided Fusion Module}\label{subsec3_4}
+\subsection{Multiscale Dental Conditions}\label{subsec3_4}
 
-\hspace{2em}AFM serves as the critical integration component, dynamically integrating global and local features to address complex dental segmentation challenges. Fig. \ref{fig:fusion_module_architecture} illustrates its detailed architecture. Features from both branches are processed through a transformer-based mechanism, enabling adaptive feature weighting based on geometric contexts to handle diverse morphological variations in dental structures.
-
-\begin{figure*}[t]
-    \centering
-    \includegraphics[width=0.7\textwidth, keepaspectratio]{aff_frame.pdf}
-    \caption{Architecture of the proposed Attention-guided Fusion Module. The module takes local features, global features, and vertex positions as input, and outputs fused features that effectively combine local geometric details with global contextual information through dynamic attention mechanisms.}\label{fig:fusion_module_architecture}
-\end{figure*}
-
-\hspace{2em}The module takes three inputs: global features from the G Branch for overall shape understanding, local features from the L Branch for vertex-level geometric details, and 3D coordinates for geometry-aware position encoding. The AFM consists of three core components: Geometry-aware Position Encoding, Additive Feature Fusion, and Dynamic Multi-Head Attention, each described in detail below.
+\hspace{2em}This section defines the multiscale dental conditions required by the two-stage generation; their allocation to and fusion within the two Flows are detailed in Sec.~\ref{subsec3_5}. After the alignment and sampling described in Sec.~\ref{subsec3_2}, the maxillary, mandibular, and margin point sets are fed into two conditional encoders with independent parameters corresponding to the Structure and Feature stages. In the following, $d\in\{S,F\}$ indexes the stage: the maxillary and mandibular points take both position and normal as input, whereas the margin points use positions only. Each of the three sources is first encoded by a source-specific point-wise multilayer perceptron (MLP), augmented with learnable source embeddings.
 
 \bigskip
 
-\textbf{Geometry-aware Position Encoding.} Standard Transformer architectures~\cite{hassija2025transformers} rely on self-attention mechanisms but inherently lack spatial awareness. Conventional position encoding methods, including sinusoidal functions and learned embeddings, are designed for sequential or grid-structured data and fail to capture the complex 3D spatial relationships essential for dental mesh analysis. To address this limitation, we propose a geometry-aware position encoding mechanism that directly leverages 3D vertex coordinates:
-
-\begin{equation} \mathbf{P} = \mathbf{V} \mathbf{W}_{pos} + \mathbf{b}_{pos} \end{equation}
-
-where $\mathbf{V} \in \mathbb{R}^{N \times 3}$ represents vertex coordinates, $\mathbf{W}_{pos} \in \mathbb{R}^{3 \times {d}_{G}}$ and $\mathbf{b}_{pos} \in \mathbb{R}^{{d}_{G}}$ are learnable position encoding parameters, $d_G$ is the global feature dimension. This formulation enables the model to learn geometric embeddings suited for complex dental surface representation.
-
-
-% 伪代码
-\begin{algorithm}[t]
-    \SetAlgoLined
-    \SetKwInOut{KwInput}{Input}
-    \SetKwInOut{KwOutput}{Output}
-    \SetKwInOut{KwParams}{Parameters}
-    
-    \caption{Attention-guided Fusion Module (AFM)}
-    \label{alg:afm}
-    \KwInput{$\mathbf{F}_L \in \mathbb{R}^{N \times d_L}$ (local feature), 
-             $\mathbf{F}_G \in \mathbb{R}^{N \times d_G}$ (global feature), 
-             $\mathbf{V} \in \mathbb{R}^{N \times 3}$ (vertex coordinate)}
-    \KwOutput{$\mathbf{F}_{\text{out}} \in \mathbb{R}^{N \times C}$ (fused feature)}
-    \KwParams{$h$ (initial number of attention heads, default $h=8$)}
-
-    \tcp{Stage 1: Feature Projection and Geometry-aware Encoding (Corresponds to Fig. 4 left)}
-    $\mathbf{P} \leftarrow \mathbf{V} \cdot \mathbf{W}_{\text{pos}} + \mathbf{b}_{\text{pos}}$ \tcp*{Geometry-aware position encoding}
-    $\mathbf{F}_{\text{combined}} \leftarrow \mathbf{F}_L + \mathbf{F}_G + \mathbf{P}$ \tcp*{Additive feature fusion}
-    
-    \tcp{Stage 2: Dynamic Multi-Head Attention (Corresponds to Fig. 4 lower-right)}
-    \eIf{$d_G \bmod h \neq 0$}{
-        $h^* \leftarrow \max\left(1, \frac{d_G}{\lfloor d_G/h \rfloor + 1}\right)$ \tcp*{Dynamic head adjustment}
-    }{
-        $h^* \leftarrow h$ \tcp*{Use initial head count}
-    }
-    $d_h \leftarrow d_G / h^*$ \tcp*{Dimension per head}
-
-    % $\mathbf{Q}, \mathbf{K}, \mathbf{V} \leftarrow \text{Linear}(\mathbf{F}_{\text{combined}}) \times 3$ \tcp*{Projections}
-    \tcp{Linear projections for Q, K, V}
-    $\mathbf{Q} \leftarrow \mathbf{F}_{\text{combined}} \mathbf{W}_Q, \quad \mathbf{K} \leftarrow \mathbf{F}_{\text{combined}} \mathbf{W}_K, \quad \mathbf{V} \leftarrow \mathbf{F}_{\text{combined}} \mathbf{W}_V$\;
-    
-    \tcp{Multi-head attention computation}
-    \For{$i = 1$ \KwTo $h^*$}{
-        $\text{Attn}_i \leftarrow \text{softmax}\left(\mathbf{Q}_i \mathbf{K}_i^\top / \sqrt{d_h}\right) \cdot \mathbf{V}_i$\;
-    }
-    $\mathbf{F}_{\text{attn}} \leftarrow \text{Concat}(\text{Attn}_1, \ldots, \text{Attn}_{h^*}) \cdot \mathbf{W}_O$\; 
-    
-    \tcp{Stage 3: Residual Connection and Feed-Forward (Corresponds to Fig. 4 right)}
-    $\mathbf{F}_{\text{norm}} \leftarrow \text{LayerNorm}(\mathbf{F}_{\text{attn}} + \mathbf{F}_{\text{combined}})$ \tcp*{Residual + LayerNorm}
-    $\mathbf{F}_{\text{ffn}} \leftarrow \text{Linear}_{\text{out}}(\text{ReLU}(\text{Linear}_{\text{in}}(\mathbf{F}_{\text{norm}})))$ \tcp*{Feed-Forward}
-    $\mathbf{F}_{\text{out}} \leftarrow \text{LayerNorm}(\mathbf{F}_{\text{ffn}} + \mathbf{F}_{\text{norm}})$ \tcp*{Final residual + LayerNorm}
-    
-    \Return{$\mathbf{F}_{\text{out}}$}
-\end{algorithm}
-
-
-\textbf{Additive Feature Fusion.} An additive feature-fusion strategy is introduced for efficient integration of multi-source features while preserving dimensional consistency:
-
-\begin{equation} \mathbf{F}_{combined} = \mathbf{F}_L + \mathbf{F}_G + \mathbf{P} \end{equation}
-
-Here, $\mathbf{F}_L$, $\mathbf{F}_G$, and $\mathbf{P}$ denote the local feature, global feature, and position-encoded feature, respectively. Compared to concatenation-based fusion, the proposed strategy preserves feature dimensions while enabling direct channel-wise interaction and maintaining computational efficiency, thereby achieving an optimal balance between performance and cost without parameter inflation.
+\textbf{Global condition $C_d^g$.} For each of the three sources, the features are separately subjected to mean pooling and max pooling, concatenated, and projected into a 512-dimensional vector. An FDI embedding is then added to produce the case-level condition $C_d^g$.
 
 \bigskip
 
-\textbf{Dynamic Multi-Head Attention.} The details of the module are shown in the lower-right corner of Fig. \ref{fig:fusion_module_architecture}. This module takes the fused feature $\mathbf{F}_{\text{combined}}$ as input and employs the standard attention mechanism. For each vertex $i$, we compute the query, key, and value vectors through linear projections:
-\begin{equation}
-\mathbf{Q}_i = \mathbf{F}_{\text{combined}}[i] \cdot \mathbf{W}_Q, \quad \mathbf{K}_i = \mathbf{F}_{\text{combined}}[i] \cdot \mathbf{W}_K, \quad \mathbf{V}_i = \mathbf{F}_{\text{combined}}[i] \cdot \mathbf{W}_V
-\end{equation}
-where $\mathbf{W}_Q, \mathbf{W}_K, \mathbf{W}_V \in \mathbb{R}^{d_G \times d_h}$ are learnable projection matrices, and $d_h$ denotes the dimension per attention head.
+\textbf{Voxel-aligned condition $C_{d,64}^v$.} Point features are scattered onto a $64^3$ grid according to their local coordinates, averaged within each voxel, and refined by $3\times3\times3$ convolutions to yield $C_{d,64}^v$. Its downsampled counterpart is denoted $C_{d,16}^v$.
 
-\hspace{2em}The core innovation lies in dynamically adjusting the number of attention heads $h^*$, based on the feature dimension $d_G$:
-\begin{equation}
-h^* = \max\left(1, \left\lfloor \frac{d_G}{h} \right\rfloor + 1\right) \quad \text{if } d_G \bmod h \neq 0
-\end{equation}
-where $h$ is the initial head count. This mechanism ensures that the number of attention heads is dynamically adjusted to maintain compatibility with the feature dimensions, optimizing computational efficiency and model performance.
+\bigskip
 
-\hspace{2em}The AFM dynamically balances contributions between global positional information and local geometric details, treating the centroid heatmap as a complementary prior. In complex dentitions such as crowded teeth, it adaptively refines coarse localization with boundary features, reducing centroid reliance when local boundaries indicate clearer separation, thereby resolving ambiguities and semantic inconsistencies. The detailed algorithmic procedure is summarized in Algorithm~\ref{alg:afm}.
+\textbf{Coordinate-level neighborhood condition $C_F^n(q)$.} For a query coordinate $q$, the Feature encoder retrieves four nearest neighbors from the maxillary, mandibular, and margin point sets, respectively. Each neighbor is represented by a 7-dimensional descriptor composed of relative coordinates, source normal, and distance; both the relative coordinates and the distance are normalized by $h=12$~mm, and the 3-D normal for margin points is set to zero. The resulting $3\times4\times7$ descriptor is projected by an MLP into $C_F^n(q)$. During inference, $\{C_F^n(q)\mid q\in\hat O\}$ corresponds to $N(\hat O
+)$ in Fig.~\ref{fig:figure_overall_architecture}.
+
+\bigskip
+
+\hspace{2em}These outputs provide case-level, voxel-level, and coordinate-level dental information. The concrete stage allocation and coordinate-level injection are described in Sec.~\ref{subsec3_5}.
 
 %% 3.5
 \subsection{Loss Function}\label{subsec3_5}
@@ -617,7 +549,6 @@ Here, \( A \) represents the predicted boundary points set, and \( B \) represen
 \bigskip
 
 \textbf{Effectiveness of the timescale parameter.} As shown in Fig. \ref{fig:figure_diffusion_timestep}, the timescale parameter is pivotal in HKS feature extraction and representation, as it governs the extent and intensity of heat diffusion. When the timescale is small, heat diffusion is confined to local regions, enabling HKS to capture delicate local geometric features such as edges and corners. As the timescale increases, the diffusion spreads to broader areas. Table \ref{tab:table_feature_timescales} details the relationship between timescale and feature regions. The timescale parameter is essential for achieving a balance between local and global information while maintaining stability and distinctiveness. In this scheme, the HKS focuses on local feature extraction, and the timescale is set to 0.01 to maintain computational efficiency.
-
 
 \hspace{2em}The HKS features extracted by the BAM provide valuable local information, which serves as a complement to the global information captured by the position-aware Module (G branch). This merging of local and global context permits the model to attain more precise and stable segmentation outcomes.
 

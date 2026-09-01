@@ -1,52 +1,72 @@
 #!/usr/bin/env python3
-"""Generate the coordinate-wise Feature Flow conditioning detail figure."""
+"""Generate the two-stage conditional flow matching schematic for Section 3.5."""
 
 from pathlib import Path
-import warnings
 
 import matplotlib as mpl
-import numpy as np
-from matplotlib.patches import Circle, FancyArrowPatch, FancyBboxPatch, Rectangle
 
 mpl.use("Agg")
+
 import matplotlib.pyplot as plt
+from matplotlib.patches import Circle, ConnectionPatch, FancyArrowPatch, FancyBboxPatch, Rectangle
+
+try:
+    from audit_panel_alignment import require_matplotlib_panel_alignment
+except ImportError as exc:
+    raise RuntimeError("Run with the publication-figure audit scripts on PYTHONPATH.") from exc
 
 
 ROOT = Path(__file__).resolve().parent
-ASSET_DIR = ROOT / "assets" / "method_framework"
-FIG_WIDTH_IN = 180.0 / 25.4
-FIG_HEIGHT_IN = 54.0 / 25.4
+FIG_WIDTH_MM = 180.0
+FIG_HEIGHT_MM = 98.0
+FIG_WIDTH_IN = FIG_WIDTH_MM / 25.4
+FIG_HEIGHT_IN = FIG_HEIGHT_MM / 25.4
 
 COLORS = {
-    "ink": "#24313C",
-    "muted": "#687681",
-    "blue": "#2E729F",
-    "blue_dark": "#1F567A",
-    "blue_fill": "#EAF3F8",
-    "purple": "#7355A4",
-    "purple_dark": "#574078",
-    "purple_fill": "#F2EEF8",
-    "gray": "#AEBBC2",
-    "gray_fill": "#F4F7F8",
-    "green": "#669C82",
-    "green_fill": "#EFF6F1",
-    "margin": "#D96055",
-    "margin_fill": "#FBEDEA",
-    "line": "#D2DEE5",
+    "ink": "#23313E",
+    "muted": "#687784",
+    "blue": "#2D78A6",
+    "blue_dark": "#1C5D83",
+    "blue_fill": "#EAF4FA",
+    "teal": "#2A9997",
+    "teal_dark": "#176C6D",
+    "teal_fill": "#E9F7F5",
+    "green": "#5A956F",
+    "green_dark": "#34734E",
+    "green_fill": "#EAF6EE",
+    "amber": "#D38A3D",
+    "amber_dark": "#97591B",
+    "amber_fill": "#FFF4E4",
+    "coral": "#C86D5E",
+    "coral_dark": "#994C42",
+    "coral_fill": "#FCEDEA",
+    "purple": "#7656A7",
+    "purple_dark": "#553D79",
+    "purple_fill": "#F2EEF9",
+    "purple_alt_fill": "#F8EFF5",
+    "line": "#C7D5DD",
+    "panel_structure": "#FCFDFE",
+    "panel_feature": "#FCFEFD",
+    "panel_structure_edge": "#BDD3E0",
+    "panel_feature_edge": "#B9DAD5",
     "white": "#FFFFFF",
 }
 
-CONDITION_STYLE = (0, (5, 2, 1.2, 2))
+CONDITION_STYLE = (0, (4.0, 1.8, 1.0, 1.8))
+FONT_NOTE = 7.2
+FONT_CARD = 8.0
+FONT_TITLE = 9.4
 
 mpl.rcParams.update(
     {
         "font.family": ["Arial", "Helvetica", "DejaVu Sans", "sans-serif"],
-        "font.size": 6.2,
+        "font.size": FONT_CARD,
         "text.color": COLORS["ink"],
+        "mathtext.fontset": "dejavusans",
         "svg.fonttype": "none",
         "pdf.fonttype": 42,
-        "figure.facecolor": "white",
-        "savefig.facecolor": "white",
+        "figure.facecolor": COLORS["white"],
+        "savefig.facecolor": COLORS["white"],
     }
 )
 
@@ -55,964 +75,714 @@ def rounded_box(
     ax,
     x,
     y,
-    w,
-    h,
-    text="",
+    width,
+    height,
     *,
-    fc=COLORS["white"],
-    ec=COLORS["line"],
-    lw=0.75,
-    fontsize=6.0,
-    weight="normal",
-    radius=0.07,
-    color=COLORS["ink"],
-    zorder=4,
+    facecolor=COLORS["white"],
+    edgecolor=COLORS["line"],
+    linewidth=0.8,
+    radius=1.2,
+    border=True,
+    zorder=3,
 ):
     patch = FancyBboxPatch(
         (x, y),
-        w,
-        h,
-        boxstyle=f"round,pad=0.025,rounding_size={radius}",
-        facecolor=fc,
-        edgecolor=ec,
-        linewidth=lw,
+        width,
+        height,
+        boxstyle=f"round,pad=0.02,rounding_size={radius}",
+        facecolor=facecolor,
+        edgecolor=edgecolor if border else "none",
+        linewidth=linewidth if border else 0.0,
         zorder=zorder,
     )
     ax.add_patch(patch)
-    if text:
-        ax.text(
-            x + w / 2,
-            y + h / 2,
-            text,
-            ha="center",
-            va="center",
-            fontsize=fontsize,
-            fontweight=weight,
-            color=color,
-            linespacing=1.02,
-            zorder=zorder + 1,
-        )
     return patch
 
 
-def arrow(
-    ax,
-    start,
-    end,
-    *,
-    color=COLORS["blue"],
-    lw=1.0,
-    style="-",
-    mutation_scale=6.4,
-    zorder=6,
-):
+def arrow(ax, start, end, *, color, linewidth=1.15, linestyle="-", zorder=5):
     patch = FancyArrowPatch(
         start,
         end,
         arrowstyle="-|>",
-        mutation_scale=mutation_scale,
-        linewidth=lw,
-        linestyle=style,
+        mutation_scale=8.5,
+        linewidth=linewidth,
+        linestyle=linestyle,
         color=color,
-        shrinkA=1.0,
-        shrinkB=1.0,
+        shrinkA=1.8,
+        shrinkB=2.0,
         zorder=zorder,
     )
     ax.add_patch(patch)
     return patch
 
 
-def poly_arrow(ax, points, *, color, lw=1.0, style="-", mutation_scale=6.4, zorder=6):
+def poly_arrow(ax, points, *, color, linewidth=1.15, linestyle="-", zorder=5):
     xs, ys = zip(*points[:-1])
     ax.plot(
         xs,
         ys,
         color=color,
-        linewidth=lw,
-        linestyle=style,
+        linewidth=linewidth,
+        linestyle=linestyle,
         solid_capstyle="round",
         dash_capstyle="round",
         zorder=zorder,
     )
-    arrow(
+    return arrow(
         ax,
         points[-2],
         points[-1],
         color=color,
-        lw=lw,
-        style=style,
-        mutation_scale=mutation_scale,
+        linewidth=linewidth,
+        linestyle=linestyle,
         zorder=zorder + 0.1,
     )
 
 
-def panel(ax, x, y, w, h, title, label, *, fill, edge):
-    rounded_box(ax, x, y, w, h, fc=fill, ec=edge, lw=0.8, radius=0.11, zorder=0)
-    ax.text(
-        x + 0.22,
-        y + h - 0.36,
-        f"({label})",
-        ha="left",
-        va="center",
-        fontsize=7.0,
-        fontweight="bold",
-        zorder=10,
-    )
-    ax.text(
-        x + 0.80,
-        y + h - 0.36,
-        title,
-        ha="left",
-        va="center",
-        fontsize=6.9,
-        fontweight="semibold",
-        zorder=10,
-    )
+def configure_axis(ax):
+    ax.set_xlim(0.0, 180.0)
+    ax.set_ylim(0.0, 100.0)
+    ax.set_aspect("auto")
+    ax.axis("off")
 
 
-def place_png(ax, path, x, y, w, h, *, zorder=4):
-    path = Path(path)
-    if not path.is_file():
-        return False
-    try:
-        image = plt.imread(path)
-    except (OSError, ValueError) as exc:
-        warnings.warn(f"Unable to load figure asset {path}: {exc}")
-        return False
-    if image.ndim == 3 and image.shape[-1] == 4:
-        visible = image[..., 3] > 0.01
-        if visible.any():
-            rows, cols = np.where(visible)
-            image = image[rows.min() : rows.max() + 1, cols.min() : cols.max() + 1]
-    ratio = image.shape[1] / image.shape[0]
-    slot_ratio = w / h
-    if ratio >= slot_ratio:
-        draw_w, draw_h = w, w / ratio
+def draw_panel_frame(ax, label, title, *, facecolor, edgecolor, accent):
+    rounded_box(
+        ax,
+        1.0,
+        1.0,
+        178.0,
+        98.0,
+        facecolor=facecolor,
+        edgecolor=edgecolor,
+        linewidth=0.9,
+        radius=1.8,
+        zorder=0,
+    )
+    ax.text(4.0, 92.0, f"({label})", ha="left", va="center", fontsize=FONT_TITLE, fontweight="bold", color=accent, zorder=8)
+    ax.text(13.0, 92.0, title, ha="left", va="center", fontsize=FONT_TITLE, fontweight="semibold", zorder=8)
+    ax.plot([13.0, 34.0], [85.4, 85.4], color=accent, linewidth=1.25, solid_capstyle="round", zorder=2)
+
+
+def draw_process_node(
+    ax,
+    x,
+    y,
+    width,
+    height,
+    title,
+    detail,
+    *,
+    facecolor,
+    edgecolor,
+    textcolor,
+    note=None,
+    note_color=None,
+):
+    rounded_box(
+        ax,
+        x,
+        y,
+        width,
+        height,
+        facecolor=facecolor,
+        edgecolor=edgecolor,
+        linewidth=0.85,
+        radius=1.1,
+        zorder=3,
+    )
+    if note is None:
+        title_y, detail_y = y + 0.68 * height, y + 0.30 * height
     else:
-        draw_h, draw_w = h, h * ratio
-    draw_x = x + (w - draw_w) / 2
-    draw_y = y + (h - draw_h) / 2
-    ax.imshow(
-        image,
-        extent=(draw_x, draw_x + draw_w, draw_y, draw_y + draw_h),
-        interpolation="lanczos",
-        zorder=zorder,
-    )
-    return True
+        title_y, detail_y = y + 0.74 * height, y + 0.43 * height
+    ax.text(x + width / 2, title_y, title, ha="center", va="center", fontsize=FONT_CARD, fontweight="semibold", color=textcolor, zorder=7)
+    if detail:
+        ax.text(x + width / 2, detail_y, detail, ha="center", va="center", fontsize=FONT_NOTE, color=textcolor, zorder=7)
+    if note:
+        ax.text(x + width / 2, y + 0.17 * height, note, ha="center", va="center", fontsize=FONT_NOTE, color=note_color or COLORS["muted"], zorder=7)
 
 
-def draw_case_context(ax, x, y, w, h):
-    rounded_box(ax, x, y, w, h, fc=COLORS["white"], ec="#C5D3DA", lw=0.7)
-    ax.text(
-        x + 0.18,
-        y + h - 0.24,
-        "Case-aligned local anatomy",
-        ha="left",
-        va="center",
-        fontsize=5.5,
-        fontweight="semibold",
-        zorder=8,
-    )
-    if not place_png(
-        ax,
-        ASSET_DIR / "scans.png",
-        x + 0.10,
-        y + 0.48,
-        0.72 * w,
-        0.67 * h,
-        zorder=4,
-    ):
-        for index, color in enumerate((COLORS["gray"], COLORS["green"])):
-            yy = y + 1.50 + index * 0.72
-            ax.plot(
-                [x + 0.25, x + 0.50 * w, x + 0.88 * w],
-                [yy, yy + 0.12, yy],
-                color=color,
-                linewidth=3.0,
-                solid_capstyle="round",
-                zorder=4,
-            )
-    theta = np.linspace(0, 2 * np.pi, 80)
-    margin_x = x + 0.49 * w + 0.18 * w * np.cos(theta)
-    margin_y = y + 0.50 * h + 0.10 * h * np.sin(theta)
-    ax.plot(margin_x, margin_y, color=COLORS["margin"], linewidth=0.95, zorder=8)
-    qx, qy = x + 0.49 * w, y + 0.50 * h
-    ax.add_patch(
-        Circle(
-            (qx, qy),
-            0.105 * h,
-            facecolor=COLORS["blue_fill"],
-            edgecolor=COLORS["blue"],
-            linewidth=0.85,
-            zorder=9,
-        )
-    )
-    ax.text(
-        qx,
-        qy,
-        r"$q$",
-        ha="center",
-        va="center",
-        fontsize=6.3,
-        color=COLORS["blue_dark"],
-        zorder=10,
-    )
-
-
-def _source_markers(ax, x, y, scale=1.0, *, zorder=8):
-    specs = (
-        (-0.28, 0.12, COLORS["gray"]),
-        (-0.07, 0.22, COLORS["gray"]),
-        (0.17, 0.09, COLORS["green"]),
-        (0.29, 0.21, COLORS["green"]),
-        (0.03, -0.20, COLORS["margin"]),
-    )
-    for dx, dy, color in specs:
-        ax.add_patch(
-            Circle(
-                (x + scale * dx, y + scale * dy),
-                0.055 * scale,
-                facecolor=color,
-                edgecolor=COLORS["white"],
-                linewidth=0.22,
-                zorder=zorder,
-            )
-        )
-
-
-def draw_global_context(ax, x, y, w, h):
-    rounded_box(ax, x, y, w, h, fc=COLORS["purple_fill"], ec="#A793C3", lw=0.75)
-    ax.text(
-        x + w / 2,
-        y + 0.78 * h,
-        r"Global semantic $C_F^g$",
-        ha="center",
-        va="center",
-        fontsize=5.25,
-        fontweight="semibold",
-        color=COLORS["purple_dark"],
-        zorder=8,
-    )
-    _source_markers(ax, x + 0.32 * w, y + 0.43 * h, 0.52 * w)
-    ax.plot(
-        [x + 0.49 * w, x + 0.65 * w],
-        [y + 0.43 * h, y + 0.43 * h],
-        color=COLORS["purple"],
-        linewidth=0.68,
-        zorder=7,
-    )
-    arrow(
-        ax,
-        (x + 0.65 * w, y + 0.43 * h),
-        (x + 0.70 * w, y + 0.43 * h),
-        color=COLORS["purple"],
-        lw=0.68,
-        mutation_scale=4.4,
-    )
-    rounded_box(
-        ax,
-        x + 0.72 * w,
-        y + 0.28 * h,
-        0.20 * w,
-        0.30 * h,
-        "FDI",
-        fc=COLORS["white"],
-        ec="#B8A6CC",
-        fontsize=4.5,
-        weight="semibold",
-        radius=0.025,
-        color=COLORS["purple_dark"],
-        zorder=8,
-    )
-    ax.text(
-        x + w / 2,
-        y + 0.13 * h,
-        "pooled case context",
-        ha="center",
-        va="center",
-        fontsize=4.45,
-        color=COLORS["muted"],
-        zorder=8,
-    )
-
-
-def draw_voxel_context(ax, x, y, w, h):
-    rounded_box(ax, x, y, w, h, fc=COLORS["purple_fill"], ec="#A793C3", lw=0.75)
-    ax.text(
-        x + w / 2,
-        y + 0.78 * h,
-        r"Voxel-aligned $C_{F,64}^v(q)$",
-        ha="center",
-        va="center",
-        fontsize=5.1,
-        fontweight="semibold",
-        color=COLORS["purple_dark"],
-        zorder=8,
-    )
-    gx, gy, gw, gh = x + 0.20 * w, y + 0.23 * h, 0.46 * w, 0.40 * h
-    for row in range(3):
-        for col in range(4):
-            highlight = row == 1 and col == 2
-            ax.add_patch(
-                Rectangle(
-                    (gx + col * gw / 4, gy + row * gh / 3),
-                    gw / 4,
-                    gh / 3,
-                    facecolor="#C6B8DB" if highlight else COLORS["white"],
-                    edgecolor="#AFA0C6",
-                    linewidth=0.28,
-                    zorder=6,
-                )
-            )
-    qx, qy = gx + 2.5 * gw / 4, gy + 1.5 * gh / 3
-    ax.add_patch(
-        Circle((qx, qy), 0.052 * w, facecolor=COLORS["blue"], edgecolor="none", zorder=8))
-    arrow(
-        ax,
-        (x + 0.69 * w, y + 0.41 * h),
-        (x + 0.86 * w, y + 0.41 * h),
-        color=COLORS["purple"],
-        lw=0.68,
-        mutation_scale=4.4,
-    )
-    ax.text(
-        x + w / 2,
-        y + 0.13 * h,
-        "scatter, refine, lookup",
-        ha="center",
-        va="center",
-        fontsize=4.45,
-        color=COLORS["muted"],
-        zorder=8,
-    )
-
-
-def draw_query_context(ax, x, y, w, h):
-    rounded_box(ax, x, y, w, h, fc=COLORS["margin_fill"], ec="#E2AAA3", lw=0.75)
-    ax.text(
-        x + w / 2,
-        y + 0.79 * h,
-        r"Dental neighborhood $C_F^n(q)$",
-        ha="center",
-        va="center",
-        fontsize=5.0,
-        fontweight="semibold",
-        color="#994A43",
-        zorder=8,
-    )
-    qx, qy = x + 0.50 * w, y + 0.44 * h
-    _source_markers(ax, qx, qy, 0.84 * w)
-    for dx, dy in ((-0.28, 0.12), (-0.07, 0.22), (0.17, 0.09), (0.29, 0.21), (0.03, -0.20)):
-        ax.plot(
-            [qx, qx + 0.84 * w * dx],
-            [qy, qy + 0.84 * w * dy],
-            color="#C1847E",
-            linewidth=0.36,
-            zorder=6,
-        )
-    ax.add_patch(
-        Circle(
-            (qx, qy),
-            0.075 * w,
-            facecolor=COLORS["blue_fill"],
-            edgecolor=COLORS["blue"],
-            linewidth=0.7,
-            zorder=9,
-        )
-    )
-    ax.text(qx, qy, r"$q$", ha="center", va="center", fontsize=5.2, color=COLORS["blue_dark"], zorder=10)
-    ax.text(
-        x + w / 2,
-        y + 0.12 * h,
-        "relative position, normal, distance",
-        ha="center",
-        va="center",
-        fontsize=4.25,
-        color=COLORS["muted"],
-        zorder=8,
-    )
-
-
-def draw_support_context(ax, x, y, w, h):
-    rounded_box(ax, x, y, w, h, fc=COLORS["blue_fill"], ec="#9FBDD0", lw=0.75)
-    ax.text(
-        x + w / 2,
-        y + 0.79 * h,
-        r"Support adapter $A(q;\hat O)$",
-        ha="center",
-        va="center",
-        fontsize=5.0,
-        fontweight="semibold",
-        color=COLORS["blue_dark"],
-        zorder=8,
-    )
-    qx, qy = x + 0.50 * w, y + 0.43 * h
-    offsets = ((-0.30, 0.0), (-0.18, 0.0), (0.18, 0.0), (0.30, 0.0), (0.0, -0.22), (0.0, 0.22))
-    for dx, dy in offsets:
-        ax.add_patch(
-            Rectangle(
-                (qx + dx * w - 0.045 * w, qy + dy * w - 0.045 * w),
-                0.09 * w,
-                0.09 * w,
-                facecolor=COLORS["white"],
-                edgecolor="#75A1BC",
-                linewidth=0.42,
-                zorder=7,
-            )
-        )
-        ax.plot([qx, qx + dx * w], [qy, qy + dy * w], color="#8AB5CC", linewidth=0.36, zorder=6)
-    ax.add_patch(
-        Rectangle(
-            (qx - 0.055 * w, qy - 0.055 * w),
-            0.11 * w,
-            0.11 * w,
-            facecolor=COLORS["blue"],
-            edgecolor=COLORS["blue_dark"],
-            linewidth=0.48,
-            zorder=9,
-        )
-    )
-    ax.text(
-        x + w / 2,
-        y + 0.12 * h,
-        "sparse axial context",
-        ha="center",
-        va="center",
-        fontsize=4.45,
-        color=COLORS["muted"],
-        zorder=8,
-    )
-
-
-def draw_global_voxel_group(ax, x, y, w, h):
+def draw_dit_block(
+    ax,
+    x,
+    y,
+    width,
+    height,
+    *,
+    title,
+    detail,
+    sparse=False,
+    facecolor,
+    edgecolor,
+    textcolor,
+    mark_color,
+):
     rounded_box(
         ax,
         x,
         y,
-        w,
-        h,
-        fc=COLORS["purple_fill"],
-        ec="#A793C3",
-        lw=0.8,
-        radius=0.07,
-    )
-    ax.plot(
-        [x + 0.50 * w, x + 0.50 * w],
-        [y + 0.17 * h, y + 0.82 * h],
-        color="#C2B3D6",
-        linewidth=0.5,
-        zorder=6,
+        width,
+        height,
+        facecolor=facecolor,
+        edgecolor=edgecolor,
+        linewidth=1.05,
+        radius=1.3,
+        zorder=3,
     )
     ax.text(
-        x + 0.25 * w,
-        y + 0.81 * h,
-        r"Global $C_F^g$",
+        x + width / 2,
+        y + height - 11.0,
+        title,
         ha="center",
         va="center",
-        fontsize=5.0,
+        fontsize=FONT_CARD,
         fontweight="semibold",
-        color=COLORS["purple_dark"],
-        zorder=8,
+        color=textcolor,
+        linespacing=1.05,
+        zorder=7,
     )
-    _source_markers(ax, x + 0.18 * w, y + 0.46 * h, 0.32 * w)
-    rounded_box(
-        ax,
-        x + 0.31 * w,
-        y + 0.32 * h,
-        0.13 * w,
-        0.24 * h,
-        "FDI",
-        fc=COLORS["white"],
-        ec="#B8A6CC",
-        fontsize=3.9,
-        weight="semibold",
-        radius=0.02,
-        color=COLORS["purple_dark"],
-        zorder=8,
-    )
-    ax.text(
-        x + 0.25 * w,
-        y + 0.15 * h,
-        "pooled semantics",
-        ha="center",
-        va="center",
-        fontsize=4.45,
-        color=COLORS["muted"],
-        zorder=8,
-    )
-
-    ax.text(
-        x + 0.75 * w,
-        y + 0.81 * h,
-        r"Voxel field $C_{F,64}^v$",
-        ha="center",
-        va="center",
-        fontsize=5.0,
-        fontweight="semibold",
-        color=COLORS["purple_dark"],
-        zorder=8,
-    )
-    gx, gy, gw, gh = x + 0.59 * w, y + 0.29 * h, 0.30 * w, 0.34 * h
-    for row in range(3):
-        for col in range(4):
-            selected = row == 1 and col == 2
-            ax.add_patch(
-                Rectangle(
-                    (gx + col * gw / 4, gy + row * gh / 3),
-                    gw / 4,
-                    gh / 3,
-                    facecolor="#C6B8DB" if selected else COLORS["white"],
-                    edgecolor="#AFA0C6",
-                    linewidth=0.24,
-                    zorder=6,
-                )
+    if sparse:
+        dot_offsets = ((-7, 3), (-4, 7), (-1, 2), (2, 6), (5, 1), (7, 5), (-6, -2), (-2, -5), (1, -1), (4, -5), (7, -2))
+        center_x, center_y = x + width / 2, y + height / 2 - 2.0
+        for dx, dy in dot_offsets:
+            ax.add_patch(Circle((center_x + dx, center_y + dy), 0.95, facecolor=mark_color, edgecolor="none", zorder=5))
+        for index in range(3):
+            rounded_box(
+                ax,
+                center_x + 3.5 + index * 0.7,
+                center_y - 5.5 + index * 0.7,
+                3.2,
+                5.4,
+                facecolor=COLORS["white"],
+                edgecolor=edgecolor,
+                linewidth=0.5,
+                radius=0.35,
+                zorder=5 + index,
             )
-    ax.add_patch(
-        Circle(
-            (gx + 2.5 * gw / 4, gy + 1.5 * gh / 3),
-            0.038 * w,
-            facecolor=COLORS["blue"],
-            edgecolor="none",
-            zorder=8,
-        )
-    )
-    ax.text(
-        x + 0.75 * w,
-        y + 0.15 * h,
-        r"downsample: $C_{F,16}^v$; lookup at $q$",
-        ha="center",
-        va="center",
-        fontsize=4.45,
-        color=COLORS["muted"],
-        zorder=8,
-    )
+    else:
+        grid_x, grid_y, cell = x + width / 2 - 8.0, y + height / 2 - 6.0, 3.2
+        for row in range(3):
+            for col in range(5):
+                active = (row + col) % 3 != 0
+                ax.add_patch(
+                    Rectangle(
+                        (grid_x + col * cell, grid_y + row * cell),
+                        cell - 0.35,
+                        cell - 0.35,
+                        facecolor=mark_color if active else COLORS["white"],
+                        edgecolor="none",
+                        zorder=5,
+                    )
+                )
+    ax.text(x + width / 2, y + 8.0, detail, ha="center", va="center", fontsize=FONT_NOTE, color=textcolor, zorder=7)
 
 
-def draw_local_support_group(ax, x, y, w, h):
+def draw_support_output(ax, x, y, width, height, *, facecolor, edgecolor, textcolor, active_color):
     rounded_box(
         ax,
         x,
         y,
-        w,
-        h,
-        fc="#F7FAFC",
-        ec="#AAC2D1",
-        lw=0.8,
-        radius=0.07,
+        width,
+        height,
+        facecolor=facecolor,
+        edgecolor=edgecolor,
+        linewidth=0.9,
+        radius=1.0,
+        zorder=3,
     )
-    ax.plot(
-        [x + 0.50 * w, x + 0.50 * w],
-        [y + 0.17 * h, y + 0.82 * h],
-        color="#C7D8E2",
-        linewidth=0.5,
-        zorder=6,
-    )
-    ax.text(
-        x + 0.25 * w,
-        y + 0.81 * h,
-        r"Dental $C_F^n(q)$",
-        ha="center",
-        va="center",
-        fontsize=5.0,
-        fontweight="semibold",
-        color="#994A43",
-        zorder=8,
-    )
-    qx, qy = x + 0.25 * w, y + 0.45 * h
-    _source_markers(ax, qx, qy, 0.36 * w)
-    for dx, dy in ((-0.28, 0.12), (-0.07, 0.22), (0.17, 0.09), (0.29, 0.21), (0.03, -0.20)):
-        ax.plot(
-            [qx, qx + 0.36 * w * dx],
-            [qy, qy + 0.36 * w * dy],
-            color="#C1847E",
-            linewidth=0.32,
-            zorder=6,
-        )
-    ax.add_patch(
-        Circle(
-            (qx, qy),
-            0.045 * w,
-            facecolor=COLORS["blue_fill"],
-            edgecolor=COLORS["blue"],
-            linewidth=0.55,
-            zorder=9,
-        )
-    )
-    ax.text(qx, qy, r"$q$", ha="center", va="center", fontsize=4.4, color=COLORS["blue_dark"], zorder=10)
-    ax.text(
-        x + 0.25 * w,
-        y + 0.15 * h,
-        "local dental samples",
-        ha="center",
-        va="center",
-        fontsize=4.45,
-        color=COLORS["muted"],
-        zorder=8,
-    )
-
-    ax.text(
-        x + 0.75 * w,
-        y + 0.81 * h,
-        r"Support $A(q;\hat O)$",
-        ha="center",
-        va="center",
-        fontsize=5.0,
-        fontweight="semibold",
-        color=COLORS["blue_dark"],
-        zorder=8,
-    )
-    sx, sy = x + 0.75 * w, y + 0.45 * h
-    for dx, dy in ((-0.18, 0.0), (0.18, 0.0), (0.0, -0.17), (0.0, 0.17)):
-        ax.add_patch(
-            Rectangle(
-                (sx + dx * w - 0.035 * w, sy + dy * w - 0.035 * w),
-                0.07 * w,
-                0.07 * w,
-                facecolor=COLORS["white"],
-                edgecolor="#75A1BC",
-                linewidth=0.34,
-                zorder=7,
+    ax.text(x + width / 2, y + height - 7.0, r"$\hat O$", ha="center", va="center", fontsize=11.5, fontweight="semibold", color=textcolor, zorder=7)
+    grid_x, grid_y, cell = x + 1.2, y + 13.0, 2.0
+    for row in range(3):
+        for col in range(3):
+            active = (row, col) in {(0, 1), (1, 0), (1, 1), (1, 2), (2, 1)}
+            ax.add_patch(
+                Rectangle(
+                    (grid_x + col * cell, grid_y + row * cell),
+                    cell - 0.22,
+                    cell - 0.22,
+                    facecolor=active_color if active else COLORS["white"],
+                    edgecolor=edgecolor,
+                    linewidth=0.32,
+                    zorder=5,
+                )
             )
-        )
-        ax.plot([sx, sx + dx * w], [sy, sy + dy * w], color="#8AB5CC", linewidth=0.32, zorder=6)
-    ax.add_patch(
-        Rectangle(
-            (sx - 0.042 * w, sy - 0.042 * w),
-            0.084 * w,
-            0.084 * w,
-            facecolor=COLORS["blue"],
-            edgecolor=COLORS["blue_dark"],
-            linewidth=0.38,
-            zorder=9,
-        )
-    )
-    ax.text(
-        x + 0.75 * w,
-        y + 0.15 * h,
-        "sparse axial context",
-        ha="center",
-        va="center",
-        fontsize=4.45,
-        color=COLORS["muted"],
-        zorder=8,
-    )
+    ax.text(x + width / 2, y + 6.0, "64³", ha="center", va="center", fontsize=FONT_NOTE, color=textcolor, zorder=7)
 
 
-def draw_feature_dit(ax, x, y, w, h):
-    rounded_box(ax, x, y, w, h, fc=COLORS["blue_fill"], ec=COLORS["blue"], lw=0.95, radius=0.08)
-    ax.text(
-        x + w / 2,
-        y + 0.80 * h,
-        "Sparse Feature DiT",
-        ha="center",
-        va="center",
-        fontsize=6.0,
-        fontweight="semibold",
-        zorder=8,
-    )
-    rng = np.random.default_rng(24)
-    ax.scatter(
-        x + 0.12 * w + rng.random(18) * 0.23 * w,
-        y + 0.23 * h + rng.random(18) * 0.30 * h,
-        s=3.0 + rng.random(18) * 2.5,
-        color=COLORS["blue"],
-        alpha=0.78,
-        linewidths=0,
-        zorder=7,
-    )
-    for index in range(3):
-        rounded_box(
-            ax,
-            x + (0.43 + 0.027 * index) * w,
-            y + (0.23 + 0.027 * index) * h,
-            0.22 * w,
-            0.25 * h,
-            fc=COLORS["white"],
-            ec=COLORS["blue"],
-            lw=0.42,
-            radius=0.025,
-            zorder=6 + index,
-        )
-    arrow(
+def draw_structure_condition_encoding(ax):
+    node_color = "#B7A7D1"
+    grid_x, grid_y, cell = 18.6, 30.7, 1.8
+    for start, end in (((11.0, 33.5), (13.7, 35.2)), ((13.7, 35.2), (15.6, 32.2)), ((11.0, 33.5), (15.6, 32.2))):
+        ax.plot([start[0], end[0]], [start[1], end[1]], color=node_color, linewidth=0.55, zorder=4)
+    for x, y, size in ((11.0, 33.5, 1.05), (13.7, 35.2, 0.9), (15.6, 32.2, 0.9)):
+        ax.add_patch(Circle((x, y), size, facecolor=COLORS["purple"], edgecolor="none", zorder=5))
+    ax.plot([16.8, 18.1], [33.4, 33.4], color=COLORS["purple"], linewidth=0.7, zorder=4)
+    for row in range(3):
+        for col in range(3):
+            active = (row, col) in {(0, 1), (1, 0), (1, 1), (1, 2), (2, 1)}
+            ax.add_patch(
+                Rectangle(
+                    (grid_x + col * cell, grid_y + row * cell),
+                    cell - 0.28,
+                    cell - 0.28,
+                    facecolor=COLORS["purple"] if active else COLORS["white"],
+                    edgecolor="#C8B9DC",
+                    linewidth=0.25,
+                    zorder=5,
+                )
+            )
+    ax.plot([24.6, 32.2], [33.4, 33.4], color=node_color, linewidth=0.65, zorder=4)
+
+
+def draw_condition_icon(ax, x, y, kind):
+    if kind == "cross":
+        ax.add_patch(Circle((x + 1.0, y + 4.3), 0.85, facecolor=COLORS["purple"], edgecolor="none", zorder=6))
+        ax.plot([x + 2.0, x + 3.0], [y + 4.3, y + 4.3], color=COLORS["purple"], linewidth=0.65, zorder=5)
+        for row in range(2):
+            for col in range(2):
+                active = (row, col) != (0, 0)
+                ax.add_patch(
+                    Rectangle(
+                        (x + 3.2 + col * 1.35, y + 3.0 + row * 1.35),
+                        1.05,
+                        1.05,
+                        facecolor=COLORS["purple"] if active else COLORS["white"],
+                        edgecolor="#B7A7D1",
+                        linewidth=0.25,
+                        zorder=6,
+                    )
+                )
+    elif kind == "residual":
+        cell = 1.35
+        for row in range(3):
+            for col in range(3):
+                is_query = (row, col) == (1, 1)
+                ax.add_patch(
+                    Rectangle(
+                        (x + col * cell, y + row * cell),
+                        cell - 0.22,
+                        cell - 0.22,
+                        facecolor=COLORS["coral"] if is_query else COLORS["purple_fill"],
+                        edgecolor="#BA90AF",
+                        linewidth=0.25,
+                        zorder=6,
+                    )
+                )
+        ax.add_patch(Circle((x + 1.5 * cell - 0.12, y + 1.5 * cell - 0.12), 0.35, facecolor=COLORS["white"], edgecolor="none", zorder=7))
+    elif kind == "local":
+        center_x, center_y = x + 3.2, y + 5.0
+        for dx, dy in ((-2.0, 1.6), (-1.7, -1.4), (1.8, 1.5), (2.0, -1.3)):
+            ax.plot([center_x, center_x + dx], [center_y, center_y + dy], color="#B7A7D1", linewidth=0.5, zorder=4)
+            ax.add_patch(Circle((center_x + dx, center_y + dy), 0.72, facecolor=COLORS["purple"], edgecolor="none", zorder=6))
+        for dx, dy in ((0.0, 2.9), (0.0, -2.9), (2.9, 0.0)):
+            ax.plot([center_x, center_x + dx], [center_y, center_y + dy], color="#9CC9B2", linewidth=0.55, zorder=4)
+            ax.add_patch(Circle((center_x + dx, center_y + dy), 0.65, facecolor=COLORS["green"], edgecolor="none", zorder=6))
+        ax.add_patch(Circle((center_x, center_y), 0.95, facecolor=COLORS["coral"], edgecolor=COLORS["white"], linewidth=0.35, zorder=7))
+
+
+def draw_feature_condition_card(ax, x, y, width, height, title, detail, *, facecolor, edgecolor, textcolor, kind):
+    rounded_box(
         ax,
-        (x + 0.31 * w, y + 0.35 * h),
-        (x + 0.40 * w, y + 0.35 * h),
-        color=COLORS["blue"],
-        lw=0.65,
-        mutation_scale=4.6,
+        x,
+        y,
+        width,
+        height,
+        facecolor=facecolor,
+        edgecolor=edgecolor,
+        linewidth=0.85,
+        radius=1.1,
+        zorder=3,
     )
-    arrow(
+    text_x = x + width / 2 + 4.0
+    ax.text(text_x, y + 0.68 * height, title, ha="center", va="center", fontsize=FONT_CARD, fontweight="semibold", color=textcolor, zorder=7)
+    ax.text(text_x, y + 0.30 * height, detail, ha="center", va="center", fontsize=FONT_NOTE, color=textcolor, zorder=7)
+    draw_condition_icon(ax, x + 3.2, y + 2.0, kind)
+
+
+def draw_support_context_grid(ax, x, y):
+    cell = 1.0
+    for row in range(3):
+        for col in range(3):
+            center = (row, col) == (1, 1)
+            active = center or (row, col) in {(0, 1), (1, 0), (1, 2), (2, 1)}
+            ax.add_patch(
+                Rectangle(
+                    (x + col * cell, y + row * cell),
+                    cell - 0.18,
+                    cell - 0.18,
+                    facecolor=COLORS["teal"] if center else (COLORS["green"] if active else COLORS["white"]),
+                    edgecolor="#8AB89C",
+                    linewidth=0.25,
+                    zorder=6,
+                )
+            )
+
+
+def draw_feature_output(ax, x, y, width, height):
+    rounded_box(
         ax,
-        (x + 0.70 * w, y + 0.35 * h),
-        (x + 0.79 * w, y + 0.35 * h),
-        color=COLORS["blue"],
-        lw=0.65,
-        mutation_scale=4.6,
+        x,
+        y,
+        width,
+        height,
+        facecolor=COLORS["teal_fill"],
+        edgecolor=COLORS["teal"],
+        linewidth=0.9,
+        radius=1.1,
+        zorder=3,
     )
-    ax.text(
-        x + w / 2,
-        y + 0.12 * h,
-        r"Feature update at $q$",
-        ha="center",
-        va="center",
-        fontsize=4.8,
-        color=COLORS["blue_dark"],
-        zorder=8,
+    ax.text(x + width / 2, y + height - 6.2, r"$\hat{F}_q$", ha="center", va="center", fontsize=11.2, fontweight="semibold", color=COLORS["teal_dark"], zorder=7)
+    points = ((x + 4.0, y + 5.2), (x + 8.2, y + 7.6), (x + 12.6, y + 5.5), (x + 13.4, y + 9.4))
+    for start, end in ((0, 1), (1, 2), (1, 3), (2, 3)):
+        ax.plot([points[start][0], points[end][0]], [points[start][1], points[end][1]], color="#82C2BD", linewidth=0.55, zorder=4)
+    for index, point in enumerate(points):
+        ax.add_patch(Circle(point, 0.75, facecolor=COLORS["teal"] if index != 1 else COLORS["blue"], edgecolor=COLORS["white"], linewidth=0.28, zorder=6))
+
+
+def draw_noise_texture(ax, x, y, color):
+    for dx, dy, radius in ((0.0, 0.0, 0.65), (2.2, 0.6, 0.5), (4.2, -0.35, 0.55), (6.1, 0.45, 0.43)):
+        ax.add_patch(Circle((x + dx, y + dy), radius, facecolor=color, edgecolor="none", alpha=0.45, zorder=5))
+
+
+def draw_decoder_texture(ax, x, y):
+    for index, color in enumerate((COLORS["coral"], "#E6A59B", COLORS["coral"], "#E6A59B")):
+        ax.add_patch(Rectangle((x + index * 1.65, y), 1.25, 1.25, facecolor=color, edgecolor="none", zorder=5))
+
+
+def draw_structure_panel(ax):
+    draw_panel_frame(
+        ax,
+        "a",
+        "Structure Flow: generate active support",
+        facecolor=COLORS["panel_structure"],
+        edgecolor=COLORS["panel_structure_edge"],
+        accent=COLORS["blue"],
     )
+
+    rounded_box(
+        ax,
+        5.0,
+        25.0,
+        37.0,
+        49.0,
+        facecolor=COLORS["purple_fill"],
+        edgecolor="#A793C3",
+        linewidth=0.9,
+        radius=1.2,
+        zorder=3,
+    )
+    ax.text(23.5, 65.0, "Structure condition", ha="center", va="center", fontsize=FONT_CARD, fontweight="semibold", color=COLORS["purple_dark"], zorder=7)
+    ax.text(23.5, 42.0, "global + 16³ voxel", ha="center", va="center", fontsize=FONT_NOTE, color=COLORS["muted"], zorder=7)
+    draw_structure_condition_encoding(ax)
+    rounded_box(ax, 33.0, 29.5, 7.5, 7.0, facecolor=COLORS["white"], edgecolor="#B9A7CC", linewidth=0.6, radius=0.5, zorder=5)
+    ax.text(36.75, 33.0, "FDI", ha="center", va="center", fontsize=FONT_NOTE, fontweight="semibold", color=COLORS["purple_dark"], zorder=6)
+
+    draw_process_node(
+        ax,
+        50.0,
+        13.0,
+        21.0,
+        17.0,
+        "xₜˢ",
+        None,
+        facecolor=COLORS["blue_fill"],
+        edgecolor="#8FB2C8",
+        textcolor=COLORS["blue_dark"],
+    )
+    draw_noise_texture(ax, 56.8, 17.0, COLORS["blue"])
+    draw_dit_block(
+        ax,
+        80.0,
+        21.0,
+        26.0,
+        56.0,
+        title="Structure DiT",
+        detail="16³ latent",
+        sparse=False,
+        facecolor=COLORS["blue_fill"],
+        edgecolor=COLORS["blue"],
+        textcolor=COLORS["blue_dark"],
+        mark_color=COLORS["blue"],
+    )
+    draw_process_node(
+        ax,
+        113.0,
+        39.0,
+        12.0,
+        22.0,
+        "vθˢ",
+        "velocity",
+        facecolor=COLORS["blue_fill"],
+        edgecolor="#8FB2C8",
+        textcolor=COLORS["blue_dark"],
+    )
+    draw_process_node(
+        ax,
+        131.0,
+        35.0,
+        13.0,
+        30.0,
+        "ODE",
+        "t = 1 -> 0",
+        facecolor=COLORS["amber_fill"],
+        edgecolor=COLORS["amber"],
+        textcolor=COLORS["amber_dark"],
+    )
+    draw_process_node(
+        ax,
+        150.0,
+        37.0,
+        13.0,
+        26.0,
+        "Frozen",
+        "decoder",
+        facecolor=COLORS["coral_fill"],
+        edgecolor=COLORS["coral"],
+        textcolor=COLORS["coral_dark"],
+    )
+    draw_decoder_texture(ax, 153.1, 40.2)
+    draw_support_output(
+        ax,
+        168.0,
+        27.0,
+        9.0,
+        45.0,
+        facecolor=COLORS["green_fill"],
+        edgecolor=COLORS["green"],
+        textcolor=COLORS["green_dark"],
+        active_color=COLORS["green"],
+    )
+
+    poly_arrow(ax, [(42.0, 53.0), (61.0, 53.0), (61.0, 66.0), (80.0, 66.0)], color=COLORS["purple"], linewidth=1.1, linestyle=CONDITION_STYLE)
+    arrow(ax, (71.0, 21.5), (80.0, 36.0), color=COLORS["blue"], linewidth=1.2)
+    arrow(ax, (106.0, 50.0), (113.0, 50.0), color=COLORS["blue"], linewidth=1.2)
+    arrow(ax, (125.0, 50.0), (131.0, 50.0), color=COLORS["blue"], linewidth=1.2)
+    arrow(ax, (144.0, 50.0), (150.0, 50.0), color=COLORS["blue"], linewidth=1.2)
+    arrow(ax, (163.0, 50.0), (168.0, 50.0), color=COLORS["blue"], linewidth=1.2)
+
+
+def draw_feature_panel(ax):
+    draw_panel_frame(
+        ax,
+        "b",
+        "Feature Flow: generate local features on S",
+        facecolor=COLORS["panel_feature"],
+        edgecolor=COLORS["panel_feature_edge"],
+        accent=COLORS["teal"],
+    )
+
+    draw_feature_condition_card(
+        ax,
+        5.0,
+        64.0,
+        42.0,
+        20.0,
+        "Cross-attention",
+        "global + 16³ tokens",
+        facecolor=COLORS["purple_fill"],
+        edgecolor="#A793C3",
+        textcolor=COLORS["purple_dark"],
+        kind="cross",
+    )
+    draw_feature_condition_card(
+        ax,
+        5.0,
+        39.0,
+        42.0,
+        20.0,
+        "Residual injection",
+        "global + 64³ voxel at q",
+        facecolor=COLORS["purple_alt_fill"],
+        edgecolor="#B786A5",
+        textcolor=COLORS["purple_dark"],
+        kind="residual",
+    )
+    rounded_box(
+        ax,
+        5.0,
+        6.0,
+        42.0,
+        28.0,
+        facecolor=COLORS["teal_fill"],
+        edgecolor=COLORS["teal"],
+        linewidth=0.85,
+        radius=1.1,
+        zorder=3,
+    )
+    ax.text(30.0, 28.0, "Local modulation", ha="center", va="center", fontsize=FONT_CARD, fontweight="semibold", color=COLORS["teal_dark"], zorder=7)
+    draw_condition_icon(ax, 8.2, 10.7, "local")
+    draw_process_node(
+        ax,
+        55.0,
+        38.0,
+        23.0,
+        31.0,
+        "Feature token",
+        "at q",
+        facecolor=COLORS["teal_fill"],
+        edgecolor=COLORS["teal"],
+        textcolor=COLORS["teal_dark"],
+    )
+    draw_noise_texture(ax, 62.3, 15.7, COLORS["teal"])
+    draw_process_node(
+        ax,
+        55.0,
+        12.0,
+        23.0,
+        16.0,
+        "xₜᶠ(q)",
+        None,
+        facecolor=COLORS["teal_fill"],
+        edgecolor=COLORS["teal"],
+        textcolor=COLORS["teal_dark"],
+    )
+    draw_dit_block(
+        ax,
+        88.0,
+        17.0,
+        26.0,
+        61.0,
+        title="Feature DiT",
+        detail="sparse on S",
+        sparse=True,
+        facecolor=COLORS["teal_fill"],
+        edgecolor=COLORS["teal"],
+        textcolor=COLORS["teal_dark"],
+        mark_color=COLORS["teal"],
+    )
+    draw_process_node(
+        ax,
+        121.0,
+        40.0,
+        13.0,
+        22.0,
+        "vθᶠ(q)",
+        "velocity",
+        facecolor=COLORS["teal_fill"],
+        edgecolor=COLORS["teal"],
+        textcolor=COLORS["teal_dark"],
+    )
+    draw_process_node(
+        ax,
+        140.0,
+        36.0,
+        14.0,
+        30.0,
+        "ODE",
+        "t = 1 -> 0",
+        facecolor=COLORS["amber_fill"],
+        edgecolor=COLORS["amber"],
+        textcolor=COLORS["amber_dark"],
+    )
+    draw_feature_output(ax, 159.0, 35.0, 18.0, 23.0)
+    rounded_box(
+        ax,
+        157.0,
+        62.0,
+        20.0,
+        22.0,
+        facecolor=COLORS["green_fill"],
+        edgecolor=COLORS["green"],
+        linewidth=0.85,
+        radius=1.1,
+        zorder=3,
+    )
+    ax.text(167.0, 78.5, "Support S", ha="center", va="center", fontsize=FONT_CARD, fontweight="semibold", color=COLORS["green_dark"], zorder=7)
+    ax.text(167.0, 71.0, "context A(q; S)", ha="center", va="center", fontsize=FONT_NOTE, color=COLORS["green_dark"], zorder=7)
+    draw_support_context_grid(ax, 165.8, 62.8)
+
+    poly_arrow(ax, [(47.0, 74.0), (82.0, 74.0), (82.0, 68.0), (88.0, 68.0)], color=COLORS["purple"], linewidth=1.1, linestyle=CONDITION_STYLE)
+    poly_arrow(ax, [(47.0, 49.0), (51.0, 49.0), (51.0, 57.0), (55.0, 57.0)], color=COLORS["purple"], linewidth=1.1, linestyle=CONDITION_STYLE)
+    ax.text(30.0, 18.5, "dental neighborhood", ha="center", va="center", fontsize=FONT_NOTE, color=COLORS["purple_dark"], zorder=7)
+    ax.text(30.0, 9.5, "support context A(q; S)", ha="center", va="center", fontsize=FONT_NOTE, color=COLORS["green_dark"], zorder=7)
+
+    poly_arrow(ax, [(157.0, 73.0), (117.0, 73.0), (117.0, 4.5), (47.0, 4.5), (47.0, 8.0)], color=COLORS["blue"], linewidth=1.0)
+    poly_arrow(ax, [(47.0, 23.0), (51.0, 23.0), (51.0, 45.0), (55.0, 45.0)], color=COLORS["purple"], linewidth=1.1, linestyle=CONDITION_STYLE)
+    arrow(ax, (78.0, 53.5), (88.0, 53.5), color=COLORS["blue"], linewidth=1.2)
+    arrow(ax, (78.0, 20.0), (88.0, 35.0), color=COLORS["blue"], linewidth=1.15)
+    arrow(ax, (114.0, 51.0), (121.0, 51.0), color=COLORS["blue"], linewidth=1.2)
+    arrow(ax, (134.0, 51.0), (140.0, 51.0), color=COLORS["blue"], linewidth=1.2)
+    arrow(ax, (154.0, 51.0), (159.0, 51.0), color=COLORS["blue"], linewidth=1.2)
 
 
 def build_figure():
-    fig, ax = plt.subplots(figsize=(FIG_WIDTH_IN, FIG_HEIGHT_IN))
-    ax.set_xlim(0, 24)
-    ax.set_ylim(0, 7.2)
-    ax.set_aspect("equal")
-    ax.axis("off")
+    fig = plt.figure(figsize=(FIG_WIDTH_IN, FIG_HEIGHT_IN))
+    structure_ax = fig.add_axes([0.02, 0.545, 0.96, 0.41])
+    feature_ax = fig.add_axes([0.02, 0.055, 0.96, 0.41])
+    configure_axis(structure_ax)
+    configure_axis(feature_ax)
 
-    panel(
-        ax,
-        0.28,
-        0.35,
-        6.55,
-        6.45,
-        "Case-aligned query coordinate",
-        "a",
-        fill="#F8FAFB",
-        edge="#B8C8D2",
-    )
-    panel(
-        ax,
-        7.08,
-        0.35,
-        16.64,
-        6.45,
-        "Coordinate-wise multi-scale conditioning for Feature Flow",
-        "b",
-        fill="#FBFAFD",
-        edge="#D8CEE5",
-    )
-
-    draw_case_context(ax, 0.72, 1.35, 3.72, 4.32)
-    rounded_box(
-        ax,
-        4.74,
-        2.06,
-        1.35,
-        2.36,
-        fc=COLORS["blue_fill"],
-        ec="#9DBCCE",
-        radius=0.06,
-        zorder=7,
-    )
-    ax.text(
-        5.42,
-        4.04,
-        r"$q\in\hat O$",
+    draw_structure_panel(structure_ax)
+    draw_feature_panel(feature_ax)
+    fig.text(
+        0.5,
+        0.505,
+        "Shared flow matching  |  t = 1 (noise) -> t = 0 (data)",
         ha="center",
         va="center",
-        fontsize=5.6,
-        fontweight="semibold",
-        color=COLORS["blue_dark"],
-        zorder=9,
+        fontsize=FONT_NOTE,
+        color=COLORS["amber_dark"],
+        bbox={"boxstyle": "round,pad=0.22", "facecolor": COLORS["amber_fill"], "edgecolor": COLORS["amber"], "linewidth": 0.6},
     )
-    q_grid_x, q_grid_y = 4.94, 2.48
-    for row in range(3):
-        for col in range(3):
-            ax.add_patch(
-                Rectangle(
-                    (q_grid_x + col * 0.27, q_grid_y + row * 0.27),
-                    0.25,
-                    0.25,
-                    facecolor=COLORS["blue"] if (row, col) == (1, 1) else COLORS["white"],
-                    edgecolor="#8FADBF",
-                    linewidth=0.25,
-                    zorder=8,
-                )
-            )
-    arrow(ax, (4.42, 3.30), (4.72, 3.30), color=COLORS["blue"], lw=0.9, mutation_scale=5.8)
-    ax.text(
-        3.52,
-        1.00,
-        "Upper jaw  |  Lower jaw  |  Margin  |  FDI",
-        ha="center",
-        va="center",
-        fontsize=5.0,
-        color=COLORS["muted"],
-        zorder=8,
-    )
-
-    draw_global_voxel_group(ax, 7.62, 4.22, 5.12, 1.58)
-    draw_local_support_group(ax, 7.62, 2.10, 5.12, 1.58)
-
-    rounded_box(
-        ax,
-        13.14,
-        4.55,
-        2.06,
-        0.92,
-        "Cross-attention\ntokens",
-        fc=COLORS["purple_fill"],
-        ec="#A793C3",
-        fontsize=4.9,
-        weight="semibold",
-        radius=0.06,
-        color=COLORS["purple_dark"],
-        zorder=7,
-    )
-    rounded_box(
-        ax,
-        13.14,
-        2.42,
-        2.06,
-        0.92,
-        "Feature token\nat $q$",
-        fc=COLORS["blue_fill"],
-        ec="#9DBCCE",
-        fontsize=4.9,
-        weight="semibold",
-        radius=0.06,
-        color=COLORS["blue_dark"],
-        zorder=7,
-    )
-    draw_feature_dit(ax, 15.86, 2.18, 3.12, 2.78)
-    rounded_box(
-        ax,
-        19.63,
-        2.92,
-        3.00,
-        1.30,
-        r"$\hat F_q$",
-        fc=COLORS["white"],
-        ec="#8FB2C8",
-        fontsize=7.2,
-        weight="semibold",
-        radius=0.06,
-        color=COLORS["blue_dark"],
-        zorder=7,
-    )
-    for offset, color in enumerate(("#5E91B7", "#66A392", "#D39A52", "#8467AD")):
-        ax.add_patch(
-            Rectangle(
-                (21.50 + offset * 0.15, 3.20),
-                0.08,
-                0.38,
-                facecolor=color,
-                edgecolor="none",
-                zorder=8,
-            )
+    fig.add_artist(
+        ConnectionPatch(
+            xyA=(172.5, 27.0),
+            coordsA=structure_ax.transData,
+            xyB=(172.5, 84.0),
+            coordsB=feature_ax.transData,
+            arrowstyle="-|>",
+            mutation_scale=8.5,
+            linewidth=1.25,
+            color=COLORS["blue"],
+            shrinkA=1.8,
+            shrinkB=2.0,
+            zorder=8,
         )
-
-    # Global/voxel features supply both cross-attention tokens and a residual
-    # conditioning path; dental and support cues update the sparse feature token.
-    arrow(
-        ax,
-        (12.76, 5.01),
-        (13.12, 5.01),
-        color=COLORS["purple"],
-        lw=0.92,
-        style=CONDITION_STYLE,
-        mutation_scale=5.8,
-    )
-    poly_arrow(
-        ax,
-        [(12.76, 4.76), (12.96, 4.76), (12.96, 3.86), (14.17, 3.86), (14.17, 3.36)],
-        color=COLORS["purple"],
-        lw=0.72,
-        style=CONDITION_STYLE,
-        mutation_scale=5.0,
-        zorder=5.8,
-    )
-    ax.text(
-        13.54,
-        4.03,
-        "residual",
-        ha="center",
-        va="center",
-        fontsize=4.25,
-        color=COLORS["purple_dark"],
-        zorder=8,
-    )
-    arrow(
-        ax,
-        (12.76, 3.05),
-        (13.12, 2.98),
-        color=COLORS["purple"],
-        lw=0.88,
-        style=CONDITION_STYLE,
-        mutation_scale=5.6,
-    )
-    arrow(
-        ax,
-        (12.76, 2.55),
-        (13.12, 2.76),
-        color=COLORS["blue"],
-        lw=0.95,
-        mutation_scale=5.8,
-    )
-    poly_arrow(
-        ax,
-        [(15.22, 5.01), (15.54, 5.01), (15.54, 4.42), (15.84, 4.42)],
-        color=COLORS["purple"],
-        lw=0.88,
-        style=CONDITION_STYLE,
-        mutation_scale=5.6,
-    )
-    arrow(
-        ax,
-        (15.22, 2.88),
-        (15.84, 3.34),
-        color=COLORS["blue"],
-        lw=1.0,
-        mutation_scale=6.1,
-    )
-    arrow(
-        ax,
-        (19.00, 3.58),
-        (19.61, 3.58),
-        color=COLORS["blue"],
-        lw=1.1,
-        mutation_scale=6.6,
     )
 
-    rounded_box(
-        ax,
-        7.82,
-        1.10,
-        3.20,
-        0.50,
-        r"Structure: $C_S^g,\ C_{S,16}^v$",
-        fc=COLORS["white"],
-        ec="#B8A6CC",
-        fontsize=4.9,
-        weight="semibold",
-        radius=0.035,
-        color=COLORS["purple_dark"],
-        zorder=8,
-    )
-    rounded_box(
-        ax,
-        11.26,
-        1.10,
-        4.85,
-        0.50,
-        r"Feature: $C_F^g,\ C_{F,16}^v,\ C_{F,64}^v(q),\ C_F^n(q),\ A(q;\hat O)$",
-        fc=COLORS["white"],
-        ec="#A6C4D5",
-        fontsize=4.0,
-        weight="semibold",
-        radius=0.035,
-        color=COLORS["blue_dark"],
-        zorder=8,
+    require_matplotlib_panel_alignment(
+        fig,
+        axes=[structure_ax, feature_ax],
+        panel_ids=["a", "b"],
+        column_groups=[{"id": "two-stage-flow", "panels": ["a", "b"]}],
+        json_out=ROOT / "feature_condition_detail.alignment.json",
+        overlay_svg=ROOT / "feature_condition_detail.alignment.svg",
+        tolerance_pt=1.5,
+        gutter_tolerance_pt=1.5,
+        strict=True,
     )
 
-    fig.subplots_adjust(left=0, right=1, bottom=0, top=1)
-    for extension, kwargs in {"png": {"dpi": 600}, "pdf": {}, "svg": {}}.items():
-        fig.savefig(
-            ROOT / f"feature_condition_detail.{extension}",
-            facecolor=COLORS["white"],
-            edgecolor="none",
-            metadata={"Title": "Coordinate-wise multi-scale conditioning for Feature Flow"},
-            **kwargs,
-        )
+    export_metadata = {"Title": "Two-stage conditional flow matching"}
+    fig.savefig(
+        ROOT / "feature_condition_detail.png",
+        dpi=600,
+        facecolor=COLORS["white"],
+        edgecolor="none",
+        metadata=export_metadata,
+    )
+    fig.savefig(
+        ROOT / "feature_condition_detail.pdf",
+        facecolor=COLORS["white"],
+        edgecolor="none",
+        metadata=export_metadata,
+    )
+    svg_path = ROOT / "feature_condition_detail.svg"
+    fig.savefig(
+        svg_path,
+        facecolor=COLORS["white"],
+        edgecolor="none",
+        metadata=export_metadata,
+    )
+    svg_path.write_text(
+        "\n".join(line.rstrip() for line in svg_path.read_text(encoding="utf-8").splitlines()) + "\n",
+        encoding="utf-8",
+    )
+    fig.savefig(
+        ROOT / "feature_condition_detail.tiff",
+        dpi=600,
+        facecolor=COLORS["white"],
+        edgecolor="none",
+    )
     plt.close(fig)
 
 

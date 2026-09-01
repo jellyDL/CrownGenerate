@@ -363,53 +363,34 @@ This representation jointly encodes local geometry, distance, and orientation wi
 \hspace{2em}These outputs provide case-level, voxel-level, and coordinate-level dental information. The concrete stage allocation and coordinate-level injection are described in Sec.~\ref{subsec3_5}.
 
 %% 3.5
-\subsection{Loss Function}\label{subsec3_5}
+\subsection{Two-Stage Conditional Flow Matching}\label{subsec3_5}
+\label{subsec:two_stage_cfm}
 
-\hspace{2em}We introduce three efficient loss functions to further enhance performance, including centroid-guided loss \cite{zhao2024few}, local region loss, and boundary-constrained loss \cite{tan2023boundary}. These functions can effectively improve the accuracy and robustness of segmentation models.
+\hspace{2em}The generation process follows a coarse-to-fine two-stage conditional flow matching framework. Structure Flow first predicts the active crown support $\hat{O}$ from noise, guided by the global condition $C_S^g$ and the downsampled voxel condition $C_{S,16}^v$. Feature Flow then generates local geometric latent features at each coordinate within the predicted support, using a more comprehensive set of dental conditions, including case-level, voxel-aligned, and coordinate-neighborhood conditions, together with structural context derived from the active support. The two stages share the same flow-matching probability path, but operate in separate latent spaces and adopt independent condition sets and velocity networks. During training, all dental conditions are dropped at the case level with a probability of 0.1. The two stages are described in detail below.
 
-\bigskip
+%% 3.5.1
+\subsubsection{Structure Flow}\label{subsec3_5_1}
+\label{subsubsec:structure_flow}
 
-\textbf{Centroid Guided Loss.} The centroid guided loss is designed to accurately locate tooth centroids. It is defined as:
+\hspace{2em}Structure Flow is designed to determine the spatial support of the crown latent variables. 
+Specifically, the active coordinates of the VAE latent representation are first represented as a $64^3$ binary occupancy grid $O$, which is then compressed by the frozen TRELLIS structure encoder into a $16^3$ structural latent variable $x_0^S$ with 8 channels~\cite{ref8,ref9}. During inference, as illustrated in Fig.~3(a), the noisy state $x_t^S$ and the structural condition $C^S$ are fed into tructure DiT to predict the conditional velocity $v_\theta^S(x_t^S,t,C^S)$. The resulting velocity field is integrated from the noise endpoint to the near-data endpoint using an ordinary differential equation (ODE), yielding $\hat{x}_0^S$. Finally, the frozen structure decoder reconstructs $\hat{x}_0^S$ into $64^3$ occupancy scores, from which the predicted active support $\hat{O}$ is determined.
 
-\begin{equation} 
-L_{centroid}=\frac{1}{N}\sum_{i=1}^N\left\|C_i-\hat{C}_i\right\|^2
-\end{equation}
-where \( N \) denotes the number of teeth. \( C_{i} \) corresponds to the reference centroid of the \( i-th \) tooth. While \(\hat{C}_{i}\) signifies the predicted centroid of the \( i-th \) tooth.
+%% 3.5.2
+\subsubsection{Feature Flow}\label{subsec3_5_2}
+\label{subsubsec:feature_flow}
 
-\bigskip
+\hspace{2em}Given an active support $S$, Feature Flow models the normalized local geometric latent variable $x_0^F(q)$ at each coordinate $q \in S$. 
+The multi-scale dental conditions defined in Section~3.4 and the structural context derived from the active support jointly form three complementary injection pathways, as shown in Fig.~3(b). 
+In the cross-attention pathway, $C_F^g$ and the flattened $C_{F,16}^v$ serve as global and coarse-scale condition tokens that can be directly accessed by Feature DiT. 
+In the residual injection pathway, $C_F^g$ and the voxel-aligned condition $C_{F,64}^v(q)$ at the query position are injected into the feature token in a residual manner. 
+In the local modulation pathway, $C_F^n(q)$ and $A(q;S)$ jointly modulate the feature token. 
+The structural context $A(q;S)$ is encoded from 18 axial active neighbors with dilation rates of 1, 2, and 4, and is not considered a dental condition.
 
-\textbf{Local Region Loss.} Local region loss focuses on precise segmentation within local regions. It is defined as:
-\begin{equation}
-L_{local}=\frac{1}{M}\sum_{j=1}^M\left(1-\frac{2\cdot TP_j}{TP_j+FP_j+FN_j}\right)
-\end{equation}
-where \( M \) is the number of local regions, \( TP_j \) refers to the true positive count for the \( j-th \) local region, \( FP_j \) denotes the false-positive count within the \( j-th \) local region, and \( FN_j \) denotes the false-negative count within the \( j-th \) local region.
-
-\setlength{\parindent}{0pt}
-\hspace{2em}This loss function aims to maximize the Dice coefficient within each local region, ensuring precise segmentation.
-
-\bigskip
-
-\textbf{Boundary-Constrained Loss.} The boundary-constrained loss ensures clear and accurate delineation of tooth boundaries. It is defined as
-\begin{equation}
-L_{boundary}=\frac{1}{K}\sum_{k=1}^K\left(1-\frac{\left|B_k\cap\hat{B}_k\right|}{\left|B_k\cup\hat{B}_k\right|}\right)
-\end{equation}
-where \( K \) is the number of boundaries, \( B_k \) is associated with the ground-truth boundary of the \( k-th \) tooth, and \(\hat{B}_{k}\) pertains to the predicted boundary of the \( k-th \) tooth.
-
-\setlength{\parindent}{0pt}
-\hspace{2em}This loss function minimizes the boundary distance between the predicted and true boundaries, ensuring accurate delineation.
-
-\bigskip
-
-\textbf{Final Loss Function.} The final loss function combines the above three losses with appropriate weights:
-\begin{equation}
-L_{final} = \alpha \cdot L_{centroid} + \beta \cdot L_{local} + \gamma \cdot L_{boundary}
-\label{eq:final_loss}
-\end{equation}
-where \( \alpha \), \( \beta \) and \( \gamma \) are hyperparameters that balance the contributions of each loss function.
-
-\setlength{\parindent}{0pt}
-
-\hspace{2em}This comprehensive loss function ensures that the model achieves high accuracy in both centroid localization, local region segmentation, and boundary delineation. By integrating these complementary loss components, the model becomes more robust to variations in dental morphology and arrangement, effectively handling cases with complex tooth geometry. 
+\hspace{2em}The feature token updated by residual injection and local modulation is fed into the sparse Feature DiT together with the noisy state $x_t^F(q)$, while accessing the global and coarse-scale conditions through cross-attention. 
+The network performs feature interactions within the support $S$ and predicts the local conditional velocity
+$v_\theta^F\bigl(x_t^F(q),t,\mathcal{C}^F(S)\bigr)$. 
+After ODE integration, the local geometric latent feature $\hat{F}_q$ is obtained. 
+During formal inference, $\hat{F}=\{\hat{F}_q \mid q \in \hat{O}\}$ and the predicted support jointly form $\hat{Z}=(\hat{O},\hat{F})$, which is then decoded by the frozen VAE.
 
 %% 4
 \section{Experimental and Discussions}\label{sec4}

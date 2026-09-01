@@ -131,11 +131,11 @@ Structure Flow用于确定冠体潜变量的空间支持。首先，将VAE潜变
 
 ### 3.6 训练目标
 
-稀疏几何VAE、Structure Flow和Feature Flow依次训练。与各模块的表示和生成过程相对应，训练目标分为VAE重建与几何一致性约束、Structure流匹配目标，以及Feature潜变量、解码表面与短轨迹终点监督。各损失项及其权重见表2。
+稀疏几何VAE、Structure Flow和Feature Flow依次训练。对应目标分别为VAE重建与几何一致性、Structure流匹配，以及Feature潜变量、解码表面和短轨迹终点监督；具体损失及权重见表2。
 
 #### 3.6.1 VAE重建与几何一致性目标
 
-几何VAE的基础重建项联合约束顶点偏移、轴向相交、逐级细分、四边形剖分位置、有符号距离和定向法向，并以KL散度正则化潜空间。为改善局部连续性，目标进一步匹配顶点、距离和法向在六邻域上的一阶差分与离散Laplacian，并加入线积分一致性和高频细节监督。总体目标写为
+几何VAE联合重建顶点偏移、轴向相交、逐级细分、四边形剖分位置、有符号距离和定向法向，并以KL散度正则化潜空间。为保持局部连续性和高频细节，进一步约束顶点、距离和法向在六邻域上的一阶差分、离散Laplacian、距离-法向线积分一致性及高频细节。总体目标为
 
 \[
 \mathcal L_{\mathrm{VAE}}=
@@ -147,21 +147,21 @@ Structure Flow用于确定冠体潜变量的空间支持。首先，将VAE潜变
 \mathcal L_{\mathrm{detail}},
 \]
 
-其中 \(\mathcal L_{\mathrm{rec}}\)、\(\mathcal L_{\mathrm{grad}}\) 和 \(\mathcal L_{\mathrm{lap}}\) 均为对应几何属性的加权组合。高频权重由参考法向在有效六邻域内的平均余弦差构造，使牙尖、嵴和沟窝等高变化区域获得更高权重。
+其中，\(\mathcal L_{\mathrm{rec}}\)、\(\mathcal L_{\mathrm{grad}}\)和\(\mathcal L_{\mathrm{lap}}\)均为相应几何属性的加权组合；高频权重由参考法向在有效六邻域内的平均余弦差构造，以提高牙尖、嵴和沟窝等高变化区域的监督权重。
 
-本文通过有符号距离-法向线积分一致性约束局部距离变化，而不采用将梯度模长固定为1的标准Eikonal目标。对相邻活动单元 \((j,k)\)，定义
+本文以距离-法向线积分一致性而非标准Eikonal约束刻画局部距离变化。对相邻活动单元\((j,k)\)，定义
 
 \[
 r_{jk}(d,n)=(d_j-d_k)-\frac{1}{2}(n_j+n_k)^\top(\xi_j-\xi_k),
 \]
 
-其中 \((\hat d,\hat n)\) 与 \((d,n)\) 分别表示VAE解码预测和参考目标，并令 \(\mathcal L_{\mathrm{int}}\) 为两者线积分残差之间的Smooth-L1损失。该项使离散距离差与邻接边上的法向积分一致，同时允许局部曲率引起的法向变化。
+其中，\((\hat d,\hat n)\)与\((d,n)\)分别表示VAE解码预测和参考目标，\(\mathcal L_{\mathrm{int}}\)为二者线积分残差之间的Smooth-L1损失，使离散距离差与邻接边上的法向积分一致，并允许局部曲率引起的法向变化。
 
 #### 3.6.2 Structure与Feature生成目标
 
-Structure阶段仅采用Sec. 3.5.1定义的流匹配损失，即 \(\mathcal L_{\mathrm{Structure}}=\mathcal L_{\mathrm{FM}}^S\)。时间 \(t\) 从logit-normal分布采样，其logit域均值和标准差均为1.0。结构潜变量重建误差、占位Dice和IoU仅用于诊断与验证，不参与反向传播。
+Structure阶段仅优化流匹配损失\(\mathcal L_{\mathrm{Structure}}=\mathcal L_{\mathrm{FM}}^S\)。时间\(t\)从logit-normal分布采样；结构潜变量误差、占位Dice和IoU仅用于诊断与验证。
 
-Feature阶段采用随机偏移的分层均匀时间采样，即 \(t_i=[u+(i-1)/B]\bmod 1\)，其中 \(B\) 为批量内病例数，\(i=1,\ldots,B\)，\(u\sim\mathcal U(0,1)\)。其总体目标写为
+Feature阶段采用随机偏移的分层均匀时间采样，其目标为
 
 \[
 \mathcal L_{\mathrm{Feature}}=
@@ -171,12 +171,10 @@ Feature阶段采用随机偏移的分层均匀时间采样，即 \(t_i=[u+(i-1)/
 \lambda_{\mathrm{surf}}\mathcal L_{\mathrm{surf}}+
 \lambda_{\mathrm{end}}\mathcal L_{\mathrm{end}},
 \]
+其中，\(\mathcal L_{\mathrm{FM}}^{w}\)使用均值归一的四次时间权重\(w_v(t)=(1+2t^4)/(1+2/5)\)；\(\mathcal L_{x_0}\)和\(\mathcal L_{\Delta}\)分别约束数据端估计\(\hat x_0^F\)及18个轴向邻居的潜变量差分，并按\(1-t\)衰减。稀疏损失按病例汇总、等权平均，并以参考潜变量的局部梯度能量提高高曲率区域的权重。
+其中，\(\mathcal L_{\mathrm{FM}}^{w}\)采用归一化时间权重；\(\mathcal L_{x_0}\)和\(\mathcal L_{\Delta}\)分别约束数据端估计与局部潜变量差分，并随时间衰减。稀疏损失按病例汇总、等权平均，并提高高曲率区域的权重。
 
-其中 \(\mathcal L_{\mathrm{FM}}^{w}\) 使用均值归一的四次时间权重 \(w_v(t)=(1+2t^4)/(1+2/5)\)，\(\mathcal L_{x_0}\) 约束数据端估计 \(\hat x_0^F\)，\(\mathcal L_{\Delta}\) 约束三个膨胀率下共18个轴向邻居的潜变量差分，后两项均按 \(1-t\) 衰减。所有稀疏损失先在病例内汇总，再对病例等权平均，并按参考潜变量的局部梯度能量提高高曲率区域的权重。
-
-潜变量误差未必对应解码后的表面误差，因此每个优化步均对 \(t\leq0.75\) 的样本计算 \(\mathcal L_{\mathrm{surf}}\)。冻结VAE在不使用细分教师强制（teacher forcing）的情况下分别解码参考潜变量和 \(\hat x_0^F\)，并在二者最终FDG支持的重叠坐标上约束FDG几何、符号、方向及邻域一致性；高频项沿用Sec. 3.6.1的病例归一化权重，邻域项每例至多使用32,768个确定性采样中心。该表面项按符合时间条件样本的平均 \(1-t\) 加权。
-
-短轨迹终点项 \(\mathcal L_{\mathrm{end}}\) 在第1步及此后每4步计算：模型从高斯噪声执行时间重标定为3.0的4步条件Euler轨迹，并以终点潜变量均方误差约束短程采样。该辅助轨迹不使用CFG或终点表面损失，也不替代端到端推理。
+在接近数据端的时间区间内，冻结VAE在不使用细分教师强制（teacher forcing）的条件下计算\(\mathcal L_{\mathrm{surf}}\)，约束重叠FDG支持上的几何、符号、方向及邻域一致性。\(\mathcal L_{\mathrm{end}}\)通过短程条件Euler轨迹约束终点潜变量误差。具体损失权重和训练参数见表2。
 
 ### 3.7 连续定向场重建与网格提取
 

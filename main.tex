@@ -364,26 +364,74 @@ This representation jointly encodes local geometry, distance, and orientation wi
 
 %% 3.5
 \subsection{Two-Stage Conditional Flow Matching}\label{subsec3_5}
-\label{subsec:two_stage_cfm}
 
 \hspace{2em}The generation process follows a coarse-to-fine two-stage conditional flow matching framework. Structure Flow first predicts the active crown support $\hat{O}$ from noise, guided by the global condition $C_S^g$ and the downsampled voxel condition $C_{S,16}^v$. Feature Flow then generates local geometric latent features at each coordinate within the predicted support, using a more comprehensive set of dental conditions, including case-level, voxel-aligned, and coordinate-neighborhood conditions, together with structural context derived from the active support. The two stages share the same flow-matching probability path, but operate in separate latent spaces and adopt independent condition sets and velocity networks. During training, all dental conditions are dropped at the case level with a probability of 0.1. The two stages are described in detail below.
 
 %% 3.5.1
 \subsubsection{Structure Flow}\label{subsec3_5_1}
-\label{subsubsec:structure_flow}
 
 \hspace{2em}Structure Flow is designed to determine the spatial support of the crown latent variables. 
 Specifically, the active coordinates of the VAE latent representation are first represented as a $64^3$ binary occupancy grid $O$, which is then compressed by the frozen TRELLIS structure encoder into a $16^3$ structural latent variable $x_0^S$ with 8 channels~\cite{ref8,ref9}. During inference, as illustrated in Fig.~3(a), the noisy state $x_t^S$ and the structural condition $C^S$ are fed into tructure DiT to predict the conditional velocity $v_\theta^S(x_t^S,t,C^S)$. The resulting velocity field is integrated from the noise endpoint to the near-data endpoint using an ordinary differential equation (ODE), yielding $\hat{x}_0^S$. Finally, the frozen structure decoder reconstructs $\hat{x}_0^S$ into $64^3$ occupancy scores, from which the predicted active support $\hat{O}$ is determined.
 
 %% 3.5.2
 \subsubsection{Feature Flow}\label{subsec3_5_2}
-\label{subsubsec:feature_flow}
 
 \hspace{2em}Given an active support $S$, Feature Flow models the normalized local geometric latent variable $x_0^F(q)$ at each coordinate $q \in S$. The multi-scale dental conditions defined in Section~3.4 and the structural context derived from the active support jointly form three complementary injection pathways, as shown in Fig.~3(b). 
 In the cross-attention pathway, $C_F^g$ and the flattened $C_{F,16}^v$ serve as global and coarse-scale condition tokens that can be directly accessed by Feature DiT. In the residual injection pathway, $C_F^g$ and the voxel-aligned condition $C_{F,64}^v(q)$ at the query position are injected into the feature token in a residual manner. In the local modulation pathway, $C_F^n(q)$ and $A(q;S)$ jointly modulate the feature token. 
 The structural context $A(q;S)$ is encoded from 18 axial active neighbors with dilation rates of 1, 2, and 4, and is not considered a dental condition.
 
 \hspace{2em}The feature token updated by residual injection and local modulation is fed into the sparse Feature DiT together with the noisy state $x_t^F(q)$, while accessing the global and coarse-scale conditions through cross-attention. The network performs feature interactions within the support $S$ and predicts the local conditional velocity $v_\theta^F\bigl(x_t^F(q),t,\mathcal{C}^F(S)\bigr)$. After ODE integration, the local geometric latent feature $\hat{F}_q$ is obtained. During formal inference, $\hat{F}=\{\hat{F}_q \mid q \in \hat{O}\}$ and the predicted support jointly form $\hat{Z}=(\hat{O},\hat{F})$, which is then decoded by the frozen VAE.
+
+%% 3.6 
+\subsection{Training Objectives}\label{subsec3_6}
+
+\hspace{2em}The sparse geometry VAE, Structure Flow, and Feature Flow are optimized sequentially. Their respective objectives comprise VAE reconstruction and geometric-consistency losses, flow matching for Structure Flow, and latent-space, decoded-surface, and short-trajectory endpoint supervision for Feature Flow. Detailed loss terms and weights is reported in Table~\ref{tab:loss_weights}.
+
+%% 3.6.1
+\subsubsection{VAE Reconstruction and Geometric Consistency Objective}\label{subsec3_6_1}
+
+\hspace{2em}The geometry VAE jointly reconstructs vertex offsets, axis-aligned intersection indicators, multi-level subdivision masks, quadrilateral split locations, signed distances, and oriented normals, while the Kullback--Leibler (KL) divergence regularizes the latent space. To preserve local continuity and high-frequency detail, we additionally constrain the first-order differences and discrete Laplacians of the vertex, distance, and normal fields over the six-neighborhood, together with signed-distance--normal line-integral consistency and high-frequency detail supervision. The overall objective is
+\[
+\mathcal L_{\mathrm{VAE}}=
+\mathcal L_{\mathrm{rec}}+
+\lambda_{\mathrm{KL}}\mathcal L_{\mathrm{KL}}+
+\mathcal L_{\mathrm{grad}}+
+\mathcal L_{\mathrm{lap}}+
+\lambda_{\mathrm{int}}\mathcal L_{\mathrm{int}}+
+\mathcal L_{\mathrm{detail}}.
+\]
+
+Here, \(\mathcal L_{\mathrm{rec}}\), \(\mathcal L_{\mathrm{grad}}\), and \(\mathcal L_{\mathrm{lap}}\) are weighted combinations of the corresponding geometric attributes. High-frequency weights are computed from the mean cosine discrepancy of reference normals over valid six-neighborhoods, assigning greater supervision weights to high-variation regions such as cusps, ridges, grooves, and fossae.
+
+\hspace{2em}Rather than imposing the standard Eikonal constraint of unit gradient norm, we characterize local distance variation through signed-distance--normal line-integral consistency. For adjacent active cells \((j,k)\), we define
+\[
+r_{jk}(d,n)=(d_j-d_k)-\frac{1}{2}(n_j+n_k)^\top(\xi_j-\xi_k).
+\]
+
+Here, \((\hat d,\hat n)\) and \((d,n)\) denote the VAE-decoded predictions and reference targets, respectively. \(\mathcal L_{\mathrm{int}}\) is the Smooth-L1 loss between their corresponding line-integral residuals. This term aligns finite differences of the discrete distance field with normal line integrals along adjacent edges while allowing normal variations induced by local curvature.
+
+%% 3.6.2
+\subsubsection{Structure and Feature Generation Objectives}\label{subsec3_6_2}
+
+\hspace{2em}Structure Flow is optimized solely using the flow-matching loss,
+\[
+\mathcal L_{\mathrm{Structure}}=\mathcal L_{\mathrm{FM}}^S.
+\]
+The time variable \(t\) is sampled from a logit-normal distribution. Structure latent reconstruction error, occupancy Dice, and IoU are used only for diagnostic and validation purposes.
+
+Feature Flow employs randomly shifted stratified uniform time sampling and is optimized as
+\[
+\mathcal L_{\mathrm{Feature}}=
+\mathcal L_{\mathrm{FM}}^{w}+
+\lambda_0\mathcal L_{x_0}+
+\lambda_{\Delta}\mathcal L_{\Delta}+
+\lambda_{\mathrm{surf}}\mathcal L_{\mathrm{surf}}+
+\lambda_{\mathrm{end}}\mathcal L_{\mathrm{end}}.
+\]
+
+Here, \(\mathcal L_{\mathrm{FM}}^{w}\) uses normalized temporal weighting, whereas \(\mathcal L_{x_0}\) and \(\mathcal L_{\Delta}\) supervise the data-end estimate and local latent differences, respectively, with time-dependent attenuation. Sparse losses are aggregated within each case and then averaged across cases with equal weights; regions with higher local gradient energy in the reference latent variables receive greater weights.
+
+\hspace{2em}Near the data endpoint, a frozen VAE computes \(\mathcal L_{\mathrm{surf}}\) without subdivision teacher forcing to enforce geometric, sign, orientation, and neighborhood consistency over overlapping FDG supports. \(\mathcal L_{\mathrm{end}}\) constrains the endpoint latent error along a short conditional Euler trajectory. Detailed loss weights and training hyperparameters are provided in Table~\ref{tab:loss_weights}.
 
 %% 4
 \section{Experimental and Discussions}\label{sec4}

@@ -385,7 +385,7 @@ The structural context $A(q;S)$ is encoded from 18 axial active neighbors with d
 %% 3.6 
 \subsection{Training Objectives}\label{subsec3_6}
 
-\hspace{2em}The sparse geometry VAE, Structure Flow, and Feature Flow are optimized sequentially. Their respective objectives comprise VAE reconstruction and geometric-consistency losses, flow matching for Structure Flow, and latent-space, decoded-surface, and short-trajectory endpoint supervision for Feature Flow. Detailed loss terms and weights is reported in Table~\ref{tab:loss_weights}.
+\hspace{2em}The sparse geometry VAE, Structure Flow, and Feature Flow are optimized sequentially. Their respective objectives comprise VAE reconstruction and geometric-consistency losses, flow matching for Structure Flow, and latent-space, decoded-surface, and short-trajectory endpoint supervision for Feature Flow.
 
 %% 3.6.1
 \subsubsection{VAE Reconstruction and Geometric Consistency Objective}\label{subsec3_6_1}
@@ -431,14 +431,14 @@ Feature Flow employs randomly shifted stratified uniform time sampling and is op
 
 Here, \(\mathcal L_{\mathrm{FM}}^{w}\) uses normalized temporal weighting, whereas \(\mathcal L_{x_0}\) and \(\mathcal L_{\Delta}\) supervise the data-end estimate and local latent differences, respectively, with time-dependent attenuation. Sparse losses are aggregated within each case and then averaged across cases with equal weights; regions with higher local gradient energy in the reference latent variables receive greater weights.
 
-\hspace{2em}Near the data endpoint, a frozen VAE computes \(\mathcal L_{\mathrm{surf}}\) without subdivision teacher forcing to enforce geometric, sign, orientation, and neighborhood consistency over overlapping FDG supports. \(\mathcal L_{\mathrm{end}}\) constrains the endpoint latent error along a short conditional Euler trajectory. Detailed loss weights and training hyperparameters are provided in Table~\ref{tab:loss_weights}.
+\hspace{2em}Near the data endpoint, a frozen VAE computes \(\mathcal L_{\mathrm{surf}}\) without subdivision teacher forcing to enforce geometric, sign, orientation, and neighborhood consistency over overlapping FDG supports. \(\mathcal L_{\mathrm{end}}\) constrains the endpoint latent error along a short conditional Euler trajectory.
 
 %% 3.7 
 \subsection{Continuous Oriented Field Reconstruction and Mesh Extraction} \label{subsec3_7}
 
 \hspace{2em}As shown in Fig.~\ref{fig:framework}(c), the predicted latent representation \(\hat Z=(\hat O,\hat F)\) is decoded by the frozen VAE and reconstructed as a continuous oriented field for mesh extraction.
 
-\hspace{2em}At inference, one candidate is generated per case. Structure Flow and Feature Flow are integrated from Gaussian noise to the data endpoint under conditional guidance: Structure Flow predicts and gates the active support, whereas Feature Flow generates local geometric latent features that are decoded into sparse FDG geometry, distances, and normals. Settings are reported in Table~\ref{tab:inference_settings}.
+\hspace{2em}At inference, one candidate is generated per case. Structure Flow and Feature Flow are integrated from Gaussian noise to the data endpoint under conditional guidance: Structure Flow predicts and gates the active support, whereas Feature Flow generates local geometric latent features that are decoded into sparse FDG geometry, distances, and normals.
 
 \hspace{2em}Only active cells contributing to the largest connected component of the raw FDG mesh are retained. Let \(d_j\) and \(n_j\) denote the decoded distance and normalized normal at cell center \(\xi_j\). For query point \(y\), the retrieved neighborhood \(\mathcal N_K(y)\) defines
 \[
@@ -489,40 +489,9 @@ CD_{L1}=\frac{1}{2}\left[
 %% 4.3 
 \subsection{Implementation Details}\label{subsec4_3}
 
-\hspace{2em}Prior to training, all dental meshes undergo coordinate normalization: each mesh is centered at its centroid and scaled to fit within a unit sphere. This preprocessing ensures consistent scale across samples from different scanners and datasets, mitigating scale sensitivity. We adopted an end-to-end training approach to streamline the process and enable unified optimization. Specifically, the learning rate was initialized at $0.001$ with cosine annealing; the AdamW optimizer was employed with weight decay $0.01$; and a batch size of $8$ was selected to balance memory usage and stability. By combining optimized FPS sampling with this training strategy, PASegNet achieves practical efficiency for clinical 3D tooth segmentation.
+\hspace{2em}We adopted a sequential training strategy comprising a sparse VAE, Structure Flow, and Feature Flow. The model consisted of a sparse structural autoencoder, conditional three-dimensional diffusion Transformer (DiT) velocity networks, and dental conditioning adapters. The batch size was set to 2 for all stages, with eight gradient-accumulation steps during Structure Flow training. All models were optimized using AdamW with automatic mixed precision, a weight decay of 0.01, gradient-norm clipping, and cosine learning-rate decay after a 1,000-step warm-up. The initial learning rate was \(1\times10^{-4}\) for the VAE and non-denoising Structure parameters; it was \(5\times10^{-5}\) for Structure LoRA modules and \(1\times10^{-5}\) for unfrozen DiT blocks. For Feature Flow, the learning rates were \(2\times10^{-5}\) for LoRA modules and \(1\times10^{-4}\) for the remaining trainable parameters. The structural autoencoder was frozen during Structure Flow training, whereas the BF16 Transformer backbone was frozen during Feature Flow training. LoRA rank and dropout were set to 32 and 0, respectively, and checkpoints were selected according to validation performance.
 
-\hspace{2em}For the loss function hyperparameters $\alpha$, $\beta$, and $\gamma$ in Eq.~\ref{eq:final_loss}, we conducted a systematic grid search on the validation set, exploring weight combinations in the range $[0.1, 1.0]$ with a step size of $0.1$. Each configuration was evaluated based on validation mIoU and B-IoU metrics. The final weights ($\alpha=0.3$, $\beta=0.4$, $\gamma=0.3$) were selected to balance centroid localization, regional accuracy, and boundary precision, with the slightly higher $\beta$ reflecting the importance of local region segmentation accuracy.
-
-\hspace{2em}Systematic timing experiments on an NVIDIA RTX 3090 GPU demonstrate that PASegNet achieves an average inference time of 0.85 s per dental model (10,000 vertices) with only 4.2 GB GPU memory, enabling deployment on standard mid-range clinical workstations and real-time clinical applications. The architecture exhibits robust scalability across varying mesh resolutions (5,000 to 50,000 vertices), maintaining mIoU variance below 1.5\% with linear complexity relative to vertex count. This scalable AI infrastructure allows seamless integration into downstream clinical workflows, serving as a foundational segmentation engine for comprehensive digital dentistry solutions.
-
-\begin{table*}[h]
-    \captionsetup{
-      justification=raggedright,
-      singlelinecheck=false,
-      margin=2.35cm    % ← 调整此值以和表格左边对齐
-    }
-    \caption{\\Performance comparison with state-of-the-art methods}\label{table_network_performance_compare}%
-    \vspace{-8pt} 
-    \centering
-    \begin{tabular}{lccccc}
-        \hline
-        Method & OA(\%) & mIoU(\%) & B-IoU(\%) & Params(M) & FLOPs(G) \\ \hline
-        DGCNN \cite{wang2019dynamic} & 85.72 & 76.43 & 69.22 & 3.5 & 3.8 \\
-        IOSSAM \cite{huang2024iossam} & 87.89 & 84.23 & 78.15 & 9.2 & 14.8 \\
-        SimpSegNet \cite{jana20233d} & 88.45 & 74.70 & 68.67 & 4.8 & 5.1 \\
-        Geo-Net \cite{liu2024geo} & 88.76 & 80.91 & 80.45 & 10.2 & 5.8 \\
-        CurSegNet \cite{mao2024cursegnet} & 89.12 & 81.45 & 81.67 & 2.6 & 2.5 \\
-        TSegLab \cite{rekik2025tseglab} & 89.56 & 85.13 & 79.28 & 12.3 & 22.5 \\
-        \textbf{Ours} & \textbf{90.98} & \textbf{93.68} & \textbf{82.56} & 5.8 & 5.3 \\ \hline
-    \end{tabular}
-\end{table*}
-
-\begin{figure*}[t]
-    \centering
-    \includegraphics[width=1.0\textwidth]{merged_rendered_images.png}
-    \caption{Visual evaluation of segmentation results across methods. Comparison between existing approaches and our PASegNet on representative dental cases. Our method demonstrates enhanced accuracy in challenging scenarios including crowded dentition, tooth misalignments, and complex morphologies.}\label{fig:figure_visual_segment_results}
-\end{figure*}
-
+\hspace{2em}At inference, one candidate was generated per case using a seed derived from 2026 and the case identifier. Structure Flow and Feature Flow used 50-step Heun and Euler solvers, respectively, with a classifier-free guidance scale of 3.0. Feature Flow processed up to 32,768 active locations per case. The continuous field was reconstructed using cuVS IVF-Flat interpolation and Marching Cubes, followed by largest-connected-component retention and mesh cleaning. Final meshes were required to be watertight, consistently oriented, single-component, and genus-0, and to satisfy the predefined connectivity and geometric quality gates.
 
 %% 4.4
 \subsection{Results and Analysis}\label{subsec4}

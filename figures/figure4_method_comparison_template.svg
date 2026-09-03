@@ -1,0 +1,497 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with matplotlib (https://matplotlib.org/) -->
+<svg height="279.510048pt" version="1.1" viewBox="0 0 478.909861 279.510048" width="478.909861pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+*{stroke-linecap:butt;stroke-linejoin:round;}
+  </style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 279.510048 
+L 478.909861 279.510048 
+L 478.909861 0 
+L 0 0 
+z
+" style="fill:#ffffff;"/>
+  </g>
+  <g id="patch_2">
+   <path d="M 23.359625 104.995387 
+L 97.198688 104.995387 
+L 97.198688 27.033828 
+L 23.359625 27.033828 
+z
+" style="fill:none;opacity:0;"/>
+  </g>
+  <g id="axes_1">
+   <g id="text_1">
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(45.891422 59.05063)">OUTPUT</text>
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(41.804625 65.693028)">REQUIRED</text>
+   </g>
+   <g id="text_2">
+    <text style="fill:#687681;font-family:Arial;font-size:4.9px;font-style:normal;font-weight:normal;text-anchor:middle;" transform="rotate(-0, 60.279156, 82.873645)" x="60.279156" y="82.873645">same-case mesh</text>
+   </g>
+   <g id="text_3">
+    <text style="fill:#24313c;font-family:Arial;font-size:5.8px;font-style:normal;font-weight:semibold;" transform="translate(5.662219 96.635435)rotate(-90)">(a) Overall crown view</text>
+   </g>
+   <g id="text_4">
+    <text style="fill:#9a7043;font-family:Arial;font-size:6.4px;font-style:normal;font-weight:semibold;text-anchor:middle;" transform="rotate(-0, 60.279156, 28.270752)" x="60.279156" y="28.270752">Reference CAD</text>
+   </g>
+  </g>
+  <g id="patch_3">
+   <path d="M 99.41386 104.995387 
+L 173.252923 104.995387 
+L 173.252923 27.033828 
+L 99.41386 27.033828 
+z
+" style="fill:none;opacity:0;"/>
+  </g>
+  <g id="axes_2">
+   <g id="text_5">
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(121.945657 59.05063)">OUTPUT</text>
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(117.85886 65.693028)">REQUIRED</text>
+   </g>
+   <g id="text_6">
+    <text style="fill:#687681;font-family:Arial;font-size:4.9px;font-style:normal;font-weight:normal;text-anchor:middle;" transform="rotate(-0, 136.333391, 82.873645)" x="136.333391" y="82.873645">same-case mesh</text>
+   </g>
+   <g id="text_7">
+    <text style="fill:#24313c;font-family:Arial;font-size:6.4px;font-style:normal;font-weight:semibold;text-anchor:middle;" transform="rotate(-0, 136.333391, 28.270752)" x="136.333391" y="28.270752">FDI-NN</text>
+   </g>
+  </g>
+  <g id="patch_4">
+   <path d="M 175.468094 104.995387 
+L 249.307157 104.995387 
+L 249.307157 27.033828 
+L 175.468094 27.033828 
+z
+" style="fill:none;opacity:0;"/>
+  </g>
+  <g id="axes_3">
+   <g id="text_8">
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(197.999891 59.05063)">OUTPUT</text>
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(193.913095 65.693028)">REQUIRED</text>
+   </g>
+   <g id="text_9">
+    <text style="fill:#687681;font-family:Arial;font-size:4.9px;font-style:normal;font-weight:normal;text-anchor:middle;" transform="rotate(-0, 212.387626, 82.873645)" x="212.387626" y="82.873645">same-case mesh</text>
+   </g>
+   <g id="text_10">
+    <text style="fill:#24313c;font-family:Arial;font-size:6.4px;font-style:normal;font-weight:semibold;text-anchor:middle;" transform="rotate(-0, 212.387626, 28.270752)" x="212.387626" y="28.270752">MADCrowner</text>
+   </g>
+  </g>
+  <g id="patch_5">
+   <path d="M 251.522329 104.995387 
+L 325.361392 104.995387 
+L 325.361392 27.033828 
+L 251.522329 27.033828 
+z
+" style="fill:none;opacity:0;"/>
+  </g>
+  <g id="axes_4">
+   <g id="text_11">
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(274.054126 59.05063)">OUTPUT</text>
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(269.967329 65.693028)">REQUIRED</text>
+   </g>
+   <g id="text_12">
+    <text style="fill:#687681;font-family:Arial;font-size:4.9px;font-style:normal;font-weight:normal;text-anchor:middle;" transform="rotate(-0, 288.441861, 82.873645)" x="288.441861" y="82.873645">same-case mesh</text>
+   </g>
+   <g id="text_13">
+    <text style="fill:#24313c;font-family:Arial;font-size:6.4px;font-style:normal;font-weight:semibold;text-anchor:middle;" transform="rotate(-0, 288.441861, 28.270752)" x="288.441861" y="28.270752">VBCD</text>
+   </g>
+  </g>
+  <g id="patch_6">
+   <path d="M 327.576564 104.995387 
+L 401.415627 104.995387 
+L 401.415627 27.033828 
+L 327.576564 27.033828 
+z
+" style="fill:none;opacity:0;"/>
+  </g>
+  <g id="axes_5">
+   <g id="text_14">
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(350.108361 59.05063)">OUTPUT</text>
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(346.021564 65.693028)">REQUIRED</text>
+   </g>
+   <g id="text_15">
+    <text style="fill:#687681;font-family:Arial;font-size:4.9px;font-style:normal;font-weight:normal;text-anchor:middle;" transform="rotate(-0, 364.496095, 82.873645)" x="364.496095" y="82.873645">same-case mesh</text>
+   </g>
+   <g id="text_16">
+    <text style="fill:#24313c;font-family:Arial;font-size:6.4px;font-style:normal;font-weight:semibold;text-anchor:middle;" transform="rotate(-0, 364.496095, 28.270752)" x="364.496095" y="28.270752">DCrownFormer+</text>
+   </g>
+  </g>
+  <g id="patch_7">
+   <path d="M 403.630798 104.995387 
+L 477.469861 104.995387 
+L 477.469861 27.033828 
+L 403.630798 27.033828 
+z
+" style="fill:none;opacity:0;"/>
+  </g>
+  <g id="axes_6">
+   <g id="text_17">
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(426.162596 59.05063)">OUTPUT</text>
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(422.075799 65.693028)">REQUIRED</text>
+   </g>
+   <g id="text_18">
+    <text style="fill:#687681;font-family:Arial;font-size:4.9px;font-style:normal;font-weight:normal;text-anchor:middle;" transform="rotate(-0, 440.55033, 82.873645)" x="440.55033" y="82.873645">same-case mesh</text>
+   </g>
+   <g id="text_19">
+    <text style="fill:#0f4d92;font-family:Arial;font-size:6.4px;font-style:normal;font-weight:semibold;text-anchor:middle;" transform="rotate(-0, 440.55033, 28.270752)" x="440.55033" y="28.270752">Proposed</text>
+   </g>
+  </g>
+  <g id="patch_8">
+   <path d="M 23.359625 191.532717 
+L 97.198688 191.532717 
+L 97.198688 113.571158 
+L 23.359625 113.571158 
+z
+" style="fill:none;opacity:0;"/>
+  </g>
+  <g id="axes_7">
+   <g id="patch_9">
+    <path clip-path="url(#pc1c73fcef3)" d="M 40.34261 175.940405 
+L 80.215703 175.940405 
+L 80.215703 133.841164 
+L 40.34261 133.841164 
+z
+" style="fill:none;stroke:#687681;stroke-dasharray:1.4,1.26;stroke-dashoffset:0;stroke-linejoin:miter;stroke-width:0.7;"/>
+   </g>
+   <g id="text_20">
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(45.891422 145.587961)">OUTPUT</text>
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(41.804625 152.230359)">REQUIRED</text>
+   </g>
+   <g id="text_21">
+    <text style="fill:#687681;font-family:Arial;font-size:4.9px;font-style:normal;font-weight:normal;text-anchor:middle;" transform="rotate(-0, 60.279156, 169.410976)" x="60.279156" y="169.410976">reference-defined ROI</text>
+   </g>
+   <g id="text_22">
+    <text style="fill:#24313c;font-family:Arial;font-size:5.8px;font-style:normal;font-weight:semibold;" transform="translate(5.662219 181.229313)rotate(-90)">(b) Cusp-fossa detail</text>
+   </g>
+  </g>
+  <g id="patch_10">
+   <path d="M 99.41386 191.532717 
+L 173.252923 191.532717 
+L 173.252923 113.571158 
+L 99.41386 113.571158 
+z
+" style="fill:none;opacity:0;"/>
+  </g>
+  <g id="axes_8">
+   <g id="patch_11">
+    <path clip-path="url(#p901e95f57a)" d="M 116.396844 175.940405 
+L 156.269938 175.940405 
+L 156.269938 133.841164 
+L 116.396844 133.841164 
+z
+" style="fill:none;stroke:#687681;stroke-dasharray:1.4,1.26;stroke-dashoffset:0;stroke-linejoin:miter;stroke-width:0.7;"/>
+   </g>
+   <g id="text_23">
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(121.945657 145.587961)">OUTPUT</text>
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(117.85886 152.230359)">REQUIRED</text>
+   </g>
+   <g id="text_24">
+    <text style="fill:#687681;font-family:Arial;font-size:4.9px;font-style:normal;font-weight:normal;text-anchor:middle;" transform="rotate(-0, 136.333391, 169.410976)" x="136.333391" y="169.410976">reference-defined ROI</text>
+   </g>
+  </g>
+  <g id="patch_12">
+   <path d="M 175.468094 191.532717 
+L 249.307157 191.532717 
+L 249.307157 113.571158 
+L 175.468094 113.571158 
+z
+" style="fill:none;opacity:0;"/>
+  </g>
+  <g id="axes_9">
+   <g id="patch_13">
+    <path clip-path="url(#pf50c3c2bec)" d="M 192.451079 175.940405 
+L 232.324173 175.940405 
+L 232.324173 133.841164 
+L 192.451079 133.841164 
+z
+" style="fill:none;stroke:#687681;stroke-dasharray:1.4,1.26;stroke-dashoffset:0;stroke-linejoin:miter;stroke-width:0.7;"/>
+   </g>
+   <g id="text_25">
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(197.999891 145.587961)">OUTPUT</text>
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(193.913095 152.230359)">REQUIRED</text>
+   </g>
+   <g id="text_26">
+    <text style="fill:#687681;font-family:Arial;font-size:4.9px;font-style:normal;font-weight:normal;text-anchor:middle;" transform="rotate(-0, 212.387626, 169.410976)" x="212.387626" y="169.410976">reference-defined ROI</text>
+   </g>
+  </g>
+  <g id="patch_14">
+   <path d="M 251.522329 191.532717 
+L 325.361392 191.532717 
+L 325.361392 113.571158 
+L 251.522329 113.571158 
+z
+" style="fill:none;opacity:0;"/>
+  </g>
+  <g id="axes_10">
+   <g id="patch_15">
+    <path clip-path="url(#p859b7b044c)" d="M 268.505314 175.940405 
+L 308.378407 175.940405 
+L 308.378407 133.841164 
+L 268.505314 133.841164 
+z
+" style="fill:none;stroke:#687681;stroke-dasharray:1.4,1.26;stroke-dashoffset:0;stroke-linejoin:miter;stroke-width:0.7;"/>
+   </g>
+   <g id="text_27">
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(274.054126 145.587961)">OUTPUT</text>
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(269.967329 152.230359)">REQUIRED</text>
+   </g>
+   <g id="text_28">
+    <text style="fill:#687681;font-family:Arial;font-size:4.9px;font-style:normal;font-weight:normal;text-anchor:middle;" transform="rotate(-0, 288.441861, 169.410976)" x="288.441861" y="169.410976">reference-defined ROI</text>
+   </g>
+  </g>
+  <g id="patch_16">
+   <path d="M 327.576564 191.532717 
+L 401.415627 191.532717 
+L 401.415627 113.571158 
+L 327.576564 113.571158 
+z
+" style="fill:none;opacity:0;"/>
+  </g>
+  <g id="axes_11">
+   <g id="patch_17">
+    <path clip-path="url(#pe6fd92b49b)" d="M 344.559548 175.940405 
+L 384.432642 175.940405 
+L 384.432642 133.841164 
+L 344.559548 133.841164 
+z
+" style="fill:none;stroke:#687681;stroke-dasharray:1.4,1.26;stroke-dashoffset:0;stroke-linejoin:miter;stroke-width:0.7;"/>
+   </g>
+   <g id="text_29">
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(350.108361 145.587961)">OUTPUT</text>
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(346.021564 152.230359)">REQUIRED</text>
+   </g>
+   <g id="text_30">
+    <text style="fill:#687681;font-family:Arial;font-size:4.9px;font-style:normal;font-weight:normal;text-anchor:middle;" transform="rotate(-0, 364.496095, 169.410976)" x="364.496095" y="169.410976">reference-defined ROI</text>
+   </g>
+  </g>
+  <g id="patch_18">
+   <path d="M 403.630798 191.532717 
+L 477.469861 191.532717 
+L 477.469861 113.571158 
+L 403.630798 113.571158 
+z
+" style="fill:none;opacity:0;"/>
+  </g>
+  <g id="axes_12">
+   <g id="patch_19">
+    <path clip-path="url(#p28cce909fe)" d="M 420.613783 175.940405 
+L 460.486877 175.940405 
+L 460.486877 133.841164 
+L 420.613783 133.841164 
+z
+" style="fill:none;stroke:#687681;stroke-dasharray:1.4,1.26;stroke-dashoffset:0;stroke-linejoin:miter;stroke-width:0.7;"/>
+   </g>
+   <g id="text_31">
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(426.162596 145.587961)">OUTPUT</text>
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(422.075799 152.230359)">REQUIRED</text>
+   </g>
+   <g id="text_32">
+    <text style="fill:#687681;font-family:Arial;font-size:4.9px;font-style:normal;font-weight:normal;text-anchor:middle;" transform="rotate(-0, 440.55033, 169.410976)" x="440.55033" y="169.410976">reference-defined ROI</text>
+   </g>
+  </g>
+  <g id="patch_20">
+   <path d="M 23.359625 278.070048 
+L 97.198688 278.070048 
+L 97.198688 200.108489 
+L 23.359625 200.108489 
+z
+" style="fill:none;opacity:0;"/>
+  </g>
+  <g id="axes_13">
+   <g id="patch_21">
+    <path clip-path="url(#pcb6674c4b3)" d="M 40.34261 262.477736 
+L 80.215703 262.477736 
+L 80.215703 220.378494 
+L 40.34261 220.378494 
+z
+" style="fill:none;stroke:#687681;stroke-dasharray:1.4,1.26;stroke-dashoffset:0;stroke-linejoin:miter;stroke-width:0.7;"/>
+   </g>
+   <g id="text_33">
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(45.891422 232.125291)">OUTPUT</text>
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(41.804625 238.76769)">REQUIRED</text>
+   </g>
+   <g id="text_34">
+    <text style="fill:#687681;font-family:Arial;font-size:4.9px;font-style:normal;font-weight:normal;text-anchor:middle;" transform="rotate(-0, 60.279156, 255.948307)" x="60.279156" y="255.948307">reference-defined ROI</text>
+   </g>
+   <g id="text_35">
+    <text style="fill:#24313c;font-family:Arial;font-size:5.8px;font-style:normal;font-weight:semibold;" transform="translate(5.662219 273.737018)rotate(-90)">(c) Cervical-margin detail</text>
+   </g>
+  </g>
+  <g id="patch_22">
+   <path d="M 99.41386 278.070048 
+L 173.252923 278.070048 
+L 173.252923 200.108489 
+L 99.41386 200.108489 
+z
+" style="fill:none;opacity:0;"/>
+  </g>
+  <g id="axes_14">
+   <g id="patch_23">
+    <path clip-path="url(#pa163c4cb79)" d="M 116.396844 262.477736 
+L 156.269938 262.477736 
+L 156.269938 220.378494 
+L 116.396844 220.378494 
+z
+" style="fill:none;stroke:#687681;stroke-dasharray:1.4,1.26;stroke-dashoffset:0;stroke-linejoin:miter;stroke-width:0.7;"/>
+   </g>
+   <g id="text_36">
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(121.945657 232.125291)">OUTPUT</text>
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(117.85886 238.76769)">REQUIRED</text>
+   </g>
+   <g id="text_37">
+    <text style="fill:#687681;font-family:Arial;font-size:4.9px;font-style:normal;font-weight:normal;text-anchor:middle;" transform="rotate(-0, 136.333391, 255.948307)" x="136.333391" y="255.948307">reference-defined ROI</text>
+   </g>
+  </g>
+  <g id="patch_24">
+   <path d="M 175.468094 278.070048 
+L 249.307157 278.070048 
+L 249.307157 200.108489 
+L 175.468094 200.108489 
+z
+" style="fill:none;opacity:0;"/>
+  </g>
+  <g id="axes_15">
+   <g id="patch_25">
+    <path clip-path="url(#pad483bc515)" d="M 192.451079 262.477736 
+L 232.324173 262.477736 
+L 232.324173 220.378494 
+L 192.451079 220.378494 
+z
+" style="fill:none;stroke:#687681;stroke-dasharray:1.4,1.26;stroke-dashoffset:0;stroke-linejoin:miter;stroke-width:0.7;"/>
+   </g>
+   <g id="text_38">
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(197.999891 232.125291)">OUTPUT</text>
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(193.913095 238.76769)">REQUIRED</text>
+   </g>
+   <g id="text_39">
+    <text style="fill:#687681;font-family:Arial;font-size:4.9px;font-style:normal;font-weight:normal;text-anchor:middle;" transform="rotate(-0, 212.387626, 255.948307)" x="212.387626" y="255.948307">reference-defined ROI</text>
+   </g>
+  </g>
+  <g id="patch_26">
+   <path d="M 251.522329 278.070048 
+L 325.361392 278.070048 
+L 325.361392 200.108489 
+L 251.522329 200.108489 
+z
+" style="fill:none;opacity:0;"/>
+  </g>
+  <g id="axes_16">
+   <g id="patch_27">
+    <path clip-path="url(#p31007bf835)" d="M 268.505314 262.477736 
+L 308.378407 262.477736 
+L 308.378407 220.378494 
+L 268.505314 220.378494 
+z
+" style="fill:none;stroke:#687681;stroke-dasharray:1.4,1.26;stroke-dashoffset:0;stroke-linejoin:miter;stroke-width:0.7;"/>
+   </g>
+   <g id="text_40">
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(274.054126 232.125291)">OUTPUT</text>
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(269.967329 238.76769)">REQUIRED</text>
+   </g>
+   <g id="text_41">
+    <text style="fill:#687681;font-family:Arial;font-size:4.9px;font-style:normal;font-weight:normal;text-anchor:middle;" transform="rotate(-0, 288.441861, 255.948307)" x="288.441861" y="255.948307">reference-defined ROI</text>
+   </g>
+  </g>
+  <g id="patch_28">
+   <path d="M 327.576564 278.070048 
+L 401.415627 278.070048 
+L 401.415627 200.108489 
+L 327.576564 200.108489 
+z
+" style="fill:none;opacity:0;"/>
+  </g>
+  <g id="axes_17">
+   <g id="patch_29">
+    <path clip-path="url(#p4d9b4fbc2e)" d="M 344.559548 262.477736 
+L 384.432642 262.477736 
+L 384.432642 220.378494 
+L 344.559548 220.378494 
+z
+" style="fill:none;stroke:#687681;stroke-dasharray:1.4,1.26;stroke-dashoffset:0;stroke-linejoin:miter;stroke-width:0.7;"/>
+   </g>
+   <g id="text_42">
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(350.108361 232.125291)">OUTPUT</text>
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(346.021564 238.76769)">REQUIRED</text>
+   </g>
+   <g id="text_43">
+    <text style="fill:#687681;font-family:Arial;font-size:4.9px;font-style:normal;font-weight:normal;text-anchor:middle;" transform="rotate(-0, 364.496095, 255.948307)" x="364.496095" y="255.948307">reference-defined ROI</text>
+   </g>
+  </g>
+  <g id="patch_30">
+   <path d="M 403.630798 278.070048 
+L 477.469861 278.070048 
+L 477.469861 200.108489 
+L 403.630798 200.108489 
+z
+" style="fill:none;opacity:0;"/>
+  </g>
+  <g id="axes_18">
+   <g id="patch_31">
+    <path clip-path="url(#p75683e953b)" d="M 420.613783 262.477736 
+L 460.486877 262.477736 
+L 460.486877 220.378494 
+L 420.613783 220.378494 
+z
+" style="fill:none;stroke:#687681;stroke-dasharray:1.4,1.26;stroke-dashoffset:0;stroke-linejoin:miter;stroke-width:0.7;"/>
+   </g>
+   <g id="text_44">
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(426.162596 232.125291)">OUTPUT</text>
+    <text style="fill:#a96824;font-family:Arial;font-size:7px;font-style:normal;font-weight:semibold;" transform="translate(422.075799 238.76769)">REQUIRED</text>
+   </g>
+   <g id="text_45">
+    <text style="fill:#687681;font-family:Arial;font-size:4.9px;font-style:normal;font-weight:normal;text-anchor:middle;" transform="rotate(-0, 440.55033, 255.948307)" x="440.55033" y="255.948307">reference-defined ROI</text>
+   </g>
+  </g>
+  <g id="text_46">
+   <text style="fill:#a96824;font-family:Arial;font-size:31px;font-style:normal;font-weight:bold;opacity:0.1;" transform="translate(184.697065 181.678453)rotate(-22)">TEMPLATE</text>
+  </g>
+  <g id="text_47">
+   <text style="fill:#24313c;font-family:Arial;font-size:9px;font-style:normal;font-weight:semibold;text-anchor:start;" transform="rotate(-0, 23.359625, 7.991719)" x="23.359625" y="7.991719">Same-case qualitative comparison</text>
+  </g>
+  <g id="text_48">
+   <text style="fill:#a96824;font-family:Arial;font-size:5.8px;font-style:normal;font-weight:normal;text-anchor:start;" transform="rotate(-0, 23.359625, 17.819617)" x="23.359625" y="17.819617">Layout template only - replace every slot with a genuine, frozen-run mesh output.</text>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pc1c73fcef3">
+   <rect height="77.961559" width="73.839063" x="23.359625" y="113.571158"/>
+  </clipPath>
+  <clipPath id="p901e95f57a">
+   <rect height="77.961559" width="73.839063" x="99.41386" y="113.571158"/>
+  </clipPath>
+  <clipPath id="pf50c3c2bec">
+   <rect height="77.961559" width="73.839063" x="175.468094" y="113.571158"/>
+  </clipPath>
+  <clipPath id="p859b7b044c">
+   <rect height="77.961559" width="73.839063" x="251.522329" y="113.571158"/>
+  </clipPath>
+  <clipPath id="pe6fd92b49b">
+   <rect height="77.961559" width="73.839063" x="327.576564" y="113.571158"/>
+  </clipPath>
+  <clipPath id="p28cce909fe">
+   <rect height="77.961559" width="73.839063" x="403.630798" y="113.571158"/>
+  </clipPath>
+  <clipPath id="pcb6674c4b3">
+   <rect height="77.961559" width="73.839063" x="23.359625" y="200.108489"/>
+  </clipPath>
+  <clipPath id="pa163c4cb79">
+   <rect height="77.961559" width="73.839063" x="99.41386" y="200.108489"/>
+  </clipPath>
+  <clipPath id="pad483bc515">
+   <rect height="77.961559" width="73.839063" x="175.468094" y="200.108489"/>
+  </clipPath>
+  <clipPath id="p31007bf835">
+   <rect height="77.961559" width="73.839063" x="251.522329" y="200.108489"/>
+  </clipPath>
+  <clipPath id="p4d9b4fbc2e">
+   <rect height="77.961559" width="73.839063" x="327.576564" y="200.108489"/>
+  </clipPath>
+  <clipPath id="p75683e953b">
+   <rect height="77.961559" width="73.839063" x="403.630798" y="200.108489"/>
+  </clipPath>
+ </defs>
+</svg>

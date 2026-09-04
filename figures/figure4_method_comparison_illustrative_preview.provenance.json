@@ -1,0 +1,12 @@
+{
+  "illustrative_preview": true,
+  "message": "Procedural crown-shaped meshes are layout stand-ins, not experimental outputs.",
+  "methods": [
+    "reference_cad",
+    "fdi_nearest_neighbor",
+    "madcrowner",
+    "vbcd",
+    "dcrownformer_plus",
+    "ours"
+  ]
+}

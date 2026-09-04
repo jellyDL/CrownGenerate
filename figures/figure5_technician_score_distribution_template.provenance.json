@@ -1,0 +1,10 @@
+{
+  "template": true,
+  "message": "Template segment widths are non-evidentiary.",
+  "categories": [
+    "no_modification",
+    "minor_modification",
+    "moderate_modification",
+    "major_modification"
+  ]
+}

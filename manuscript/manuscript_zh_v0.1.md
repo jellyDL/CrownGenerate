@@ -226,9 +226,9 @@ CD_{L1}=\frac{1}{2}\left[
 
 ### 4.3 实现细节
 
-采用稀疏VAE、Structure Flow和Feature Flow的顺序训练策略，模型由稀疏结构自编码器、条件三维DiT速度网络和牙科条件适配器构成。批量大小均为2，Structure阶段采用8次梯度累积。训练统一使用AdamW、自动混合精度、权重衰减0.01、梯度范数裁剪和带1,000步预热的余弦学习率衰减。VAE和Structure非去噪器参数的初始学习率为\(1\times10^{-4}\)；Structure阶段的LoRA和解冻DiT模块分别为\(5\times10^{-5}\)和\(1\times10^{-5}\)，Feature阶段的LoRA和其余可训练参数分别为\(2\times10^{-5}\)和\(1\times10^{-4}\)。Structure阶段冻结结构自编码器，仅微调非去噪器参数、LoRA和DiT末端模块；Feature阶段冻结BF16 Transformer主体，仅训练LoRA、投影层和条件适配器。LoRA秩为32、dropout为0，检查点依据验证集表现选取。
+模型基于PyTorch，在单张NVIDIA GeForce RTX 5090 GPU上训练。稀疏VAE、Structure Flow和Feature Flow的顺序训练策略，模型由稀疏结构自编码器、条件三维DiT速度网络和牙科条件适配器构成。批量大小均为2，Structure阶段采用8次梯度累积。训练统一使用AdamW、自动混合精度、权重衰减0.01、梯度范数裁剪和带1,000步预热的余弦学习率衰减。VAE和Structure非去噪器参数的初始学习率为\(1\times10^{-4}\)；Structure阶段的LoRA和解冻DiT模块分别为\(5\times10^{-5}\)和\(1\times10^{-5}\)，Feature阶段的LoRA和其余可训练参数分别为\(2\times10^{-5}\)和\(1\times10^{-4}\)。Structure阶段冻结结构自编码器，仅微调非去噪器参数、LoRA和DiT末端模块；Feature阶段冻结BF16 Transformer主体，仅训练LoRA、投影层和条件适配器。LoRA秩为32、dropout为0，检查点依据验证集表现选取。
 
-推理时，每例以种子2026和病例ID生成一个候选。Structure Flow和Feature Flow分别采用50步Heun和Euler求解，CFG强度均为3.0，Feature阶段最多处理32,768个活动位置。连续场经cuVS IVF-Flat插值和Marching Cubes提取零水平集，并保留最大连通支持进行网格清理。最终网格须水密、绕向一致、单连通且亏格为0，并通过预设的连通性和几何质量门禁。
+推理时，种子2026与病例ID共同确定随机状态，每例生成单一候选。Structure Flow和Feature Flow分别采用50步Heun和Euler求解，CFG均为3.0，Feature阶段最多处理32,768个活动位置。解码FDG经cuVS IVF-Flat插值和Marching Cubes重建，并保留最大连通支持。最终网格须通过水密性、绕向一致性、单连通且亏格为0，并通过预设的连通性和几何质量门禁。
 
 ### 4.4 结果和分析
 

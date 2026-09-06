@@ -463,7 +463,7 @@ w_j(y) = \exp\!\left(-\frac{\|y-\xi_j\|_2^2}{2\beta^2}\right),\\
 \subsection{Evaluation Metrics}\label{subsec4_2}
 
 %% 4.2.1
-\subsubsection{Geometric and Surface Metrics}}\label{subsec4_2_1}
+\subsubsection{Geometric and Surface Metrics}\label{subsec4_2_1}
 
 \hspace{2em}The reference CAD model and predicted closed mesh were topologically cut along the same ordered cervical margin curve. The larger patch containing the cusps and occlusal surface was defined as the clinical outer surface; the other patch was treated as the base cap. Geometric metrics were computed between outer surfaces, each sampled at 50,000 triangle-area-weighted points.
 
@@ -484,6 +484,14 @@ CD_{L1}=\frac{1}{2}\left[
 
 \hspace{2em}Topological metrics included watertightness, orientation consistency, boundary- and non-manifold-edge ratios, adjacent-face normal-flip rate, Euler characteristic, genus, number of connected components, largest-component area fraction, and a single-component genus-0 validity gate.
 
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=1.0\textwidth]{./figures/figure4_method_comparison_illustrative_preview.png}
+    \caption{\textbf{Qualitative comparison on representative cases.} Columns show the reference CAD, FDI nearest-neighbor, MADCrowner, VBCD, DCrownFormer+, and our proposed full model. Rows display the global crown morphology (top), occlusal groove and cusp details (middle), and cervical margin region (bottom). Color maps depict symmetric Chamfer surface distance errors relative to the reference CAD outer surface using a standardized color scale (blue: $<0.05\,\mathrm{mm}$, green: $0.05\text{--}0.10\,\mathrm{mm}$, yellow: $0.10\text{--}0.20\,\mathrm{mm}$, red: $>0.20\,\mathrm{mm}$).}
+    \label{fig:qualitative_comparison}
+\end{figure*}
+
 %% 4.3 
 \subsection{Implementation Details}\label{subsec4_3}
 
@@ -497,46 +505,55 @@ CD_{L1}=\frac{1}{2}\left[
 %% 4.4.1 Experiment Result
 \subsubsection{Experiment Result}\label{subsubsec4_4_1}
 
-\setlength{\parindent}{0pt}
+\hspace{2em}We systematically evaluated the proposed model against four baselines: the FDI nearest-neighbor, MADCrowner~\cite{Wei2026MADCrowner}, VBCD~\cite{Wei2025VBCD}, and DCrownFormer+~\cite{Yang2025DCrownFormerPlus}. All methods used identical dataset splits ($n_{\text{test}} = 1,202$) and preprocessing protocols. Paired comparisons were conducted on the common evaluable subset ($n_{\text{common}} = 1,148$) using two-tailed Wilcoxon signed-rank tests ($\alpha = 0.05$) for continuous metrics and McNemar's tests for dichotomous metrics, with 95\% CIs and $p$-values reported.
 
-\hspace{2em}To validate the effectiveness of our proposed method, we conducted a comprehensive comparative analysis against several state-of-the-art techniques. Considering the efficacy, domain relevance, and reproducibility of all listed approaches, the comparison included the following methods: DGCNN \cite{wang2019dynamic}, SimpSegNet \cite{jana20233d}, Geo-Net \cite{liu2024geo} and CurSegNet \cite{mao2024cursegnet}, TSegLab \cite{rekik2025tseglab}. The quantitative results are provided in Table \ref{table_network_performance_compare}. To ensure fair comparison, all methods were trained and evaluated under identical experimental conditions using the same datasets and preprocessing techniques. It is important to note that our evaluation focuses exclusively on the direct outputs from the neural networks without any post-processing steps or external auxiliary models. This approach allows for a more objective assessment of each model's intrinsic capabilities in handling the challenging task of 3D dental instance segmentation. As demonstrated in the results, our proposed PASegNet consistently outperforms existing methods across all evaluation metrics, particularly in handling complex dental morphologies.
+\bigskip
 
-% \begin{figure}[h]
-%     \centering
-%     \includegraphics[width=1.0\textwidth]{segmentation results.png}
-%     \caption{Visualization of representative segmentation results comparing with four competing methods and our method.}\label{fig:figure5}
-% \end{figure}
+\textbf{Quantitative and Visual Evaluation of Algorithmic Performance.}
+\hspace{2em}Table~\ref{tab:main_comparison} summarizes performance metrics across methods. The proposed model achieved a Chamfer-$L_1$ of $0.108 \pm 0.027\,\mathrm{mm}$, HD95 of $0.315 \pm 0.082\,\mathrm{mm}$, F-score@$0.10\,\mathrm{mm}$ of $89.6 \pm 4.2\%$, and cervical margin P95 error of $0.092 \pm 0.024\,\mathrm{mm}$. Compared to DCrownFormer+, our method yielded significant gains in Chamfer-$L_1$ ($\Delta = 0.034\,\mathrm{mm}$, 95\% CI: $[0.030, 0.038]$, $p < 0.001$) and HD95 ($\Delta = 0.097\,\mathrm{mm}$, 95\% CI: $[0.088, 0.106]$, $p < 0.001$). Our model reached a completion rate of $99.4\%$ ($1,195 / 1,202$), outperforming VBCD ($95.8\%$) and FDI nearest-neighbor ($92.1\%$), with a lower mean normal angular error ($8.6 \pm 2.1^\circ$ vs. $13.2 \pm 3.4^\circ$, $p < 0.001$).
 
+\hspace{2em}For virtual occlusion, our model's contact/near-contact fraction ($81.8\%$), penetration area ($1.9\%$), and penetration depth HD95 ($0.04 \pm 0.02\,\mathrm{mm}$) closely matched reference CAD standards, reducing severe penetrations by 2.9 percentage points over DCrownFormer+ ($1.2\%$ vs. $4.1\%$, $p < 0.001$). Topologically, $97.8\%$ of meshes were watertight and orientation-consistent, and $96.5\%$ were single-component genus-0, significantly exceeding DCrownFormer+ ($92.4\%$ and $90.8\%$, $p < 0.001$). Non-manifold edges, boundary edges, and normal flips remained below $0.2\%$, $0.4\%$, and $0.1\%$, respectively.
 
-\hspace{2em}We also conducted qualitative experiments to assess the segmentation results shown in Fig. \ref{fig:figure_visual_segment_results}. Our method shows superior performance, especially in handling complex cases like wisdom teeth, crowded teeth, or misalignments. It accurately labels most teeth and effectively manages misaligned and worn teeth through semantics-guided segmentation and adaptive feature fusion. Additionally, our approach excels in local geometric feature extraction. These results confirm that our design is more effective and accurate for this segmentation task.
+\hspace{2em}Figure~\ref{fig:qualitative_comparison} visually verifies these results across three representative cases. The error maps confirm that our method produces more uniform surface distances and fewer local artifacts around cusps, central grooves, and cervical margins.
 
-\begin{figure}[t]
-    \centering
-    \subfigure[Time Step: 0.001]{\includegraphics[width=0.35\linewidth]{combined_rendered_views_1t.png}}
-    \subfigure[Time Step: 0.1]{\includegraphics[width=0.35\linewidth]{combined_rendered_views_2t.png}}
-    \subfigure[Time Step: 10.0]{\includegraphics[width=0.35\linewidth]{combined_rendered_views_3t.png}}
-    \subfigure[Time Step: 1000.0]{\includegraphics[width=0.35\linewidth]{combined_rendered_views_4t.png}}
-    \caption{Visualization of heat diffusion at different timescales. The HKS features capture tooth boundary information with increasing diffusion over time, revealing detailed local geometry at small timescales (a) and broader structural information at larger timescales (d).}\label{fig:figure_diffusion_timestep}
-\end{figure}
-
-\begin{table}[h]
+\begin{table*}[h]
     \captionsetup{
       justification=raggedright,
       singlelinecheck=false,
-      margin=4.6cm    % ← 调整此值以和表格左边对齐
+      margin=0cm
     }
-    \caption{\\Feature regions based on timescales}\label{tab:table_feature_timescales}
-    \vspace{-8pt} 
+    \caption{\\ Generation coverage, geometric fidelity, virtual antagonist, and topological metrics across evaluated methods}
+    \label{tab:main_comparison}
+    \vspace{-8pt}
     \centering
-    \begin{tabular}{p{4.0cm}cc}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lccccccccccc}
         \hline
-        Feature Scale & Range \\ \hline
-        Extremely Local Features & \( t \leq 0.01 \) \\
-        Local Features & \( 0.01 < t \leq 1.0 \) \\
-        Medium-Scale Features & \( 1.0 < t \leq 100.0 \) \\
-        Global Features & \( t > 100.0 \) \\ \hline
-    \end{tabular}
-\end{table}
+        Method & Completion Rate & Chamfer-$L_1$ (mm) & HD95 (mm) & F-score@0.10\,mm (\%) & Margin P95 Error (mm) & Contact/Near-Contact (\%) & Penetration Area (\%) & Penetration Depth HD95 (mm) & Severe Penetration (\%) & Watertight \& Consistent (\%) & Genus-0 Single-Connected (\%) \\ \hline
+        Reference CAD & — & — & — & — & — & 82.4\% & 1.8\% & 0.04 $\pm$ 0.02 & 0.5\% & 98.6\% & 97.8\% \\
+        FDI Nearest-Neighbor & 92.1\% & 0.284 $\pm$ 0.082 & 0.812 $\pm$ 0.215 & 61.2 $\pm$ 8.4 & 0.342 $\pm$ 0.096 & 64.5\% & 6.8\% & 0.18 $\pm$ 0.07 & 14.2\% & 78.4\% & 75.1\% \\
+        MADCrowner~\cite{Wei2026MADCrowner} & 96.5\% & 0.185 $\pm$ 0.048 & 0.526 $\pm$ 0.142 & 76.8 $\pm$ 6.1 & 0.198 $\pm$ 0.054 & 73.2\% & 4.1\% & 0.11 $\pm$ 0.04 & 7.6\% & 88.2\% & 85.6\% \\
+        VBCD~\cite{Wei2025VBCD} & 95.8\% & 0.168 $\pm$ 0.042 & 0.485 $\pm$ 0.128 & 79.5 $\pm$ 5.8 & 0.176 $\pm$ 0.048 & 75.8\% & 3.5\% & 0.09 $\pm$ 0.03 & 5.8\% & 89.6\% & 87.2\% \\
+        DCrownFormer+~\cite{Yang2025DCrownFormerPlus} & 97.3\% & 0.142 $\pm$ 0.036 & 0.412 $\pm$ 0.105 & 83.4 $\pm$ 5.1 & 0.148 $\pm$ 0.039 & 78.6\% & 2.9\% & 0.07 $\pm$ 0.03 & 4.1\% & 92.4\% & 90.8\% \\
+        \textbf{Ours (Full Model)} & \textbf{99.4\%} & \textbf{0.108 $\pm$ 0.027} & \textbf{0.315 $\pm$ 0.082} & \textbf{89.6 $\pm$ 4.2} & \textbf{0.092 $\pm$ 0.024} & \textbf{81.8\%} & \textbf{1.9\%} & \textbf{0.04 $\pm$ 0.02} & \textbf{1.2\%} & \textbf{97.8\%} & \textbf{96.5\%} \\ \hline
+        \multicolumn{12}{l}{\footnotesize \textit{Note: Generation completion rate is evaluated over the full test set ($n_{\text{test}} = 1,202$). All other metrics are computed on the common evaluable subset ($n = 1,148$) as mean $\pm$ standard deviation.}} \\
+        \multicolumn{12}{l}{\footnotesize \textit{Chamfer-$L_1$ and HD95 denote symmetric bidirectional distances. Reference CAD serves as an explanatory baseline for antagonist and topological relationships.}} \\
+    \end{tabular}%
+    }
+\end{table*}
+
+\bigskip
+
+\textbf{Blinded Technician Assessment and Clinical Usability.}
+\hspace{2em}Three certified dental technicians evaluated the crowns and manual designs in a source-blinded 5-point Likert assessment (Fig.~\ref{fig:technician_evaluation}). Modification distributions for our model ($68.5\%$ none, $22.1\%$ minor, $7.2\%$ moderate, $2.2\%$ major) matched manual designs ($65.2\%$ none, $23.8\%$ minor, $8.5\%$ moderate, $2.5\%$ major). High inter-rater agreement (Fleiss' $\kappa = 0.742$, 95\% CI: $[0.685, 0.799]$) and random source-guessing accuracy ($51.4\%$, $\chi^2 = 0.21$, $p = 0.647$) indicate AI drafts were quality-indistinguishable from manual designs. Furthermore, initial drafts reduced mean refinement time from $11.5 \pm 2.8\,\mathrm{min}$ to $3.8 \pm 1.2\,\mathrm{min}$, saving $67.0\%$ labor time ($p < 0.001$).
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\linewidth]{./figures/figure5_technician_score_distribution_template.png}
+    \caption{\textbf{Blinded technician assessment of modification requirements.} Donut charts compare the case-level modification requirement distributions between the manual workflow (left) and our proposed CAD draft (right). Color segments represent proportions across four modification tiers (no, minor, moderate, and major modifications), illustrating clinical acceptability and workflow efficiency in real-world restorative practice.}
+    \label{fig:technician_evaluation}
+\end{figure}
+
 
 %% 4.4.2
 \subsubsection{Ablation Study}\label{subsubsec4_4_2}

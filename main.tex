@@ -332,14 +332,6 @@ This representation jointly encodes local geometry, distance, and orientation wi
     \label{fig:figure_oriented_signed_fdg_detail} 
 \end{figure*}
 
-
-\begin{figure*}[t]  % [t] 表示尽量放在页面顶部
-    \centering % 图片居中
-    \includegraphics[width=1.0\textwidth]{./figures/feature_condition_detail.png}
-    \caption{\textbf{Coordinate-level multiscale conditioning in Feature Flow.} (a) After case alignment, each coordinate \(q\) in the predicted active support \(\hat{O}\) serves as a query location; the maxillary and mandibular dentitions, three-dimensional margin line, and FDI tooth designation jointly define its case-specific context. (b) The global and voxel-aligned conditions, \(C^g\) and \(C^v\), form the cross-attention tokens. \(C^g\) and the voxel-aligned readout \(C^v(q)\) at \(q\) are injected residually into the feature token. Neighborhoods of the maxillary and mandibular dentitions and margin line form the local dental descriptor \(C^n(q)\), whereas multiscale axial neighborhoods within the predicted support define \(A(q;\hat{O})\). These signals are fused by the sparse Feature DiT to predict the local geometric feature \(\hat{F}_q\). Purple dash-dotted lines denote dental-conditioning paths, and solid blue lines denote active-support and feature paths.}
-    \label{fig:figure_feature_condition_detail} 
-\end{figure*}
-
 %% 3.4
 \subsection{Multiscale Dental Conditions}\label{subsec3_4}
 
@@ -362,6 +354,12 @@ This representation jointly encodes local geometry, distance, and orientation wi
 
 \hspace{2em}These outputs provide case-level, voxel-level, and coordinate-level dental information. The concrete stage allocation and coordinate-level injection are described in Sec.~\ref{subsec3_5}.
 
+\begin{figure*}[h]  % [t] 表示尽量放在页面顶部
+    \centering % 图片居中
+    \includegraphics[width=1.0\textwidth]{./figures/feature_condition_detail.png}
+    \caption{\textbf{Coordinate-level multiscale conditioning in Feature Flow.} (a) After case alignment, each coordinate \(q\) in the predicted active support \(\hat{O}\) serves as a query location; the maxillary and mandibular dentitions, three-dimensional margin line, and FDI tooth designation jointly define its case-specific context. (b) The global and voxel-aligned conditions, \(C^g\) and \(C^v\), form the cross-attention tokens. \(C^g\) and the voxel-aligned readout \(C^v(q)\) at \(q\) are injected residually into the feature token. Neighborhoods of the maxillary and mandibular dentitions and margin line form the local dental descriptor \(C^n(q)\), whereas multiscale axial neighborhoods within the predicted support define \(A(q;\hat{O})\). These signals are fused by the sparse Feature DiT to predict the local geometric feature \(\hat{F}_q\). Purple dash-dotted lines denote dental-conditioning paths, and solid blue lines denote active-support and feature paths.}
+    \label{fig:figure_feature_condition_detail} 
+\end{figure*}
 %% 3.5
 \subsection{Two-Stage Conditional Flow Matching}\label{subsec3_5}
 

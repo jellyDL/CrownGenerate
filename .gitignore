@@ -5,6 +5,6 @@
 *.fls
 *.log
 *.spl
-*.pdf
 *.pyc
+main.pdf
 .DS_Store

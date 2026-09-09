@@ -327,7 +327,7 @@ This representation jointly encodes local geometry, distance, and orientation wi
 
 \begin{figure*}[t]  % [t] 表示尽量放在页面顶部
     \centering % 图片居中
-    \includegraphics[width=1.0\textwidth]{./figures/oriented_signed_fdg_detail.pdf}
+    \includegraphics[width=0.9\textwidth]{./figures/oriented_signed_fdg_detail.pdf}
     \caption{\textbf{Sparse representation and latent encoding of the oriented signed FDG.} (a) The reference CAD activates only crown surface-neighborhood cells on an \(R=1024\) grid, with nominal spacing \(\Delta=2h/R\). (b) For each active coordinate \(c_j\), FDG records the vertex offset \(v_j\) and axis-aligned intersection flags \(b_j\). The cell center \(x_j\) queries the nearest surface point \(p_j\); the nearest-face normal \(n_j^f\) determines the local sign of the truncated signed distance \(d_j\), while the interpolated normal \(n_j\) provides oriented surface information. (c) The four attributes form \(g_j\in\mathbb{R}^{10}\) with \(3+3+1+3\) channels and are compressed by the sparse geometric VAE into 32-dimensional local features \(F\) defined on the \(64^3\) support \(O\). Inactive cells store no geometry; for non-watertight reference meshes, the sign of \(d_j\) denotes only the local orientation defined by the nearest-surface normal.}
     \label{fig:figure_oriented_signed_fdg_detail} 
 \end{figure*}

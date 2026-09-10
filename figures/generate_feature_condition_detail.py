@@ -26,12 +26,12 @@ PANEL_HEIGHT_MM = 60.0
 INK, MUTED = "#263F50", "#526675"
 COLORS = {
     "flow": ("#326E99", "#EAF3FA"),
-    "transformer": ("#50713F", "#E4EED7"),
-    "dental": ("#795F8C", "#F3EDF7"),
-    "fusion": ("#946347", "#FBEADB"),
+    "transformer": ("#4C6C47", "#E6EFDF"),
+    "dental": ("#775E8C", "#F4EFF8"),
+    "fusion": ("#966648", "#FCF0E5"),
     "support": ("#347B80", "#EAF5F4"),
-    "solver": ("#927029", "#FBF1D5"),
-    "neutral": ("#647581", "#F2F5F7"),
+    "solver": ("#92702D", "#FCF4DE"),
+    "neutral": ("#647581", "#F4F7F8"),
 }
 TEXT_CONTAINMENT = []
 mpl.rcParams.update({
@@ -50,7 +50,7 @@ mpl.rcParams.update({
 def txt(ax, x, y, value, *, size=8., color=INK, bold=False, ha="center"):
     return ax.text(
         x, y, value, fontsize=size, color=color, ha=ha, va="center",
-        fontweight="semibold" if bold else "normal", linespacing=1.3, zorder=8,
+        fontweight="semibold" if bold else "normal", linespacing=1.2, zorder=8,
     )
 
 
@@ -61,7 +61,7 @@ def frame(ax, x, y, w, h, *, family="neutral", panel=False):
         (x, y), w, h, boxstyle=f"round,pad=0,rounding_size={radius}",
         facecolor="white" if panel else fill,
         edgecolor="#C0CDD5" if panel else edge,
-        linewidth=.6 if panel else .75, zorder=0 if panel else 2,
+        linewidth=.6 if panel else .7, zorder=0 if panel else 2,
     )
     ax.add_patch(patch)
 
@@ -85,6 +85,29 @@ def wire(ax, points, *, family="flow", condition=False):
     ))
 
 
+def operation_band(ax,x,y,w,label,*,family="transformer"):
+    ax.add_patch(FancyBboxPatch((x,y),w,3.4,
+        boxstyle="round,pad=0,rounding_size=.45",facecolor="white",
+        edgecolor=COLORS[family][0],linewidth=.25,alpha=.72,zorder=3))
+    t=txt(ax,x+w/2,y+1.7,label,size=6.7,color=MUTED)
+    TEXT_CONTAINMENT.append((ax,t,(x,y,w,3.4)))
+
+
+def integration_mark(ax,x,y,w):
+    path=MplPath([(x,y+1.4),(x+w*.3,y-.5),(x+w*.6,y+1.7),(x+w,y)],
+                 [MplPath.MOVETO,MplPath.CURVE4,MplPath.CURVE4,MplPath.CURVE4])
+    ax.add_patch(FancyArrowPatch(path=path,arrowstyle="-|>",mutation_scale=4.5,
+        linewidth=.65,color=COLORS["solver"][0],zorder=4))
+
+
+def frozen_mark(ax,x,y):
+    edge=COLORS["neutral"][0]
+    ax.add_patch(FancyBboxPatch((x+.4,y),1.4,1.9,
+        boxstyle="round,pad=0,rounding_size=.6",facecolor="none",edgecolor=edge,lw=.5,zorder=3))
+    ax.add_patch(FancyBboxPatch((x,y+1.1),2.2,1.7,
+        boxstyle="round,pad=0,rounding_size=.2",facecolor=edge,edgecolor=edge,lw=.4,zorder=4))
+
+
 def tensor_stack(ax, x, y, w, h, *, family="flow"):
     """A generic feature tensor glyph; sheet count does not encode dimensions."""
     edge, fill = COLORS[family]
@@ -100,7 +123,7 @@ def tensor_stack(ax, x, y, w, h, *, family="flow"):
                 edgecolor="none", alpha=alpha, zorder=4))
 
 
-def token_strip(ax, x, y, *, family="dental"):
+def token_strip(ax, x, y, *, family="dental", conditioned=False):
     edge, fill = COLORS[family]
     ax.add_patch(FancyBboxPatch((x-.65, y-.65), 5.1, 9.3,
         boxstyle="round,pad=0,rounding_size=.6", facecolor="white",
@@ -109,7 +132,12 @@ def token_strip(ax, x, y, *, family="dental"):
         ax.add_patch(Rectangle((x, y+row*2.1), 3.8, 1.6,
             facecolor=fill, edgecolor=edge, linewidth=.35, zorder=4))
         ax.add_patch(Rectangle((x+.35, y+row*2.1+.3), 3.1, 1.,
-            facecolor=edge, edgecolor="none", alpha=alpha, zorder=4))
+            facecolor=fill if conditioned else edge, edgecolor="none",
+            alpha=1 if conditioned else alpha, zorder=4))
+        if conditioned:
+            for shift in (0., .8, 1.6):
+                ax.plot([x+.55+shift,x+1.15+shift],
+                        [y+row*2.1+1.1,y+row*2.1+.3],color=edge,lw=.4,zorder=5)
 
 
 def support_grid(ax, x, y):
@@ -125,22 +153,22 @@ def support_grid(ax, x, y):
 
 def latent_input(ax, symbol, detail, *, feature=False):
     center = 11.5
-    txt(ax, center, 35.5 if not feature else 38, symbol, size=9.,
+    txt(ax, center, 31.5 if not feature else 38, symbol, size=9.,
         color=COLORS["flow"][0])
-    tensor_stack(ax, 5.0, 41.5 if not feature else 43.5, 11, 8)
-    txt(ax, center, 53.1 if not feature else 54.5, detail, size=6.8, color=MUTED)
+    tensor_stack(ax, 5.0, 37.5 if not feature else 43.5, 11, 8)
+    txt(ax, center, 49.5 if not feature else 54.5, detail, size=6.8, color=MUTED)
 
 
 def condition_interface(ax, *, feature=False):
     """Unboxed representation beside a token column on a condition path."""
     x = 113 if not feature else 105
-    token_strip(ax, x, 17 if not feature else 12.5)
+    token_strip(ax, x, 13 if not feature else 12.5)
     center = 144 if not feature else 142.5
     labels = [
-        txt(ax, center, 15.8 if not feature else 13.8,
+        txt(ax, center, 12.3 if not feature else 13.8,
             "Condition tokens" if not feature else "Cross-attention", size=7.6,
             color=COLORS["dental"][0], bold=True),
-        txt(ax, center, 22 if not feature else 20,
+        txt(ax, center, 18.5 if not feature else 20,
             "Global condition\nCoarse voxel tokens", size=7., color=MUTED),
     ]
     TEXT_CONTAINMENT.extend((ax, label, (119, 10, 49, 17)) for label in labels)
@@ -172,33 +200,34 @@ def fusion_module(ax):
         TEXT_CONTAINMENT.append((ax, operation_text, (x+1, 36.5, w-2, 5.5)))
         wire(ax, [(center, 33), (center, 36.5)], family=family, condition=True)
 
-    frame(ax, 29, 47, 22, 6, family="flow")
-    text = txt(ax, 40, 50, "Input adaptation", size=6.8,
+    frame(ax, 29, 44.5, 22, 6, family="flow")
+    text = txt(ax, 40, 47.5, "Input adaptation", size=6.8,
                color=COLORS["flow"][0])
-    TEXT_CONTAINMENT.append((ax, text, (29, 47, 22, 6)))
+    TEXT_CONTAINMENT.append((ax, text, (29, 44.5, 22, 6)))
+    ax.plot([52.8,52.8],[22.4,41.8],color=COLORS["fusion"][0],alpha=.25,lw=.35,zorder=3)
     edge = COLORS["fusion"][0]
-    ax.add_patch(Circle((65, 50), 1.9, facecolor="white",
+    ax.add_patch(Circle((65, 47.5), 1.9, facecolor="white",
         edgecolor=edge, linewidth=.75, zorder=4))
-    ax.plot([64, 66], [50, 50], color=edge, lw=.75, zorder=5)
-    ax.plot([65, 65], [49, 51], color=edge, lw=.75, zorder=5)
-    wire(ax, [(40, 42), (40, 44), (60.5, 44), (63.7, 48.6)],
+    ax.plot([64, 66], [47.5, 47.5], color=edge, lw=.75, zorder=5)
+    ax.plot([65, 65], [46.5, 48.5], color=edge, lw=.75, zorder=5)
+    wire(ax, [(40, 42), (40, 43.3), (60.5, 43.3), (63.7, 46.1)],
          family="dental", condition=True)
-    wire(ax, [(65, 42), (65, 48.1)], family="fusion", condition=True)
-    wire(ax, [(51, 50), (63.1, 50)])
-    wire(ax, [(66.9, 50), (81.35, 50)])
+    wire(ax, [(65, 42), (65, 45.6)], family="fusion", condition=True)
+    wire(ax, [(51, 47.5), (63.1, 47.5)])
+    wire(ax, [(66.9, 47.5), (79.5, 47.5), (79.5, 40.5), (81.35, 40.5)])
 
 
 def result_glyph(ax, *, support=False):
     """Outputs are data glyphs, distinct from all processing blocks."""
     family = "support" if support else "flow"
-    txt(ax, 162, 35.8, "Active\nsupport" if support else "Local\nfeatures",
+    txt(ax, 162, 31.8, "Active\nsupport" if support else "Local\nfeatures",
         size=7.3, color=COLORS[family][0], bold=True)
-    txt(ax, 162, 53.5, r"$\hat O$" if support else r"$\hat F_q$",
+    txt(ax, 162, 49.5, r"$\hat O$" if support else r"$\hat F_q$",
         size=9.5, color=COLORS[family][0])
     if support:
-        support_grid(ax, 158.2, 43)
+        support_grid(ax, 158.2, 38.725)
     else:
-        tensor_stack(ax, 157, 43, 9, 7, family="flow")
+        tensor_stack(ax, 157, 37, 9, 7, family="flow")
 
 
 def axes_panel(fig, bottom, letter, title, subtitle):
@@ -218,42 +247,47 @@ def axes_panel(fig, bottom, letter, title, subtitle):
 
 def structure_panel(ax):
     # Conditions form one upper row; the generation path is the lower row.
-    card(ax, 4, 13, 35, 14, "Dental inputs",
+    card(ax, 4, 11, 35, 12, "Dental inputs",
          "Maxillary / mandibular points\nPreparation margin · FDI", family="dental")
-    card(ax, 47, 13, 55, 14, "Multiscale dental encoder",
+    card(ax, 47, 11, 55, 12, "Multiscale dental encoder",
          "Point MLP + source embedding\nGlobal pooling · voxel refinement", family="dental")
     condition_interface(ax)
-    wire(ax, [(39, 20), (47, 20)], family="dental")
-    wire(ax, [(102, 21), (112.35, 21)], family="dental")
-    wire(ax, [(114.9, 25.65), (114.9, 30), (70, 30), (70, 33)],
+    wire(ax, [(39, 17), (47, 17)], family="dental")
+    wire(ax, [(102, 17), (112.35, 17)], family="dental")
+    wire(ax, [(114.9, 21.65), (114.9, 26), (65, 26), (65, 29)],
          family="dental", condition=True)
     # The aligned readout is a separate encoder output, not attention tokens.
-    wire(ax, [(55, 27), (55, 30), (45, 30), (45, 33)],
+    wire(ax, [(55, 23), (55, 26), (42, 26), (42, 29)],
          family="dental", condition=True)
 
     latent_input(ax, r"$x^S(t)$", "Noisy latent")
-    token_strip(ax, 23, 41.5, family="flow")
-    frame(ax, 33, 33, 48, 21, family="transformer")
+    token_strip(ax, 23, 37.5, family="flow")
+    frame(ax, 33, 29, 42, 25, family="transformer")
     structure_labels = [
-        txt(ax, 45, 35.5, "Aligned injection", size=6.3,
+        txt(ax, 42, 31.5, "Aligned injection", size=6.3,
             color=COLORS["dental"][0]),
-        txt(ax, 70, 35.5, "Cross-attention", size=6.3,
+        txt(ax, 65, 31.5, "Cross-attention", size=6.3,
             color=COLORS["dental"][0]),
-        txt(ax, 57, 40.3, "Structure DiT", size=8.3,
+        txt(ax, 54, 37.4, "Structure DiT", size=8.3,
             color=COLORS["transformer"][0], bold=True),
-        txt(ax, 57, 48.1, "Time-modulated self-attention\nDental cross-attention · feed-forward",
-            size=6.9, color=MUTED),
+
     ]
-    TEXT_CONTAINMENT.extend((ax, label, (33, 33, 48, 21)) for label in structure_labels)
-    card(ax, 92, 33, 20, 21, "ODE solver", "Velocity\nintegration",
+    TEXT_CONTAINMENT.extend((ax, label, (33, 29, 42, 25)) for label in structure_labels)
+    for y,label,family in ((41.5,"Time-modulated self-attention","transformer"),
+                           (45.4,"Dental cross-attention","dental"),
+                           (49.3,"Feed-forward","transformer")):
+        operation_band(ax,35,y,38,label,family=family)
+    card(ax, 85, 32, 20, 19, "ODE solver", "Velocity\nintegration",
          family="solver")
-    card(ax, 121, 33, 24, 21, "Frozen decoder", "Structure decoding\nOccupancy selection",
+    card(ax, 115, 32, 30, 19, "Frozen decoder", "Structure decoding\nOccupancy selection",
          family="neutral", body_size=6.7)
+    integration_mark(ax,89,39.8,12)
+    frozen_mark(ax,117,34.2)
     result_glyph(ax, support=True)
-    for start, end in ((17.5, 22.35), (27.45, 33), (81, 92), (112, 121)):
-        wire(ax, [(start, 45.5), (end, 45.5)])
-    wire(ax, [(145, 45.5), (157, 45.5)], family="support")
-    txt(ax, 86.5, 40.8, r"$v^S$", size=9., color=COLORS["flow"][0])
+    for start, end in ((17.5, 22.35), (27.45, 33), (75, 85), (105, 115)):
+        wire(ax, [(start, 41.5), (end, 41.5)])
+    wire(ax, [(145, 41.5), (157, 41.5)], family="support")
+    txt(ax, 80, 36.8, r"$v^S$", size=9., color=COLORS["flow"][0])
 
 
 def feature_panel(ax):
@@ -264,17 +298,23 @@ def feature_panel(ax):
 
     latent_input(ax, r"$x^F(q,t)$", "Noisy features", feature=True)
     fusion_module(ax)
-    token_strip(ax, 82, 46, family="flow")
-    txt(ax, 84, 39.5, "Fused\ntokens", size=6.7, color=COLORS["flow"][0])
-    card(ax, 95, 25, 28, 29, "Feature DiT",
-         "Sparse self-attention\nDental cross-attention\nTime modulation", family="transformer",
-         size=8.3, body_size=6.9)
-    card(ax, 134, 33, 17, 21, "ODE solver", "Velocity\nintegration",
+    token_strip(ax, 82, 36.5, family="flow", conditioned=True)
+    txt(ax, 84, 31, "Fused\ntokens", size=6.7, color=COLORS["flow"][0])
+    frame(ax,95,25,28,29,family="transformer")
+    t=txt(ax,109,32.8,"Feature DiT",size=8.3,bold=True,color=COLORS["transformer"][0])
+    TEXT_CONTAINMENT.append((ax,t,(95,25,28,29)))
+    for y,label,family in ((40.2,"Sparse self-attention","transformer"),
+                           (44.,"Dental cross-attention","dental"),
+                           (47.8,"Time modulation","transformer")):
+        operation_band(ax,96.5,y,25,label,family=family)
+    card(ax, 134, 30, 17, 21, "ODE solver", "Velocity\nintegration",
          family="solver")
+    integration_mark(ax,137.5,38.3,10)
     result_glyph(ax)
-    for start, end in ((17.5, 29), (86.45, 95), (123, 134), (151, 156.5)):
-        wire(ax, [(start, 50), (end, 50)])
-    txt(ax, 128.5, 45.3, r"$v^F$", size=9., color=COLORS["flow"][0])
+    wire(ax,[(17.5,47.5),(29,47.5)])
+    for start, end in ((86.45,95),(123,134),(151,156.5)):
+        wire(ax,[(start,40.5),(end,40.5)])
+    txt(ax, 128.5, 35.8, r"$v^F$", size=9., color=COLORS["flow"][0])
     txt(ax, 86, 9.5, r"$S=\hat O,\quad q\in S$", size=8.,
         color=COLORS["support"][0], ha="left")
     txt(ax, 146, 57.1, r"$\hat Z=(\hat O,\hat F)$", size=8.,
@@ -309,8 +349,8 @@ def build_figure():
 
     # The only connection between stages carries support to local conditioning.
     support_path = MplPath(
-        [(166/180, 71.5/132), (166/180, 66/132),
-         (75.5/180, 66/132), (75.5/180, 42.5/132)],
+        [(166/180, 75/132), (166/180, 66/132),
+         (69/180, 66/132), (69/180, 42.5/132)],
         [MplPath.MOVETO, MplPath.LINETO, MplPath.LINETO, MplPath.LINETO],
     )
     fig.add_artist(FancyArrowPatch(

@@ -6,7 +6,7 @@ Two complementary stage panels separate support prediction from local feature
 generation. Token columns mark module interfaces; Feature conditions and their
 projection branches share one compound fusion module. Architecture settings and numerical data are
 absent. Token strips and sparse-grid icons are schematic, not measured data.
-Python/Matplotlib provides all drawing and exports at 180 x 132 mm.
+Python/Matplotlib provides all drawing and exports at 180 x 116 mm.
 """
 
 from pathlib import Path
@@ -15,22 +15,23 @@ import matplotlib as mpl
 mpl.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.path import Path as MplPath
-from matplotlib.patches import Circle, FancyArrowPatch, FancyBboxPatch, Rectangle
-from audit_panel_alignment import require_matplotlib_panel_alignment
+from matplotlib.patches import Ellipse, FancyArrowPatch, FancyBboxPatch, Rectangle
+import json
 
 ROOT = Path(__file__).resolve().parent
 FIG_WIDTH_MM = 180.0
-FIG_HEIGHT_MM = 132.0
+FIG_HEIGHT_MM = 116.0
 PANEL_WIDTH_MM = 172.0
-PANEL_HEIGHT_MM = 60.0
-INK, MUTED = "#263F50", "#526675"
+PANEL_HEIGHT_MM = 52.0
+PANEL_DATA_HEIGHT = 60.0
+INK, MUTED = "#293D49", "#53636E"
 COLORS = {
     "flow": ("#326E99", "#EAF3FA"),
-    "transformer": ("#4C6C47", "#E6EFDF"),
+    "transformer": ("#4C6C47", "#EDF2E8"),
     "dental": ("#775E8C", "#F4EFF8"),
-    "fusion": ("#966648", "#FCF0E5"),
+    "fusion": ("#966648", "#FAF1E8"),
     "support": ("#347B80", "#EAF5F4"),
-    "solver": ("#92702D", "#FCF4DE"),
+    "solver": ("#92702D", "#FAF3E2"),
     "neutral": ("#647581", "#F4F7F8"),
 }
 TEXT_CONTAINMENT = []
@@ -56,12 +57,12 @@ def txt(ax, x, y, value, *, size=8., color=INK, bold=False, ha="center"):
 
 def frame(ax, x, y, w, h, *, family="neutral", panel=False):
     edge, fill = COLORS[family]
-    radius = 2.0 if family == "transformer" else .9
+    radius = 1.1 if family == "transformer" else .7
     patch = FancyBboxPatch(
         (x, y), w, h, boxstyle=f"round,pad=0,rounding_size={radius}",
         facecolor="white" if panel else fill,
         edgecolor="#C0CDD5" if panel else edge,
-        linewidth=.6 if panel else .7, zorder=0 if panel else 2,
+        linewidth=.5 if panel else .6, zorder=0 if panel else 2,
     )
     ax.add_patch(patch)
 
@@ -79,9 +80,10 @@ def card(ax, x, y, w, h, title, body, *, family="neutral", size=7.6, body_size=6
 def wire(ax, points, *, family="flow", condition=False):
     path = MplPath(points, [MplPath.MOVETO] + [MplPath.LINETO]*(len(points)-1))
     ax.add_patch(FancyArrowPatch(
-        path=path, arrowstyle="-|>", mutation_scale=6.5,
-        linewidth=.75 if condition else .95, color=COLORS[family][0],
-        linestyle=(0, (3.2, 2.0)) if condition else "-", zorder=5,
+        path=path, arrowstyle="-|>", mutation_scale=5.8,
+        linewidth=.65 if condition else .8, color=COLORS[family][0],
+        linestyle=(0, (3.0, 1.8)) if condition else "-",
+        capstyle="round", joinstyle="round", zorder=5,
     ))
 
 
@@ -146,7 +148,7 @@ def support_grid(ax, x, y):
     for row in range(3):
         for col in range(4):
             active = (row, col) in occupied
-            ax.add_patch(Rectangle((x+col*2.0, y+row*2.0), 1.55, 1.55,
+            ax.add_patch(Rectangle((x+col*2.0, y+row*2.0*60/52), 1.55, 1.55*60/52,
                 facecolor=edge if active else "white", edgecolor=edge,
                 linewidth=.35, alpha=.85 if active else .32, zorder=3))
 
@@ -194,7 +196,7 @@ def fusion_module(ax):
         center = x+w/2
         title_text = txt(ax, center, 24, title, size=7., bold=True,
                          color=COLORS[family][0])
-        body_text = txt(ax, center, 29.6, body, size=6.6, color=MUTED)
+        body_text = txt(ax, center, 29.0, body, size=6.6, color=MUTED)
         TEXT_CONTAINMENT.extend((ax, label, (x, 22, w, 11))
                                 for label in (title_text, body_text))
         frame(ax, x+1, 36.5, w-2, 5.5, family=family)
@@ -209,10 +211,10 @@ def fusion_module(ax):
     TEXT_CONTAINMENT.append((ax, text, (29, 44.5, 22, 6)))
     ax.plot([52.8,52.8],[22.4,41.8],color=COLORS["fusion"][0],alpha=.25,lw=.35,zorder=3)
     edge = COLORS["fusion"][0]
-    ax.add_patch(Circle((65, 47.5), 1.9, facecolor="white",
+    ax.add_patch(Ellipse((65, 47.5), 3.8, 3.8*60/52, facecolor="white",
         edgecolor=edge, linewidth=.75, zorder=4))
     ax.plot([64, 66], [47.5, 47.5], color=edge, lw=.75, zorder=5)
-    ax.plot([65, 65], [46.5, 48.5], color=edge, lw=.75, zorder=5)
+    ax.plot([65, 65], [47.5-60/52, 47.5+60/52], color=edge, lw=.75, zorder=5)
     wire(ax, [(40, 42), (40, 43.3), (60.5, 43.3), (63.7, 46.1)],
          family="dental", condition=True)
     wire(ax, [(65, 42), (65, 45.6)], family="fusion", condition=True)
@@ -228,7 +230,7 @@ def result_glyph(ax, *, support=False):
     txt(ax, 162, 47.7, r"$\hat O$" if support else r"$\hat F_q$",
         size=9.5, color=COLORS[family][0])
     if support:
-        support_grid(ax, 158.2, 38.725)
+        support_grid(ax, 158.2, 41.5-2.775*60/52)
     else:
         tensor_stack(ax, 157, 37, 9, 7, family="flow")
 
@@ -238,13 +240,13 @@ def axes_panel(fig, bottom, letter, title, subtitle):
         4/FIG_WIDTH_MM, bottom/FIG_HEIGHT_MM,
         PANEL_WIDTH_MM/FIG_WIDTH_MM, PANEL_HEIGHT_MM/FIG_HEIGHT_MM,
     ])
-    ax.set(xlim=(0, PANEL_WIDTH_MM), ylim=(PANEL_HEIGHT_MM, 0), aspect="equal")
+    ax.set(xlim=(0, PANEL_WIDTH_MM), ylim=(PANEL_DATA_HEIGHT, 0), aspect="auto")
     ax.axis("off")
     frame(ax, .15, .15, 171.7, 59.7, panel=True)
-    txt(ax, 3, 4.8, letter, size=9.5, bold=True,
+    txt(ax, 3, 4.8, "("+letter+")", size=8.8, bold=True,
         color=COLORS["flow"][0], ha="left")
-    txt(ax, 10, 4.8, title, size=9.4, bold=True, ha="left")
-    txt(ax, 168, 4.8, subtitle, size=6.9, color=MUTED, ha="right")
+    txt(ax, 12, 4.8, title, size=9.0, bold=True, ha="left")
+    txt(ax, 168, 4.8, subtitle, size=6.5, color=MUTED, ha="right")
     return ax
 
 
@@ -345,29 +347,48 @@ def containment_gate(fig):
 def build_figure():
     TEXT_CONTAINMENT.clear()
     fig = plt.figure(figsize=(FIG_WIDTH_MM/25.4, FIG_HEIGHT_MM/25.4))
-    a = axes_panel(fig, 68, "a", "Structure Flow", "Predict the active support")
+    a = axes_panel(fig, 60, "a", "Structure Flow", "Predict the active support")
     b = axes_panel(fig, 4, "b", "Feature Flow", "Generate local latent features")
     structure_panel(a)
     feature_panel(b)
 
     # The only connection between stages carries support to local conditioning.
     support_path = MplPath(
+<<<<<<< HEAD
+        [(166/180, (112-53*52/60)/116), (166/180, 58/116),
+         (69/180, 58/116), (69/180, (56-21.5*52/60)/116)],
+=======
         [(166/180, 77.2/132), (166/180, 66/132),
          (69/180, 66/132), (69/180, 42.5/132)],
+>>>>>>> 25f8d5d7b3e2f4e6fabeb0e844639ad577d9d052
         [MplPath.MOVETO, MplPath.LINETO, MplPath.LINETO, MplPath.LINETO],
     )
     fig.add_artist(FancyArrowPatch(
         path=support_path, transform=fig.transFigure, arrowstyle="-|>",
-        mutation_scale=6.5, linewidth=.85, color=COLORS["support"][0], zorder=5,
+        mutation_scale=5.8, linewidth=.75, color=COLORS["support"][0], zorder=5,
     ))
     containment_gate(fig)
-    require_matplotlib_panel_alignment(
-        fig, axes=[a, b], panel_ids=["a", "b"],
-        column_groups=[{"id": "two-stage-flows", "panels": ["a", "b"]}],
-        json_out=ROOT/"feature_condition_detail.alignment.json",
-        overlay_svg=ROOT/"feature_condition_detail.alignment.svg",
-        tolerance_pt=1.5, gutter_tolerance_pt=1.5, strict=True,
-    )
+    # Self-contained geometric validation: no external audit module required.
+    rectangles = [axis.get_window_extent() for axis in (a, b)]
+    left_error = abs(rectangles[0].x0-rectangles[1].x0)
+    width_error = abs(rectangles[0].width-rectangles[1].width)
+    height_error = abs(rectangles[0].height-rectangles[1].height)
+    overlaps = []
+    renderer = fig.canvas.get_renderer()
+    for axis in (a, b):
+        for i, label in enumerate(axis.texts):
+            extent = label.get_window_extent(renderer)
+            for other in axis.texts[i+1:]:
+                if extent.overlaps(other.get_window_extent(renderer)):
+                    overlaps.append([label.get_text(), other.get_text()])
+    report = {"canvas_mm": [FIG_WIDTH_MM, FIG_HEIGHT_MM],
+              "panel_mm": [PANEL_WIDTH_MM, PANEL_HEIGHT_MM],
+              "alignment_error_px": max(left_error, width_error, height_error),
+              "text_overlaps": overlaps, "text_containment": "passed",
+              "dpi": 600}
+    (ROOT/"feature_condition_detail.layout_check.json").write_text(json.dumps(report, indent=2))
+    if max(left_error, width_error, height_error) > .1 or overlaps:
+        raise RuntimeError("Layout validation: " + str(report))
     metadata = {"Title": "Two-stage conditional flow matching"}
     fig.savefig(ROOT/"feature_condition_detail.png", dpi=600, metadata=metadata)
     fig.savefig(ROOT/"feature_condition_detail.pdf", metadata=metadata)

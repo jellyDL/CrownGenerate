@@ -153,25 +153,28 @@ def support_grid(ax, x, y):
 
 def latent_input(ax, symbol, detail, *, feature=False):
     center = 11.5
-    txt(ax, center, 31.5 if not feature else 38, symbol, size=9.,
+    txt(ax, center, 33.5 if not feature else 40, symbol, size=9.,
         color=COLORS["flow"][0])
     tensor_stack(ax, 5.0, 37.5 if not feature else 43.5, 11, 8)
-    txt(ax, center, 49.5 if not feature else 54.5, detail, size=6.8, color=MUTED)
+    txt(ax, center, 48.5 if not feature else 54, detail, size=6.8, color=MUTED)
 
 
 def condition_interface(ax, *, feature=False):
     """Unboxed representation beside a token column on a condition path."""
     x = 113 if not feature else 107.1
     token_strip(ax, x, 13 if not feature else 12.5)
-    center = 144 if not feature else 142.5
+    # Place each description directly beside its token glyph with a shared
+    # left edge; the condition arrow remains centered on the token column.
+    label_x = x + 8
     labels = [
-        txt(ax, center, 12.3 if not feature else 13.8,
+        txt(ax, label_x, 13.8,
             "Condition tokens" if not feature else "Cross-attention", size=7.6,
-            color=COLORS["dental"][0], bold=True),
-        txt(ax, center, 18.5 if not feature else 20,
-            "Global condition\nCoarse voxel tokens", size=7., color=MUTED),
+            color=COLORS["dental"][0], bold=True, ha="left"),
+        txt(ax, label_x, 19.4,
+            "Global condition\nCoarse voxel tokens", size=7., color=MUTED, ha="left"),
     ]
-    TEXT_CONTAINMENT.extend((ax, label, (119, 10, 49, 17)) for label in labels)
+    TEXT_CONTAINMENT.extend((ax, label, (label_x-1, 10, 169-label_x, 14))
+                            for label in labels)
 
 
 def fusion_module(ax):
@@ -220,9 +223,9 @@ def fusion_module(ax):
 def result_glyph(ax, *, support=False):
     """Outputs are data glyphs, distinct from all processing blocks."""
     family = "support" if support else "flow"
-    txt(ax, 162, 31.8, "Active\nsupport" if support else "Local\nfeatures",
+    txt(ax, 162, 33 if support else 32.1, "Active\nsupport" if support else "Local\nfeatures",
         size=7.3, color=COLORS[family][0], bold=True)
-    txt(ax, 162, 49.5, r"$\hat O$" if support else r"$\hat F_q$",
+    txt(ax, 162, 47.7, r"$\hat O$" if support else r"$\hat F_q$",
         size=9.5, color=COLORS[family][0])
     if support:
         support_grid(ax, 158.2, 38.725)
@@ -287,7 +290,7 @@ def structure_panel(ax):
     for start, end in ((17.5, 22.35), (27.45, 33), (75, 85), (105, 115)):
         wire(ax, [(start, 41.5), (end, 41.5)])
     wire(ax, [(145, 41.5), (157, 41.5)], family="support")
-    txt(ax, 80, 36.8, r"$v^S$", size=9., color=COLORS["flow"][0])
+    txt(ax, 80, 38.6, r"$v^S$", size=9., color=COLORS["flow"][0])
 
 
 def feature_panel(ax):
@@ -299,9 +302,9 @@ def feature_panel(ax):
     latent_input(ax, r"$x^F(q,t)$", "Noisy features", feature=True)
     fusion_module(ax)
     token_strip(ax, 82, 36.5, family="flow", conditioned=True)
-    txt(ax, 84, 31, "Fused\ntokens", size=6.7, color=COLORS["flow"][0])
+    txt(ax, 84, 32.6, "Fused\ntokens", size=6.7, color=COLORS["flow"][0])
     frame(ax,95,25,28,29,family="transformer")
-    t=txt(ax,109,30.8,"Feature DiT",size=8.3,bold=True,color=COLORS["transformer"][0])
+    t=txt(ax,109,32.2,"Feature DiT",size=8.3,bold=True,color=COLORS["transformer"][0])
     TEXT_CONTAINMENT.append((ax,t,(95,25,28,29)))
     for y,label,family in ((37.5,"Sparse self-attention","transformer"),
                            (42.,"Dental cross-attention","dental"),
@@ -314,8 +317,8 @@ def feature_panel(ax):
     wire(ax,[(17.5,47.5),(29,47.5)])
     for start, end in ((86.45,95),(123,132.5),(152.5,156.5)):
         wire(ax,[(start,40.5),(end,40.5)])
-    txt(ax, 127.75, 35.8, r"$v^F$", size=9., color=COLORS["flow"][0])
-    txt(ax, 86, 9.5, r"$S=\hat O,\quad q\in S$", size=8.,
+    txt(ax, 127.75, 37.6, r"$v^F$", size=9., color=COLORS["flow"][0])
+    txt(ax, 69, 11, r"$S=\hat O,\quad q\in S$", size=8.,
         color=COLORS["support"][0], ha="left")
     txt(ax, 168, 57.1, r"$\hat Z=(\hat O,\hat F)$", size=8.,
         color=COLORS["support"][0], ha="right")
@@ -349,7 +352,7 @@ def build_figure():
 
     # The only connection between stages carries support to local conditioning.
     support_path = MplPath(
-        [(166/180, 75/132), (166/180, 66/132),
+        [(166/180, 77.2/132), (166/180, 66/132),
          (69/180, 66/132), (69/180, 42.5/132)],
         [MplPath.MOVETO, MplPath.LINETO, MplPath.LINETO, MplPath.LINETO],
     )

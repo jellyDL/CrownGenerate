@@ -8,7 +8,7 @@
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
     <dc:title>Two-stage conditional flow matching</dc:title>
-    <dc:date>2026-09-10T21:48:34.703859</dc:date>
+    <dc:date>2026-09-10T22:04:01.154718</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -673,15 +673,15 @@ z
     <text style="font-size: 6.9px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #526675" transform="translate(172.087154 71.473787)">Global pooling · voxel refinement</text>
    </g>
    <g id="text_8">
-    <text style="font-weight: 600; font-size: 7.6px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #775e8c" x="419.527559" y="48.174787" transform="rotate(-0 419.527559 48.174787)">Condition tokens</text>
+    <text style="font-weight: 600; font-size: 7.6px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: start; fill: #775e8c" x="354.330709" y="52.426755" transform="rotate(-0 354.330709 52.426755)">Condition tokens</text>
    </g>
    <g id="text_9">
-    <text style="font-size: 7px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #526675" transform="translate(394.429278 61.887231)">Global condition</text>
-    <text style="font-size: 7px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #526675" transform="translate(387.8192 69.291043)">Coarse voxel tokens</text>
+    <text style="font-size: 7px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #526675" transform="translate(354.330709 64.438412)">Global condition</text>
+    <text style="font-size: 7px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #526675" transform="translate(354.330709 71.842224)">Coarse voxel tokens</text>
    </g>
    <g id="text_10">
     <!-- $x^S(t)$ -->
-    <g style="fill: #326e99" transform="translate(33.632008 103.566171)">
+    <g style="fill: #326e99" transform="translate(33.632008 109.235463)">
      <text>
       <tspan x="0" y="-0.873438" style="font-style: oblique; font-size: 9px; font-family: 'DejaVu Sans'; fill: #326e99">x</tspan>
       <tspan x="13.484473" y="-0.873438" style="font-style: oblique; font-size: 9px; font-family: 'DejaVu Sans'; fill: #326e99">t</tspan>
@@ -692,7 +692,7 @@ z
     </g>
    </g>
    <g id="text_11">
-    <text style="font-size: 6.8px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #526675" x="43.937008" y="153.371606" transform="rotate(-0 43.937008 153.371606)">Noisy latent</text>
+    <text style="font-size: 6.8px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #526675" x="43.937008" y="150.53696" transform="rotate(-0 43.937008 150.53696)">Noisy latent</text>
    </g>
    <g id="text_12">
     <text style="font-size: 6.3px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #775e8c" x="130.393701" y="102.221656" transform="rotate(-0 130.393701 102.221656)">Aligned injection</text>
@@ -727,12 +727,12 @@ z
     <text style="font-size: 6.7px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #526675" transform="translate(348.933535 144.577091)">Occupancy selection</text>
    </g>
    <g id="text_22">
-    <text style="font-weight: 600; font-size: 7.3px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #347b80" transform="translate(459.596619 99.517185)">Active</text>
-    <text style="font-weight: 600; font-size: 7.3px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #347b80" transform="translate(456.968048 107.228038)">support</text>
+    <text style="font-weight: 600; font-size: 7.3px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #347b80" transform="translate(459.596619 102.91876)">Active</text>
+    <text style="font-weight: 600; font-size: 7.3px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #347b80" transform="translate(456.968048 110.629613)">support</text>
    </g>
    <g id="text_23">
     <!-- $\hat O$ -->
-    <g style="fill: #347b80" transform="translate(466.798681 155.132918)">
+    <g style="fill: #347b80" transform="translate(466.798681 150.030556)">
      <text>
       <tspan x="6.535156" y="-3.40625" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #347b80">̂</tspan>
       <tspan x="0" y="-0.5" style="font-style: oblique; font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #347b80">O</tspan>
@@ -741,7 +741,7 @@ z
    </g>
    <g id="text_24">
     <!-- $v^S$ -->
-    <g style="fill: #326e99" transform="translate(233.115236 117.980184)">
+    <g style="fill: #326e99" transform="translate(233.115236 123.082546)">
      <text>
       <tspan x="0" y="-0.873438" style="font-style: oblique; font-size: 9px; font-family: 'DejaVu Sans'; fill: #326e99">v</tspan>
       <tspan x="5.728125" y="-4.31875" style="font-style: oblique; font-size: 6.3px; font-family: 'DejaVu Sans'; fill: #326e99">S</tspan>
@@ -1516,15 +1516,15 @@ z
     <text style="font-size: 6.9px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: end; fill: #526675" x="487.559055" y="208.145963" transform="rotate(-0 487.559055 208.145963)">Generate local latent features</text>
    </g>
    <g id="text_28">
-    <text style="font-weight: 600; font-size: 7.6px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #775e8c" x="415.275591" y="233.844078" transform="rotate(-0 415.275591 233.844078)">Cross-attention</text>
+    <text style="font-weight: 600; font-size: 7.6px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: start; fill: #775e8c" x="337.606299" y="233.844078" transform="rotate(-0 337.606299 233.844078)">Cross-attention</text>
    </g>
    <g id="text_29">
-    <text style="font-size: 7px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #526675" transform="translate(390.177309 247.556522)">Global condition</text>
-    <text style="font-size: 7px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #526675" transform="translate(383.567231 254.960335)">Coarse voxel tokens</text>
+    <text style="font-size: 7px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #526675" transform="translate(337.606299 245.855735)">Global condition</text>
+    <text style="font-size: 7px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #526675" transform="translate(337.606299 253.259547)">Coarse voxel tokens</text>
    </g>
    <g id="text_30">
     <!-- $x^F(q,t)$ -->
-    <g style="fill: #326e99" transform="translate(28.682008 303.577441)">
+    <g style="fill: #326e99" transform="translate(28.682008 309.246732)">
      <text>
       <tspan x="0" y="-0.960938" style="font-style: oblique; font-size: 9px; font-family: 'DejaVu Sans'; fill: #326e99">x</tspan>
       <tspan x="13.10918" y="-0.960938" style="font-style: oblique; font-size: 9px; font-family: 'DejaVu Sans'; fill: #326e99">q</tspan>
@@ -1537,7 +1537,7 @@ z
     </g>
    </g>
    <g id="text_31">
-    <text style="font-size: 6.8px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #526675" x="43.937008" y="349.003594" transform="rotate(-0 43.937008 349.003594)">Noisy features</text>
+    <text style="font-size: 6.8px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #526675" x="43.937008" y="347.586272" transform="rotate(-0 43.937008 347.586272)">Noisy features</text>
    </g>
    <g id="text_32">
     <text style="font-weight: 600; font-size: 8.1px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #966648" x="158.740157" y="247.863451" transform="rotate(-0 158.740157 247.863451)">Condition fusion</text>
@@ -1588,11 +1588,11 @@ z
     <text style="font-size: 6.8px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #326e99" x="124.724409" y="329.159481" transform="rotate(-0 124.724409 329.159481)">Input adaptation</text>
    </g>
    <g id="text_40">
-    <text style="font-size: 6.7px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #326e99" transform="translate(240.13896 278.818723)">Fused</text>
-    <text style="font-size: 6.7px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #326e99" transform="translate(239.579405 285.905229)">tokens</text>
+    <text style="font-size: 6.7px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #326e99" transform="translate(240.13896 283.354156)">Fused</text>
+    <text style="font-size: 6.7px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #326e99" transform="translate(239.579405 290.440662)">tokens</text>
    </g>
    <g id="text_41">
-    <text style="font-weight: 600; font-size: 8.3px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #4c6c47" x="320.314961" y="282.214508" transform="rotate(-0 320.314961 282.214508)">Feature DiT</text>
+    <text style="font-weight: 600; font-size: 8.3px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #4c6c47" x="320.314961" y="286.183012" transform="rotate(-0 320.314961 286.183012)">Feature DiT</text>
    </g>
    <g id="text_42">
     <text style="font-size: 6.7px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; text-anchor: middle; fill: #526675" x="320.314961" y="305.646899" transform="rotate(-0 320.314961 305.646899)">Sparse self-attention</text>
@@ -1611,12 +1611,12 @@ z
     <text style="font-size: 6.9px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #526675" transform="translate(399.165708 323.224906)">integration</text>
    </g>
    <g id="text_47">
-    <text style="font-weight: 600; font-size: 7.3px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #326e99" transform="translate(461.018978 280.934508)">Local</text>
-    <text style="font-weight: 600; font-size: 7.3px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #326e99" transform="translate(456.35154 288.645361)">features</text>
+    <text style="font-weight: 600; font-size: 7.3px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #326e99" transform="translate(461.018978 281.784902)">Local</text>
+    <text style="font-weight: 600; font-size: 7.3px; font-family: 'Arial', 'Helvetica', 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Avant Garde', sans-serif; fill: #326e99" transform="translate(456.35154 289.495755)">features</text>
    </g>
    <g id="text_48">
     <!-- $\hat F_q$ -->
-    <g style="fill: #326e99" transform="translate(465.516181 336.823366)">
+    <g style="fill: #326e99" transform="translate(465.516181 331.721004)">
      <text>
       <tspan x="6.1875" y="-3.40625" style="font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #326e99">̂</tspan>
       <tspan x="0" y="-0.625" style="font-style: oblique; font-size: 9.5px; font-family: 'DejaVu Sans'; fill: #326e99">F</tspan>
@@ -1626,7 +1626,7 @@ z
    </g>
    <g id="text_49">
     <!-- $v^F$ -->
-    <g style="fill: #326e99" transform="translate(368.649567 296.562861)">
+    <g style="fill: #326e99" transform="translate(368.649567 301.665223)">
      <text>
       <tspan x="0" y="-0.960938" style="font-style: oblique; font-size: 9px; font-family: 'DejaVu Sans'; fill: #326e99">v</tspan>
       <tspan x="5.728125" y="-4.40625" style="font-style: oblique; font-size: 6.3px; font-family: 'DejaVu Sans'; fill: #326e99">F</tspan>
@@ -1635,7 +1635,7 @@ z
    </g>
    <g id="text_50">
     <!-- $S=\hat O,\quad q\in S$ -->
-    <g style="fill: #347b80" transform="translate(255.11811 223.285039)">
+    <g style="fill: #347b80" transform="translate(206.929134 227.537008)">
      <text>
       <tspan x="0" y="-0.140625" style="font-style: oblique; font-size: 8px; font-family: 'DejaVu Sans'; fill: #347b80">S</tspan>
       <tspan x="14.898438" y="-0.140625" style="font-style: oblique; font-size: 8px; font-family: 'DejaVu Sans'; fill: #347b80">O</tspan>
@@ -1673,7 +1673,7 @@ z
    </g>
   </g>
   <g id="patch_141">
-   <path d="M 470.551181 161.574803
+   <path d="M 470.551181 155.338583
 L 470.551181 187.086614
 L 195.590551 187.086614
 L 195.590551 252.750459

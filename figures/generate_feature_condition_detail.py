@@ -66,10 +66,10 @@ def frame(ax, x, y, w, h, *, family="neutral", panel=False):
     ax.add_patch(patch)
 
 
-def card(ax, x, y, w, h, title, body, *, family="neutral", size=7.6, body_size=6.9):
+def card(ax, x, y, w, h, title, body, *, family="neutral", size=7.6, body_size=6.9, title_dx=0.):
     frame(ax, x, y, w, h, family=family)
     labels = [
-        txt(ax, x+w/2, y+h*.27, title, size=size,
+        txt(ax, x+w/2+title_dx, y+h*.27, title, size=size,
             color=COLORS[family][0], bold=True),
         txt(ax, x+w/2, y+h*.69, body, size=body_size, color=MUTED),
     ]
@@ -161,7 +161,7 @@ def latent_input(ax, symbol, detail, *, feature=False):
 
 def condition_interface(ax, *, feature=False):
     """Unboxed representation beside a token column on a condition path."""
-    x = 113 if not feature else 105
+    x = 113 if not feature else 107.1
     token_strip(ax, x, 13 if not feature else 12.5)
     center = 144 if not feature else 142.5
     labels = [
@@ -280,9 +280,9 @@ def structure_panel(ax):
     card(ax, 85, 32, 20, 19, "ODE solver", "Velocity\nintegration",
          family="solver")
     card(ax, 115, 32, 30, 19, "Frozen decoder", "Structure decoding\nOccupancy selection",
-         family="neutral", body_size=6.7)
+         family="neutral", body_size=6.7, title_dx=1.1)
     integration_mark(ax,89,39.8,12)
-    frozen_mark(ax,117,34.2)
+    frozen_mark(ax,118,35.5)
     result_glyph(ax, support=True)
     for start, end in ((17.5, 22.35), (27.45, 33), (75, 85), (105, 115)):
         wire(ax, [(start, 41.5), (end, 41.5)])
@@ -293,7 +293,7 @@ def structure_panel(ax):
 def feature_panel(ax):
     # Consolidate source, projection and fusion in one compound network module.
     condition_interface(ax, feature=True)
-    wire(ax, [(106.9, 21.15), (106.9, 25)],
+    wire(ax, [(109, 21.15), (109, 25)],
          family="dental", condition=True)
 
     latent_input(ax, r"$x^F(q,t)$", "Noisy features", feature=True)
@@ -301,28 +301,28 @@ def feature_panel(ax):
     token_strip(ax, 82, 36.5, family="flow", conditioned=True)
     txt(ax, 84, 31, "Fused\ntokens", size=6.7, color=COLORS["flow"][0])
     frame(ax,95,25,28,29,family="transformer")
-    t=txt(ax,109,32.8,"Feature DiT",size=8.3,bold=True,color=COLORS["transformer"][0])
+    t=txt(ax,109,30.8,"Feature DiT",size=8.3,bold=True,color=COLORS["transformer"][0])
     TEXT_CONTAINMENT.append((ax,t,(95,25,28,29)))
-    for y,label,family in ((40.2,"Sparse self-attention","transformer"),
-                           (44.,"Dental cross-attention","dental"),
-                           (47.8,"Time modulation","transformer")):
+    for y,label,family in ((37.5,"Sparse self-attention","transformer"),
+                           (42.,"Dental cross-attention","dental"),
+                           (46.5,"Time modulation","transformer")):
         operation_band(ax,96.5,y,25,label,family=family)
-    card(ax, 134, 30, 17, 21, "ODE solver", "Velocity\nintegration",
+    card(ax, 132.5, 31, 20, 19, "ODE solver", "Velocity\nintegration",
          family="solver")
-    integration_mark(ax,137.5,38.3,10)
+    integration_mark(ax,136.5,38.8,12)
     result_glyph(ax)
     wire(ax,[(17.5,47.5),(29,47.5)])
-    for start, end in ((86.45,95),(123,134),(151,156.5)):
+    for start, end in ((86.45,95),(123,132.5),(152.5,156.5)):
         wire(ax,[(start,40.5),(end,40.5)])
-    txt(ax, 128.5, 35.8, r"$v^F$", size=9., color=COLORS["flow"][0])
+    txt(ax, 127.75, 35.8, r"$v^F$", size=9., color=COLORS["flow"][0])
     txt(ax, 86, 9.5, r"$S=\hat O,\quad q\in S$", size=8.,
         color=COLORS["support"][0], ha="left")
-    txt(ax, 146, 57.1, r"$\hat Z=(\hat O,\hat F)$", size=8.,
+    txt(ax, 168, 57.1, r"$\hat Z=(\hat O,\hat F)$", size=8.,
         color=COLORS["support"][0], ha="right")
-    wire(ax, [(4, 57), (11, 57)])
-    txt(ax, 13, 57, "Data flow", size=6.6, color=MUTED, ha="left")
-    wire(ax, [(35, 57), (42, 57)], family="dental", condition=True)
-    txt(ax, 44, 57, "Conditioning", size=6.6, color=MUTED, ha="left")
+    wire(ax, [(79, 57), (86, 57)])
+    txt(ax, 88, 57, "Data flow", size=6.6, color=MUTED, ha="left")
+    wire(ax, [(109, 57), (116, 57)], family="dental", condition=True)
+    txt(ax, 118, 57, "Conditioning", size=6.6, color=MUTED, ha="left")
 
 
 def containment_gate(fig):

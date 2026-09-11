@@ -26,13 +26,13 @@ PANEL_HEIGHT_MM = 52.0
 PANEL_DATA_HEIGHT = 60.0
 INK, MUTED = "#293D49", "#53636E"
 COLORS = {
-    "flow": ("#326E99", "#EAF3FA"),
-    "transformer": ("#4C6C47", "#EDF2E8"),
-    "dental": ("#775E8C", "#F4EFF8"),
-    "fusion": ("#966648", "#FAF1E8"),
-    "support": ("#347B80", "#EAF5F4"),
-    "solver": ("#92702D", "#FAF3E2"),
-    "neutral": ("#647581", "#F4F7F8"),
+    "flow": ("#326E99", "#EDF4F9"),
+    "transformer": ("#4D7048", "#E8F0E3"),
+    "dental": ("#735D88", "#F3EFF7"),
+    "fusion": ("#956A4D", "#FBF1E8"),
+    "support": ("#347A7D", "#E9F3F2"),
+    "solver": ("#927333", "#FBF3E0"),
+    "neutral": ("#61727D", "#F3F6F7"),
 }
 TEXT_CONTAINMENT = []
 mpl.rcParams.update({
@@ -219,7 +219,7 @@ def fusion_module(ax):
          family="dental", condition=True)
     wire(ax, [(65, 42), (65, 45.6)], family="fusion", condition=True)
     wire(ax, [(51, 47.5), (63.1, 47.5)])
-    wire(ax, [(66.9, 47.5), (79.5, 47.5), (79.5, 40.5), (81.35, 40.5)])
+    wire(ax, [(66.9, 47.5), (79.5, 47.5), (79.5, 41.5), (81.35, 41.5)])
 
 
 def result_glyph(ax, *, support=False):
@@ -278,9 +278,9 @@ def structure_panel(ax):
 
     ]
     TEXT_CONTAINMENT.extend((ax, label, (33, 29, 42, 25)) for label in structure_labels)
-    for y,label,family in ((41.5,"Time-modulated self-attention","transformer"),
-                           (45.4,"Dental cross-attention","dental"),
-                           (49.3,"Feed-forward","transformer")):
+    for y,label,family in ((41.6,"Time-modulated self-attention","transformer"),
+                           (45.35,"Dental cross-attention","dental"),
+                           (49.1,"Feed-forward","transformer")):
         operation_band(ax,35,y,38,label,family=family)
     card(ax, 85, 32, 20, 19, "ODE solver", "Velocity\nintegration",
          family="solver")
@@ -308,18 +308,18 @@ def feature_panel(ax):
     frame(ax,95,25,28,29,family="transformer")
     t=txt(ax,109,32.2,"Feature DiT",size=8.3,bold=True,color=COLORS["transformer"][0])
     TEXT_CONTAINMENT.append((ax,t,(95,25,28,29)))
-    for y,label,family in ((37.5,"Sparse self-attention","transformer"),
+    for y,label,family in ((37.6,"Sparse self-attention","transformer"),
                            (42.,"Dental cross-attention","dental"),
-                           (46.5,"Time modulation","transformer")):
+                           (46.4,"Time modulation","transformer")):
         operation_band(ax,96.5,y,25,label,family=family)
-    card(ax, 132.5, 31, 20, 19, "ODE solver", "Velocity\nintegration",
+    card(ax, 132.5, 32, 20, 19, "ODE solver", "Velocity\nintegration",
          family="solver")
-    integration_mark(ax,136.5,38.8,12)
+    integration_mark(ax,136.5,39.8,12)
     result_glyph(ax)
     wire(ax,[(17.5,47.5),(29,47.5)])
     for start, end in ((86.45,95),(123,132.5),(152.5,156.5)):
-        wire(ax,[(start,40.5),(end,40.5)])
-    txt(ax, 127.75, 37.6, r"$v^F$", size=9., color=COLORS["flow"][0])
+        wire(ax,[(start,41.5),(end,41.5)])
+    txt(ax, 127.75, 38.6, r"$v^F$", size=9., color=COLORS["flow"][0])
     txt(ax, 69, 11, r"$S=\hat O,\quad q\in S$", size=8.,
         color=COLORS["support"][0], ha="left")
     txt(ax, 168, 57.1, r"$\hat Z=(\hat O,\hat F)$", size=8.,
@@ -354,13 +354,8 @@ def build_figure():
 
     # The only connection between stages carries support to local conditioning.
     support_path = MplPath(
-<<<<<<< HEAD
         [(166/180, (112-53*52/60)/116), (166/180, 58/116),
          (69/180, 58/116), (69/180, (56-21.5*52/60)/116)],
-=======
-        [(166/180, 77.2/132), (166/180, 66/132),
-         (69/180, 66/132), (69/180, 42.5/132)],
->>>>>>> 25f8d5d7b3e2f4e6fabeb0e844639ad577d9d052
         [MplPath.MOVETO, MplPath.LINETO, MplPath.LINETO, MplPath.LINETO],
     )
     fig.add_artist(FancyArrowPatch(

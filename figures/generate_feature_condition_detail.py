@@ -27,11 +27,11 @@ PANEL_DATA_HEIGHT = 60.0
 INK, MUTED = "#293D49", "#53636E"
 COLORS = {
     "flow": ("#326E99", "#EDF4F9"),
-    "transformer": ("#4D7048", "#E8F0E3"),
-    "dental": ("#735D88", "#F3EFF7"),
-    "fusion": ("#956A4D", "#FBF1E8"),
+    "transformer": ("#496B55", "#EAF1EC"),
+    "dental": ("#705C86", "#F0ECF6"),
+    "fusion": ("#90664C", "#F9F0E9"),
     "support": ("#347A7D", "#E9F3F2"),
-    "solver": ("#927333", "#FBF3E0"),
+    "solver": ("#876C32", "#F8F2E2"),
     "neutral": ("#61727D", "#F3F6F7"),
 }
 TEXT_CONTAINMENT = []
@@ -55,14 +55,14 @@ def txt(ax, x, y, value, *, size=8., color=INK, bold=False, ha="center"):
     )
 
 
-def frame(ax, x, y, w, h, *, family="neutral", panel=False):
+def frame(ax, x, y, w, h, *, family="neutral", panel=False, fill_override=None):
     edge, fill = COLORS[family]
     radius = 1.1 if family == "transformer" else .7
     patch = FancyBboxPatch(
         (x, y), w, h, boxstyle=f"round,pad=0,rounding_size={radius}",
-        facecolor="white" if panel else fill,
-        edgecolor="#C0CDD5" if panel else edge,
-        linewidth=.5 if panel else .6, zorder=0 if panel else 2,
+        facecolor="white" if panel else (fill_override or fill),
+        edgecolor="#B8C7D0" if panel else edge,
+        linewidth=.6 if panel else .7, zorder=0 if panel else 2,
     )
     ax.add_patch(patch)
 
@@ -70,9 +70,9 @@ def frame(ax, x, y, w, h, *, family="neutral", panel=False):
 def card(ax, x, y, w, h, title, body, *, family="neutral", size=7.6, body_size=6.9, title_dx=0.):
     frame(ax, x, y, w, h, family=family)
     labels = [
-        txt(ax, x+w/2+title_dx, y+h*.27, title, size=size,
+        txt(ax, x+w/2+title_dx, y+h*(.25 if family == "solver" else .27), title, size=size,
             color=COLORS[family][0], bold=True),
-        txt(ax, x+w/2, y+h*.69, body, size=body_size, color=MUTED),
+        txt(ax, x+w/2, y+h*(.72 if family == "solver" else .69), body, size=body_size, color=MUTED),
     ]
     TEXT_CONTAINMENT.extend((ax, label, (x, y, w, h)) for label in labels)
 
@@ -88,9 +88,12 @@ def wire(ax, points, *, family="flow", condition=False):
 
 
 def operation_band(ax,x,y,w,label,*,family="transformer"):
+    edge, fill = COLORS[family]
+    # Light family tints retain semantic color without competing with headings.
+    tint = tuple(.45*c+.55 for c in mpl.colors.to_rgb(fill))
     ax.add_patch(FancyBboxPatch((x,y),w,3.4,
-        boxstyle="round,pad=0,rounding_size=.45",facecolor="white",
-        edgecolor=COLORS[family][0],linewidth=.25,alpha=.72,zorder=3))
+        boxstyle="round,pad=0,rounding_size=.45",facecolor=tint,
+        edgecolor=mpl.colors.to_rgba(edge,.5),linewidth=.35,zorder=3))
     t=txt(ax,x+w/2,y+1.7,label,size=6.7,color=MUTED)
     TEXT_CONTAINMENT.append((ax,t,(x,y,w,3.4)))
 
@@ -199,11 +202,12 @@ def fusion_module(ax):
         body_text = txt(ax, center, 29.0, body, size=6.6, color=MUTED)
         TEXT_CONTAINMENT.extend((ax, label, (x, 22, w, 11))
                                 for label in (title_text, body_text))
-        frame(ax, x+1, 36.5, w-2, 5.5, family=family)
-        operation_text = txt(ax, center, 39.25, operation, size=6.8,
+        frame(ax, x+1, 35.8, w-2, 5.5, family=family,
+              fill_override="#FFFAF6" if family == "fusion" else None)
+        operation_text = txt(ax, center, 38.55, operation, size=6.8,
                              color=COLORS[family][0])
-        TEXT_CONTAINMENT.append((ax, operation_text, (x+1, 36.5, w-2, 5.5)))
-        wire(ax, [(center, 33), (center, 36.5)], family=family, condition=True)
+        TEXT_CONTAINMENT.append((ax, operation_text, (x+1, 35.8, w-2, 5.5)))
+        wire(ax, [(center, 33), (center, 35.8)], family=family, condition=True)
 
     frame(ax, 29, 44.5, 22, 6, family="flow")
     text = txt(ax, 40, 47.5, "Input adaptation", size=6.8,
@@ -215,9 +219,9 @@ def fusion_module(ax):
         edgecolor=edge, linewidth=.75, zorder=4))
     ax.plot([64, 66], [47.5, 47.5], color=edge, lw=.75, zorder=5)
     ax.plot([65, 65], [47.5-60/52, 47.5+60/52], color=edge, lw=.75, zorder=5)
-    wire(ax, [(40, 42), (40, 43.3), (60.5, 43.3), (63.7, 46.1)],
+    wire(ax, [(40, 41.3), (40, 43.0), (60.5, 43.0), (63.7, 46.1)],
          family="dental", condition=True)
-    wire(ax, [(65, 42), (65, 45.6)], family="fusion", condition=True)
+    wire(ax, [(65, 41.3), (65, 45.3)], family="fusion", condition=True)
     wire(ax, [(51, 47.5), (63.1, 47.5)])
     wire(ax, [(66.9, 47.5), (79.5, 47.5), (79.5, 41.5), (81.35, 41.5)])
 
@@ -278,9 +282,9 @@ def structure_panel(ax):
 
     ]
     TEXT_CONTAINMENT.extend((ax, label, (33, 29, 42, 25)) for label in structure_labels)
-    for y,label,family in ((41.6,"Time-modulated self-attention","transformer"),
-                           (45.35,"Dental cross-attention","dental"),
-                           (49.1,"Feed-forward","transformer")):
+    for y,label,family in ((41.0,"Time-modulated self-attention","transformer"),
+                           (45.1,"Dental cross-attention","dental"),
+                           (49.2,"Feed-forward","transformer")):
         operation_band(ax,35,y,38,label,family=family)
     card(ax, 85, 32, 20, 19, "ODE solver", "Velocity\nintegration",
          family="solver")

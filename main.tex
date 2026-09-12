@@ -455,9 +455,11 @@ w_j(y) = \exp\!\left(-\frac{\|y-\xi_j\|_2^2}{2\beta^2}\right),\\
 \section{Experimental and Discussions}\label{sec4}
 
 %% 4.1 
-\subsection{Dataset}\label{subsec4_1}
+\subsection{Dataset and Preprocessing}\label{subsec4_1}
 
 \hspace{2em}We retrospectively included 24,049 de-identified case records from a data provider and multiple dental laboratories for method development. Each record comprised maxillary and mandibular intraoral scans, a three-dimensional cervical margin line, an FDI tooth designation, and a technician-designed reference CAD mesh. Eligible records had a scan field covering at least four adjacent teeth and a valid maxillomandibular occlusal relationship. Records were excluded if the mean closest-point distance from margin points to the reference mesh exceeded \(0.5\,\mathrm{mm}\), if more than \(2\%\) of the reference mesh lay outside the predefined local domain, or if the number of active FDG cells exceeded \(3\times 10^6\). At the case-record level, records were partitioned by stratified random sampling according to FDI tooth position, jaw, and laterality to construct training, validation, and test sets in approximate proportions of \(85\%\), \(10\%\), and \(5\%\), respectively. The test set comprised posterior single-crown cases only.
+
+\hspace{2em}Data preprocessing comprised file validation, coordinate alignment, and sampling. After confirming the availability of the maxillary and mandibular meshes, the FDI-matched margin curve, and the reference crown, a right-handed local coordinate system was established from the margin curve and opposing dentition. The target region was then normalized to a fixed domain with a half-extent of \(12\,\mathrm{mm}\). We sampled 4,096 points with normals from each jaw and resampled the margin curve to 1,024 points. Truncated signed distances were subsequently computed on a \(1024^3\) flexible dual grid. Sampling was determined by a fixed random seed and the case ID.
 
 %% 4.2 
 \subsection{Evaluation Metrics}\label{subsec4_2}

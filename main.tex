@@ -486,7 +486,7 @@ w_j(y) = \exp\!\left(-\frac{\|y-\xi_j\|_2^2}{2\beta^2}\right),\\
 %% 4.3 
 \subsection{Implementation Details}\label{subsec4_3}
 
-\hspace{2em}We adopted a sequential training strategy comprising a sparse VAE, Structure Flow, and Feature Flow. The model consisted of a sparse structural autoencoder, conditional three-dimensional diffusion Transformer (DiT) velocity networks, and dental conditioning adapters. The batch size was set to 2 for all stages, with eight gradient-accumulation steps during Structure Flow training. All models were optimized using AdamW with automatic mixed precision, a weight decay of 0.01, gradient-norm clipping, and cosine learning-rate decay after a 1,000-step warm-up. The initial learning rate was \(1\times10^{-4}\) for the VAE and non-denoising Structure parameters; it was \(5\times10^{-5}\) for Structure LoRA modules~\cite{Hu2022LoRA} and \(1\times10^{-5}\) for unfrozen DiT blocks. For Feature Flow, the learning rates were \(2\times10^{-5}\) for LoRA modules and \(1\times10^{-4}\) for the remaining trainable parameters. The structural autoencoder was frozen during Structure Flow training, whereas the BF16 Transformer backbone was frozen during Feature Flow training. LoRA rank and dropout were set to 32 and 0, respectively, and checkpoints were selected according to validation performance.
+\hspace{2em}We adopted a sequential training strategy comprising a sparse VAE, Structure Flow, and Feature Flow. The model consisted of a sparse structural autoencoder, conditional three-dimensional diffusion Transformer (DiT) velocity networks, and dental conditioning adapters. The Transformer implementation used rotary position embedding and memory-efficient exact attention~\cite{Su2024RoFormer,Dao2022FlashAttention}. The batch size was set to 2 for all stages, with eight gradient-accumulation steps during Structure Flow training. All models were optimized using AdamW with automatic mixed precision, a weight decay of 0.01, gradient-norm clipping, and cosine learning-rate decay after a 1,000-step warm-up. The initial learning rate was \(1\times10^{-4}\) for the VAE and non-denoising Structure parameters; it was \(5\times10^{-5}\) for Structure LoRA modules~\cite{Hu2022LoRA} and \(1\times10^{-5}\) for unfrozen DiT blocks. For Feature Flow, the learning rates were \(2\times10^{-5}\) for LoRA modules and \(1\times10^{-4}\) for the remaining trainable parameters. The structural autoencoder was frozen during Structure Flow training, whereas the BF16 Transformer backbone was frozen during Feature Flow training. LoRA rank and dropout were set to 32 and 0, respectively, and checkpoints were selected according to validation performance.
 
 \hspace{2em}At inference, one candidate was generated per case using a seed derived from 2026 and the case identifier. Structure Flow and Feature Flow used 50-step Heun and Euler solvers, respectively, with a classifier-free guidance scale of 3.0. Feature Flow processed up to 32,768 active locations per case. The continuous field was reconstructed using cuVS IVF-Flat interpolation and Marching Cubes, followed by largest-connected-component retention and mesh cleaning. Final meshes were required to be watertight, consistently oriented, single-component, and genus-0, and to satisfy the predefined connectivity and geometric quality gates.
 
@@ -555,7 +555,7 @@ w_j(y) = \exp\!\left(-\frac{\|y-\xi_j\|_2^2}{2\beta^2}\right),\\
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.8\linewidth]{figures/ablation_occlusion.png}
+  \includegraphics[width=0.6\linewidth]{figures/ablation_occlusion.png}
   \caption{Representative visualization of the antagonist-conditioning ablation. Ground Truth denotes the reference crown, Without Interaction denotes the model without antagonist-dentition conditioning, and With Interaction denotes the complete model with antagonist conditioning. The color map represents the implicit signed distance between the crown and antagonist surfaces. Removing the antagonist condition results in incomplete occlusal contact regions and localized premature contacts.}
   \label{fig:ablation_occlusion}
 \end{figure}
@@ -652,15 +652,6 @@ w_j(y) = \exp\!\left(-\frac{\|y-\xi_j\|_2^2}{2\beta^2}\right),\\
 
 
 \hspace{2em}The ablation results presented in Table \ref{table_ablation_study}, together with the visualizations in Fig. \ref{fig:figure_boundary_comparison} and Fig. \ref{fig:figure_toothnumer_comparison}, clearly demonstrate the complementary advantages of the proposed dual-branch architecture and the incorporation of HKS features. The baseline DGCNN (single-branch) model achieves reasonable overall accuracy; however, it exhibits limited boundary precision, particularly in regions with complex geometry or adjacent teeth, as reflected by a B-IoU of only 73.67\%. Introducing HKS features in a single-branch configuration enhances local boundary delineation (B-IoU increases to 75.23\%), but this approach remains susceptible to missing or misclassified tooth regions due to the absence of global contextual information. In contrast, the dual-branch architecture, which effectively integrates global contextual features from the position-aware branch with local geometric details from the boundary-aware branch, achieves superior performance (B-IoU 82.56\%, mIoU 93.68\%).
-
-\begin{figure}[t]
-    \centering
-    \subfigure[Total Loss Curves]{\includegraphics[width=0.33\linewidth]{training_curves_1.png}}
-    \subfigure[mIoU Curves] {\includegraphics[width=0.33\linewidth]{training_curves_2.png}}
-    \subfigure[B-IoU Curves]{\includegraphics[width=0.33\linewidth]{training_curves_3.png}}
-    \caption{Training performance of different loss functions. (a) Total Loss Curves show the "Final Loss" combination achieves the lowest loss. (b) mIoU Curves indicate "Final Loss" outperforms others by 5-8 percentage points. (c) B-IoU Curves reveal "Final Loss" and "Boundary Only" have better boundary detection. Integrating multiple losses improves segmentation accuracy.}\label{fig:figure_train_curves}
-\end{figure}
-
 
 \hspace{2em}As illustrated in Fig. \ref{fig:figure_boundary_comparison}, the dual-branch model yields clearer and more accurate tooth boundaries compared to single-branch baselines. Furthermore, Fig. \ref{fig:figure_toothnumer_comparison} demonstrates that the dual-branch approach not only improves boundary precision but also maintains global semantic consistency, thereby reducing errors such as missing or merged teeth. These findings confirm that the integration of global and local features is essential for achieving robust and high-quality 3D tooth segmentation in challenging clinical scenarios.
 

@@ -464,27 +464,7 @@ w_j(y) = \exp\!\left(-\frac{\|y-\xi_j\|_2^2}{2\beta^2}\right),\\
 %% 4.2 
 \subsection{Evaluation Metrics}\label{subsec4_2}
 
-%% 4.2.1
-\subsubsection{Geometric and Surface Metrics}\label{subsec4_2_1}
-
-\hspace{2em}The reference CAD model and predicted closed mesh were topologically cut along the same ordered cervical margin curve. The larger patch containing the cusps and occlusal surface was defined as the clinical outer surface; the other patch was treated as the base cap. Geometric metrics were computed between outer surfaces, each sampled at 50,000 triangle-area-weighted points.
-
-\hspace{2em}The primary endpoint was the symmetric Chamfer-L1 distance:
-\[
-CD_{L1}=\frac{1}{2}\left[
-\frac{1}{|P|}\sum_{p\in P}\min_{q\in Q}\|p-q\|_2+
-\frac{1}{|Q|}\sum_{q\in Q}\min_{p\in P}\|q-p\|_2
-\right].
-\]
-
-\hspace{2em}Secondary metrics included HD95, Chamfer-L2, bidirectional P95 distance, normal consistency, mean/P95 normal angular error, F-scores at 0.05, 0.10, and 0.20~mm, area ratio, local normal variation, P95 dihedral angle, and integrated absolute curvature. Cervical margin proximity error was defined as the mean and P95 nearest distances from original margin points to the predicted mesh.
-
-%% 4.2.2 
-\subsubsection{Static Antagonist and Topological Metrics}\label{subsec4_2_2}
-
-\hspace{2em}Signed distance \(d_o\) from the crown outer surface to the antagonist mesh was positive for clearance and negative for penetration. Thresholds were 0--0.02~mm for contact, 0.02--0.10~mm for near contact, and 0.10--0.20~mm for exploratory clearance; \(-0.02\)--0~mm for minor penetration, below \(-0.02\)~mm for substantial penetration, and below \(-0.10\)~mm for severe penetration. We reported contact/near-contact and penetration area fractions, mean/HD95/maximum penetration depth, and severe-penetration incidence.
-
-\hspace{2em}Topological metrics included watertightness, orientation consistency, boundary- and non-manifold-edge ratios, adjacent-face normal-flip rate, Euler characteristic, genus, number of connected components, largest-component area fraction, and a single-component genus-0 validity gate.
+\hspace{2em}To assess the geometric consistency between the predicted crowns and the reference CAD models, the two surfaces were compared using identical outer-surface segmentation, area-weighted sampling, and post-processing procedures.The generated point clouds and final meshes were evaluated separately; Each mesh was sampled at 50{,}000 outer-surface points in physical coordinates. Surface geometric errors were quantified using the $L_2$-normed Chamfer distance (CD-L2), surface distance error (SDE), and Hausdorff distance (HD). CD-L2 was the mean squared bidirectional nearest-neighbor distance ($\mathrm{mm}^2$)~\cite{Hosseinimanesh2025PointToMesh,Wei2026MADCrowner}; SDE was the sum of the two mean unsigned nearest-neighbor distances ($\mathrm{mm}$)~\cite{Yang2025DCrownFormerPlus}; and HD was the maximum bidirectional surface distance ($\mathrm{mm}$), indicating the worst local deviation~\cite{Wei2026MADCrowner,Yang2025DCrownFormerPlus}. Mean absolute error (MAE) and coefficient of determination ($R^2$) were computed on a unified DPSR indicator field~\cite{Yang2024DCrownFormer}; both metrics are dimensionless. Lower values indicate better performance for CD-L2, MAE, SDE, and HD, whereas higher $R^2$ indicate better performance. All results were summarized per case as mean~$\pm$~standard deviation or median [interquartile range (IQR)] with 95\% confidence intervals.
 
 
 \begin{figure*}[t]

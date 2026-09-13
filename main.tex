@@ -548,12 +548,15 @@ w_j(y) = \exp\!\left(-\frac{\|y-\xi_j\|_2^2}{2\beta^2}\right),\\
 \subsubsection{Ablation Study}\label{subsubsec4_4_2}
 
 %%%% Ablation Study 1
-\bigskip
 
-\textbf{Effectiveness of the timescale parameter.} As shown in Fig. \ref{fig:figure_diffusion_timestep}, the timescale parameter is pivotal in HKS feature extraction and representation, as it governs the extent and intensity of heat diffusion. When the timescale is small, heat diffusion is confined to local regions, enabling HKS to capture delicate local geometric features such as edges and corners. As the timescale increases, the diffusion spreads to broader areas. Table \ref{tab:table_feature_timescales} details the relationship between timescale and feature regions. The timescale parameter is essential for achieving a balance between local and global information while maintaining stability and distinctiveness. In this scheme, the HKS focuses on local feature extraction, and the timescale is set to 0.01 to maintain computational efficiency.
+\textbf{Ablation Study of Antagonist Conditioning for Occlusal Relationships.}To evaluate the role of the antagonist dentition as a conditioning input for generating occlusal relationships, we compared the complete model with a variant without antagonist conditioning, denoted as I-Opposing. The complete model receives the prepared tooth, adjacent teeth, and antagonist dentition as inputs, providing information about crown morphology, proximal relationships, and interarch spatial correspondence. In I-Opposing, the antagonist-dentition condition is removed while all other inputs, network components, training epochs, random seeds, and inference settings remain unchanged. With the A2 VAE frozen, the two configurations are trained independently and compared in terms of occlusal contact coverage, penetration area ratio, and maximum penetration depth. This ablation specifically examines whether antagonist conditioning guides the model to learn the spatial relationship between the generated crown and the opposing dentition. Removing the antagonist condition is expected to preserve the overall crown morphology but may result in missing, fragmented, or spatially displaced occlusal contact regions, accompanied by localized premature contacts (Fig.~\ref{fig:ablation_occlusion}). This experiment therefore assesses the contribution of antagonist conditioning to the formation of continuous, stable, and anatomically appropriate occlusal contact patterns.
 
-\hspace{2em}The HKS features extracted by the BAM provide valuable local information, which serves as a complement to the global information captured by the position-aware Module (G branch). This merging of local and global context permits the model to attain more precise and stable segmentation outcomes.
-
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\linewidth]{figures/ablation_occlusion.png}
+  \caption{Representative visualization of the antagonist-conditioning ablation. Ground Truth denotes the reference crown, Without Interaction denotes the model without antagonist-dentition conditioning, and With Interaction denotes the complete model with antagonist conditioning. The color map represents the implicit signed distance between the crown and antagonist surfaces. Removing the antagonist condition results in incomplete occlusal contact regions and localized premature contacts.}
+  \label{fig:ablation_occlusion}
+\end{figure}
 
 %%%% Ablation Study 2
 \bigskip

@@ -462,7 +462,7 @@ w_j(y) = \exp\!\left(-\frac{\|y-\xi_j\|_2^2}{2\beta^2}\right),\\
 %% 4.2 
 \subsection{Evaluation Metrics}\label{subsec4_2}
 
-\hspace{2em}To assess the geometric consistency between the predicted crowns and the reference CAD models, the two surfaces were compared using identical outer-surface segmentation, area-weighted sampling, and post-processing procedures.The generated point clouds and final meshes were evaluated separately; Each mesh was sampled at 50{,}000 outer-surface points in physical coordinates. Surface geometric errors were quantified using the $L_2$-normed Chamfer distance (CD-L2), surface distance error (SDE), and Hausdorff distance (HD). CD-L2 was the mean squared bidirectional nearest-neighbor distance ($\mathrm{mm}^2$)~\cite{Hosseinimanesh2025PointToMesh,Wei2026MADCrowner}; SDE was the sum of the two mean unsigned nearest-neighbor distances ($\mathrm{mm}$)~\cite{Yang2025DCrownFormerPlus}; and HD was the maximum bidirectional surface distance ($\mathrm{mm}$), indicating the worst local deviation~\cite{Wei2026MADCrowner,Yang2025DCrownFormerPlus}. Mean absolute error (MAE) and coefficient of determination ($R^2$) were computed on a unified DPSR indicator field~\cite{Yang2024DCrownFormer}; both metrics are dimensionless. Lower values indicate better performance for CD-L2, MAE, SDE, and HD, whereas higher $R^2$ indicate better performance. All results were summarized per case as mean~$\pm$~standard deviation or median [interquartile range (IQR)] with 95\% confidence intervals.
+\hspace{2em}To assess the geometric consistency between the predicted crowns and the reference CAD models, the two surfaces were compared using identical outer-surface segmentation, area-weighted sampling, and post-processing procedures.The generated point clouds and final meshes were evaluated separately; Each mesh was sampled at 50{,}000 outer-surface points in physical coordinates. Surface geometric errors were quantified using the $L_2$-normed Chamfer distance (CD-L2), surface distance error (SDE), and Hausdorff distance (HD). CD-L2 was the mean squared bidirectional nearest-neighbor distance ($\mathrm{mm}^2$)~\cite{Hosseinimanesh2025PointToMesh,Wei2026MADCrowner}; SDE was the sum of the two mean unsigned nearest-neighbor distances ($\mathrm{mm}$)~\cite{Yang2025DCrownFormerPlus}; and HD was the maximum bidirectional surface distance ($\mathrm{mm}$), indicating the worst local deviation~\cite{Wei2026MADCrowner,Yang2025DCrownFormerPlus}. Mean absolute error (MAE) and coefficient of determination ($R^2$) were computed on a unified DPSR indicator field~\cite{Yang2024DCrownFormer}; both metrics are dimensionless. Fidelity Distance is included only in the reference-format cervical-margin table to match the uploaded paper and is not treated as a primary endpoint of the present study. Lower values indicate better performance for CD-L2, MAE, SDE, and HD, whereas higher $R^2$ indicate better performance. All results were summarized per case as mean~$\pm$~standard deviation or median [interquartile range (IQR)] with 95\% confidence intervals.
 
 
 \begin{figure*}[t]
@@ -559,104 +559,54 @@ w_j(y) = \exp\!\left(-\frac{\|y-\xi_j\|_2^2}{2\beta^2}\right),\\
 %%%% Ablation Study 2
 \bigskip
 
-\textbf{Effectiveness of feature and architecture choices.} To validate our design choices, we conducted systematic ablation studies (Table~\ref{table_feature_representation}). For local geometric descriptors, HKS outperforms curvature by encoding multi-scale intrinsic geometry through heat diffusion, achieving a mIoU improvement of 4.76\% (93.68\% vs. 88.92\%). Additionally, HKS demonstrates superior robustness to scanning artifacts compared to WKS~\cite{aubry2011wave} due to its inherent smoothing property. For global feature architectures, EdgeConv outperforms both PointNeXt~\cite{qian2022pointnext} and Point Transformer V3 (PTv3)~\cite{wu2024point} through dynamic graph construction that adaptively captures local relationships, achieving the highest B-IoU of 82.56\% while maintaining computational efficiency suitable for clinical deployment. These results confirm that the combination of HKS and EdgeConv optimally balances segmentation accuracy and efficiency.
+\textbf{Ablation Study of Tooth-number Constraint.} This experiment examines the effect of the Tooth Position Prompt (TP Prompt) on crown geometric quality. TP Prompt is encoded from the FDI tooth designation and injected into the global conditioning branch. Except for enabling or disabling TP Prompt, the two configurations use identical data splits, maxillary and mandibular scans, three-dimensional cervical-margin line, network parameters, A2 VAE, training budget, random seeds, and post-processing. After freezing the A2 VAE, Structure Flow and Feature Flow are retrained independently and evaluated on the common evaluable subset using CD-L2, Fidelity Distance, HD, F-score, and cervical-margin P95 error. The analysis focuses on whether TP Prompt produces consistent changes in overall geometric error, worst local deviation, and tooth-position-specific shape fidelity. If only a subset of metrics improves, the differences and confidence intervals should be reported separately rather than summarized as an overall performance gain. Numerical values, effect sizes, and statistical tests are provided in Table~\ref{table_tooth_number_ablation}.
 
-\begin{table*}[h]
-    \captionsetup{
-      justification=raggedright,
-      singlelinecheck=false,
-      margin=2.35cm    % ← 调整此值以和表格左边对齐
-    }
-    \caption{\\Ablation study on feature descriptors and architectures}\label{table_feature_representation}%
-    \vspace{-8pt} 
-    \centering
-    \begin{tabular}{lcccc}
-        \hline
-        Local Feature & Global Architecture & OA(\%) & mIoU(\%) & B-IoU(\%) \\ \hline
-        Curvature & EdgeConv  & 87.45 & 88.92 & 76.24 \\
-        WKS       & EdgeConv  & 89.67 & 92.06 & 80.13 \\
-        HKS       & PointNeXt & 89.12 & 91.35 & 79.85 \\
-        HKS       & PTv3      & 90.67 & 93.41 & 81.78 \\
-        \textbf{HKS(Ours)} & \textbf{EdgeConv(Ours)} & \textbf{90.98} & \textbf{93.68} & \textbf{82.56} \\ \hline
-    \end{tabular}
-\end{table*}
-
-\bigskip
-
-\textbf{Effectiveness of feature fusion module.} The feature fusion module is crucial for integrating local and global features. To evaluate the effectiveness of our method, we compared the proposed Attention-guided Fusion Module with several baseline methods, with the results in Table \ref{table_fusion_module_compare}. The experiments used the Teeth3DS \cite{ben2022teeth3ds} and 3DTeethSeg \cite{ben20233dteethseg} datasets, evaluating the OA and the mIoU. Baseline methods included simple concatenation, maximum pooling fusion, graph convolution fusion, and attention gating.
-
-\hspace{2em}As shown in Table~\ref{table_fusion_module_compare}, both IoU and accuracy demonstrate progressive improvements with advancing fusion strategies. AFM effectively integrates global and local features through additive fusion that preserves feature dimensionality. Its dynamic attention-head mechanism further aligns computational complexity with $d_G$ without indiscriminately increasing parameters. Consequently, the observed performance gains are attributable to dual-branch complementarity rather than parameter-capacity inflation, thereby maintaining reasonable model complexity.
-
-\begin{table*}[h]
-    \captionsetup{
-      justification=raggedright,
-      singlelinecheck=false,
-      margin=2.9cm    % ← 调整此值以和表格左边对齐
-    }
-    \caption{\\ Comparison of different feature fusion methods}\label{table_fusion_module_compare}
-    \vspace{-8pt} 
-    \centering
-    \begin{tabular}{llll}
-        \hline
-        Method & OA~(\%) & mIoU~(\%) & Parameters \\ \hline
-        Simple Concatenation        & 82.31 & 89.14 & 2.1M \\
-        Maximum Pooling Fusion      & 83.27 & 90.52 & 1.8M \\
-        Graph Convolution Fusion    & 85.41 & 91.57 & 3.2M \\
-        Attention Gating Fusion     & 86.54 & 92.16 & 2.7M \\
-        \textbf{Attention-guided Fusion (Ours)} & \textbf{90.98} & \textbf{93.68} & 2.4M \\ \hline
-    \end{tabular}
+\begin{table*}[t]
+  \centering
+  \scriptsize
+  \caption{\textbf{Quantitative results for the tooth-position prompt (published reference values).} Values are reported in the related study~\cite{Wei2025VBCD}; the independent TP Prompt effect is assessed by comparing the ``+PCR'' and ``+PCR+TP Prompt'' rows.}
+  \label{table_tooth_number_ablation}
+  \setlength{\tabcolsep}{5pt}
+  \begin{tabular}{lcccccc}
+    \hline
+    Configuration & PCR & TP Prompt & CMPL & CD-L2 (mm$^2$) $\downarrow$ & Fidelity (mm$^2$) $\downarrow$ & F-score $\uparrow$ \\
+    \hline
+    Baseline & No & No & No & 0.230 & 0.314 & 0.896 \\
+    +PCR & Yes & No & No & 0.198 & 0.231 & 0.929 \\
+    +PCR+CMPL & Yes & No & Yes & 0.154 & 0.216 & 0.934 \\
+    +PCR+TP Prompt & Yes & Yes & No & 0.156 & 0.219 & 0.932 \\
+    Complete (+PCR+TP Prompt+CMPL) & Yes & Yes & Yes & 0.140 & 0.213 & 0.957 \\
+    \hline
+    \multicolumn{7}{l}{\footnotesize \textit{Note:} HD and cervical-margin P95 error were not reported in the source study.} \\
+  \end{tabular}
 \end{table*}
 
 %%%% Ablation Study 3
 \bigskip
-\textbf{Effectiveness of dual-branch architecture.} To investigate the effectiveness of our dual-branch architecture and the contribution of HKS features to tooth boundary segmentation, we compared different network configurations. Table \ref{table_ablation_study} presents the quantitative results on both datasets, with particular focus on boundary segmentation accuracy measured by B-IoU.
+
+\textbf{Ablation Study of Cervical-margin Constraint.} This experiment compares models with and without cervical-margin conditioning to assess its contribution to crown geometric quality. Both configurations retain the maxillary and mandibular scans and the tooth-position prompt, with identical data splits, network architecture, training budget, random seeds, and post-processing. After freezing the same VAE, Structure Flow and Feature Flow are retrained independently. The evaluation focuses on overall surface error and worst local deviation, with results stratified by premolar, molar, and overall cases. The reference results in Table~\ref{table_cervical_margin_ablation} show lower CD-L2, Fidelity Distance, and HD and higher F-score with cervical-margin conditioning. The two tooth groups exhibit the same direction of change, suggesting improved surface geometric consistency and reduced maximum local deviation. Numerical values are presented in the table.
 
 \begin{table*}[t]
-    \captionsetup{
-      justification=raggedright,
-      singlelinecheck=false,
-      margin=2.35cm    % ← 调整此值以和表格左边对齐
-    }
-    \caption{\\ Ablation study on network architecture and feature representations}\label{table_ablation_study}%
-    \vspace{-8pt} 
-    \centering
-    \begin{tabular}{p{4.0cm}cccc}
-        \hline
-        Method & OA (\%) & mIoU (\%) & B-IoU (\%) & Parameters \\ \hline
-        DGCNN (single-branch) & 86.45 & 78.92 & 73.67 & 3.2M \\
-        HKS (single-branch) & 87.32 & 80.14 & 75.23 & 3.5M \\
-        \textbf{Dual-branch (Ours)} & \textbf{90.98} & \textbf{93.68} & \textbf{82.56} & 5.8M \\ \hline
-        \multicolumn{5}{l}{\footnotesize \textit{Note: All methods trained on Teeth3DS dataset with identical settings.}} \\
-    \end{tabular}
+  \centering
+  \scriptsize
+  \caption{\textbf{Quantitative ablation of the cervical-margin constraint (published reference values).} Values are reported in the related study~\cite{Wei2026MADCrowner} and are not measurements from the present test set.}
+  \label{table_cervical_margin_ablation}
+  \setlength{\tabcolsep}{3.1pt}
+  \begin{tabular}{lccc|ccc|ccc|ccc}
+    \hline
+    Configuration & \multicolumn{3}{c|}{CD-L2 (mm$^2$) $\downarrow$} & \multicolumn{3}{c|}{Fidelity (mm$^2$) $\downarrow$} & \multicolumn{3}{c|}{HD (mm) $\downarrow$} & \multicolumn{3}{c}{F-score $\uparrow$} \\
+    & Premolar & Molar & Overall & Premolar & Molar & Overall & Premolar & Molar & Overall & Premolar & Molar & Overall \\
+    \hline
+    Without cervical-margin constraint & 0.188 & 0.195 & 0.193 & 0.099 & 0.102 & 0.101 & 1.182 & 1.152 & 1.160 & 0.886 & 0.921 & 0.911 \\
+    With cervical-margin constraint & \textbf{0.176} & \textbf{0.174} & \textbf{0.175} & \textbf{0.098} & \textbf{0.092} & \textbf{0.094} & \textbf{1.093} & \textbf{0.996} & \textbf{1.027} & \textbf{0.903} & \textbf{0.932} & \textbf{0.924} \\
+    \hline
+    \multicolumn{13}{l}{\footnotesize \textit{Note:} Lower CD-L2, Fidelity Distance, and HD and higher F-score indicate better performance.} \\
+  \end{tabular}
 \end{table*}
 
-\begin{figure}[H]
-    \centering
-    \subfigure[DGCNN]{\includegraphics[width=0.28\linewidth]{CombinedView_Ablation_Experiment2_1.png}}
-    \subfigure[DGCNN + HKS]{\includegraphics[width=0.28\linewidth]{CombinedView_Ablation_Experiment2_2.png}}
-    \subfigure[Ground truth]{\includegraphics[width=0.28\linewidth]{CombinedView_Ablation_Experiment2_3.png}}
-    \caption{Comparison of tooth boundary segmentation results. (a) DGCNN (single-branch) shows inaccuracies at complex boundaries. (b) DGCNN + HKS (dual-branch) demonstrates improved boundary delineation. (c) Ground truth. The red circles highlight areas with challenging conditions.}\label{fig:figure_boundary_comparison}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \subfigure[HKS]{\includegraphics[width=0.28\linewidth]{CombinedView_Ablation_Experiment1_1.png}}
-    \subfigure[DGCNN + HKS]{\includegraphics[width=0.28\linewidth]{CombinedView_Ablation_Experiment1_2.png}}
-    \subfigure[Ground truth]{\includegraphics[width=0.28\linewidth]{CombinedView_Ablation_Experiment1_3.png}}
-    \caption{Comparison of segmentation results for tooth area. (a) Single-branch HKS model showing segmentation errors in certain tooth regions. (b)  DGCNN + HKS (dual-branch) architecture with improved accuracy. (c) Ground truth segmentation. The red circles highlight areas with challenging conditions.}\label{fig:figure_toothnumer_comparison}
-\end{figure}
-
-
-\hspace{2em}The ablation results presented in Table \ref{table_ablation_study}, together with the visualizations in Fig. \ref{fig:figure_boundary_comparison} and Fig. \ref{fig:figure_toothnumer_comparison}, clearly demonstrate the complementary advantages of the proposed dual-branch architecture and the incorporation of HKS features. The baseline DGCNN (single-branch) model achieves reasonable overall accuracy; however, it exhibits limited boundary precision, particularly in regions with complex geometry or adjacent teeth, as reflected by a B-IoU of only 73.67\%. Introducing HKS features in a single-branch configuration enhances local boundary delineation (B-IoU increases to 75.23\%), but this approach remains susceptible to missing or misclassified tooth regions due to the absence of global contextual information. In contrast, the dual-branch architecture, which effectively integrates global contextual features from the position-aware branch with local geometric details from the boundary-aware branch, achieves superior performance (B-IoU 82.56\%, mIoU 93.68\%).
-
-\hspace{2em}As illustrated in Fig. \ref{fig:figure_boundary_comparison}, the dual-branch model yields clearer and more accurate tooth boundaries compared to single-branch baselines. Furthermore, Fig. \ref{fig:figure_toothnumer_comparison} demonstrates that the dual-branch approach not only improves boundary precision but also maintains global semantic consistency, thereby reducing errors such as missing or merged teeth. These findings confirm that the integration of global and local features is essential for achieving robust and high-quality 3D tooth segmentation in challenging clinical scenarios.
-
-
 %%%% Ablation Study 4
-
 \bigskip
 
-\textbf{Effectiveness of different loss function.} To validate the effectiveness of different loss function combinations, we conducted ablation studies with four configurations: Centroid Only, Local Only, Boundary Only, and Final Loss, as shown in Fig. \ref{fig:figure_train_curves}. Results demonstrated significant differentiation: Centroid Only showed stable but limited performance (mIoU \~70\%); Local Only exhibited rapid early convergence but overfitting after 120 epochs; Boundary Only encountered training difficulties with plateau phases yet achieved superior boundary IoU (87\%); Final Loss displayed complex dynamics with initial instability during the first 40 epochs due to multi-objective optimization, followed by synergistic advantages in the intermediate phase, ultimately achieving optimal performance, validating the efficacy of collaborative multi-loss optimization.
 
 %% 4.4.3 Discussion
 \subsubsection{Discussion}\label{subsubsec4_4_3}

@@ -547,7 +547,7 @@ w_j(y) = \exp\!\left(-\frac{\|y-\xi_j\|_2^2}{2\beta^2}\right),\\
 
 %%%% Ablation Study 1
 
-\textbf{Ablation Study of Antagonist Conditioning for Occlusal Relationships.} To evaluate the role of the antagonist dentition as a conditioning input for generating occlusal relationships, we compared the complete model with a variant without antagonist conditioning, denoted as I-Opposing. The complete model receives the prepared tooth, adjacent teeth, and antagonist dentition as inputs, providing information about crown morphology, proximal relationships, and interarch spatial correspondence. In I-Opposing, the antagonist-dentition condition is removed while all other inputs, network components, training epochs, random seeds, and inference settings remain unchanged. With the A2 VAE frozen, the two configurations are trained independently and compared in terms of occlusal contact coverage, penetration area ratio, and maximum penetration depth. This ablation specifically examines whether antagonist conditioning guides the model to learn the spatial relationship between the generated crown and the opposing dentition. Removing the antagonist condition is expected to preserve the overall crown morphology but may result in missing, fragmented, or spatially displaced occlusal contact regions, accompanied by localized premature contacts (Fig.~\ref{fig:ablation_occlusion}). This experiment therefore assesses the contribution of antagonist conditioning to the formation of continuous, stable, and anatomically appropriate occlusal contact patterns.
+\textbf{Ablation Study of Antagonist Conditioning} To evaluate the role of the antagonist dentition as a conditioning input for generating occlusal relationships, we compared the complete model with a variant without antagonist conditioning, denoted as I-Opposing. The complete model receives the prepared tooth, adjacent teeth, and antagonist dentition as inputs, providing information about crown morphology, proximal relationships, and interarch spatial correspondence. In I-Opposing, the antagonist-dentition condition is removed while all other inputs, network components, training epochs, random seeds, and inference settings remain unchanged. With the A2 VAE frozen, the two configurations are trained independently and compared in terms of occlusal contact coverage, penetration area ratio, and maximum penetration depth. This ablation specifically examines whether antagonist conditioning guides the model to learn the spatial relationship between the generated crown and the opposing dentition. Removing the antagonist condition is expected to preserve the overall crown morphology but may result in missing, fragmented, or spatially displaced occlusal contact regions, accompanied by localized premature contacts (Fig.~\ref{fig:ablation_occlusion}). This experiment therefore assesses the contribution of antagonist conditioning to the formation of continuous, stable, and anatomically appropriate occlusal contact patterns.
 
 \begin{figure}[h]
   \centering
@@ -606,6 +606,35 @@ w_j(y) = \exp\!\left(-\frac{\|y-\xi_j\|_2^2}{2\beta^2}\right),\\
 
 %%%% Ablation Study 4
 \bigskip
+
+\textbf{Ablation Study of Two-Stage Training.} This experiment evaluates the effect of staged Structure Flow and Feature Flow training on structural support and local-detail modeling. The single-stage baseline uses a conditional flow network to jointly predict crown occupancy and local geometric features, whereas the two-stage configuration first uses Structure Flow to generate the crown-occupancy support and then uses Feature Flow to refine local geometric and anatomical details within that support. Both configurations retain identical input conditions, data split, VAE, optimization budget, random seeds, solver steps, and post-processing, with trainable parameter counts constrained to a predefined matching range. On the common endpoint-evaluable subset, we compare overall geometric error, adjacent-tooth spacing error, adjacency preservation, cervical-margin P95 error, and engineering quality-gate pass rate. This design hypothesizes that explicit support dependency reduces the modeling of inactive locations and allows Feature Flow to concentrate on local regions such as cusps, fissures, proximal surfaces, and cervical transitions, thereby reducing adjacency conflicts and local discontinuities. Figure~\ref{fig:ablation_adjacent} serves as a qualitative visualization reference for adjacency and contact regions.
+
+\begin{table*}[t]
+  \centering
+  \scriptsize
+  \caption{\textbf{Quantitative comparison of single-stage joint generation and two-stage training (measurements pending).} Values must be obtained by independently retraining both configurations on the same test protocol.}
+  \label{table_two_stage_ablation}
+  \setlength{\tabcolsep}{4pt}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{lccccccc}
+    \hline
+    Configuration & CD-L2 (mm$^2$) $\downarrow$ & HD (mm) $\downarrow$ & F-score@0.10 mm (\%) $\uparrow$ & Adjacent-spacing error (mm) $\downarrow$ & Adjacency preservation (\%) $\uparrow$ & Margin P95 error (mm) $\downarrow$ & Quality-gate pass (\%) $\uparrow$ \\
+    \hline
+    Single-stage joint generation & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} \\
+    Two-stage: Structure Flow $\rightarrow$ Feature Flow & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} \\
+    Two-stage $-$ single-stage & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} \\
+    \hline
+  \end{tabular}%
+  }
+  \parbox{\textwidth}{\footnotesize \textit{Note:} Continuous endpoints should be reported as paired case-level differences with 95\% confidence intervals. Lower is better for CD-L2, HD, adjacent-spacing error, and margin P95 error; higher is better for F-score, adjacency preservation, and quality-gate pass rate.}
+\end{table*}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.48\linewidth]{figures/ablation_adjacent.png}
+  \caption{\textbf{Qualitative reference visualization for adjacency relationships in the two-stage training ablation.} Rows are arranged as Ground Truth, Without Intersection, and With Intersection. Colors indicate the implicit distance between the crown and adjacent or opposing surfaces. The figure is used solely as a reference for the qualitative visualization layout.}
+  \label{fig:ablation_adjacent}
+\end{figure}
 
 
 %% 4.4.3 Discussion

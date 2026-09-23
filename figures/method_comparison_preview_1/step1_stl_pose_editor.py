@@ -20,12 +20,14 @@ import pyvista as pv
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("stl", type=Path, help="input STL file")
+    ap.add_argument("stl", type=Path, help="input STL file or folder containing gt.stl")
     ap.add_argument("-o", "--output", type=Path, help="pose stem (default: input stem_rt)")
     ap.add_argument("--step", type=float, default=0.5, help="translation step in mesh units")
     ap.add_argument("--angle", type=float, default=2.0, help="rotation step in degrees")
     args = ap.parse_args()
-    if not args.stl.exists():
+    if args.stl.is_dir():
+        args.stl = args.stl / "gt.stl"
+    if not args.stl.is_file():
         ap.error(f"STL not found: {args.stl}")
     stem = args.output or args.stl.with_name(args.stl.stem + "_rt")
     mesh = pv.read(args.stl)

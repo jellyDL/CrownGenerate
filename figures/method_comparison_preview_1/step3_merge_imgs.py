@@ -14,7 +14,7 @@ from pathlib import Path
 from PIL import Image, ImageOps
 
 
-ROW_FILES = (("our.png", "gt.png"), ("diff_render.png", "gt.png"))
+ROW_FILES = (("our.png", "gt.png"), ("our_diff.png", "gt.png"))
 
 
 def main() -> None:

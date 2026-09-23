@@ -29,8 +29,10 @@ def _render(stl: Path, T: np.ndarray, output: Path) -> None:
     mesh.points = (pts @ T.T)[:, :3]
     pl = pv.Plotter(off_screen=True, window_size=(900, 900))
     pl.set_background('#f4f7f4')
-    pl.add_mesh(mesh, color='#808080', smooth_shading=True, ambient=0.25,
-                diffuse=0.75, specular=0.15)
+    # Neutral dental-stone gray with Phong highlights, matching the glossy
+    # reference rendering while retaining visible surface relief.
+    pl.add_mesh(mesh, color='#9a9a9a', smooth_shading=True, ambient=0.25,
+                diffuse=0.68, specular=0.52, specular_power=35)
     pl.camera_position = 'iso'
     pl.camera.zoom(1.35)
     pl.show(screenshot=str(output), auto_close=True)
@@ -89,7 +91,7 @@ def main():
     args.stl = stl
     if args.gt is None and default_gt.exists():
         args.gt = default_gt
-    out=args.output or stl.with_name('diff_render.png' if args.gt else stl.stem+'_render.png')
+    out=args.output or stl.with_name('our_diff.png' if args.gt else stl.stem+'_render.png')
     T=np.asarray(data['transform'],float)
     if T.shape != (4,4): 
         raise ValueError('transform must be 4x4')

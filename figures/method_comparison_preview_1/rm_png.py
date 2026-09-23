@@ -18,7 +18,7 @@ def main() -> None:
             continue
         for filename in filenames:
             path = Path(directory) / filename
-            if path.suffix.lower() == ".png":
+            if path.suffix.lower() == ".png" or path.suffix.lower() == ".json":
                 path.unlink()
                 print(f"已删除：{path.relative_to(root)}")
                 count += 1

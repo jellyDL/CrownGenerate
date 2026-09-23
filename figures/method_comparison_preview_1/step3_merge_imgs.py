@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+"""Merge each sample folder's four renderings into one contact sheet.
+
+For every subfolder, two rows are appended in this order::
+
+    our.png         gt.png
+    diff_render.png gt.png
+"""
+from __future__ import annotations
+
+import argparse
+from pathlib import Path
+
+from PIL import Image, ImageOps
+
+
+ROW_FILES = (("our.png", "gt.png"), ("diff_render.png", "gt.png"))
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("folder", nargs="?", type=Path, default=Path("."),
+                        help="parent folder containing sample folders (default: .)")
+    parser.add_argument("-o", "--output", type=Path, default=None,
+                        help="output image (default: <folder>/merged.png)")
+    parser.add_argument("--gap", type=int, default=12,
+                        help="gap between tiles in pixels (default: 12)")
+    parser.add_argument("--background", default="white",
+                        help="background colour (default: white)")
+    args = parser.parse_args()
+
+    root = args.folder.resolve()
+    output = (args.output or root / "merged.png").resolve()
+    sample_dirs = sorted(
+        path for path in root.iterdir()
+        if path.is_dir() and not path.name.startswith(".") and path.name != "__pycache__"
+    )
+    if not sample_dirs:
+        parser.error(f"no subfolders found in {root}")
+
+    rows: list[tuple[Path, Path]] = []
+    for sample_dir in sample_dirs:
+        for names in ROW_FILES:
+            paths = tuple(sample_dir / name for name in names)
+            missing = [str(path.name) for path in paths if not path.is_file()]
+            if missing:
+                print(f"skip {sample_dir.name}/{', '.join(missing)} (missing)")
+                continue
+            rows.append(paths)  # type: ignore[arg-type]
+
+    if not rows:
+        parser.error("no complete image rows found")
+
+    images = [[Image.open(path).convert("RGB") for path in row] for row in rows]
+    tile_width = max(image.width for row in images for image in row)
+    tile_height = max(image.height for row in images for image in row)
+    canvas_width = args.gap + 2 * tile_width + args.gap
+    canvas_height = args.gap + len(images) * tile_height + (len(images) - 1) * args.gap + args.gap
+    canvas = Image.new("RGB", (canvas_width, canvas_height), args.background)
+
+    for row_index, row in enumerate(images):
+        y = args.gap + row_index * (tile_height + args.gap)
+        for col_index, image in enumerate(row):
+            x = args.gap + col_index * (tile_width + args.gap)
+            tile = ImageOps.contain(image, (tile_width, tile_height))
+            canvas.paste(tile, (x + (tile_width - tile.width) // 2,
+                                y + (tile_height - tile.height) // 2))
+
+    output.parent.mkdir(parents=True, exist_ok=True)
+    canvas.save(output)
+    print(f"saved {output} ({len(rows)} rows)")
+
+
+if __name__ == "__main__":
+    main()

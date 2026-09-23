@@ -29,7 +29,7 @@ def _render(stl: Path, T: np.ndarray, output: Path) -> None:
     mesh.points = (pts @ T.T)[:, :3]
     pl = pv.Plotter(off_screen=True, window_size=(900, 900))
     pl.set_background('#f4f7f4')
-    pl.add_mesh(mesh, color='#c9a77d', smooth_shading=True, ambient=0.25,
+    pl.add_mesh(mesh, color='#808080', smooth_shading=True, ambient=0.25,
                 diffuse=0.75, specular=0.15)
     pl.camera_position = 'iso'
     pl.camera.zoom(1.35)
@@ -45,7 +45,7 @@ def main():
     p.add_argument(
         '--clim',
         type=float,
-        default=2.0,
+        default=4.0,
         help='symmetric heatmap range in mm (default: -2 to 2)',
     )
     args=p.parse_args();
@@ -89,7 +89,7 @@ def main():
     args.stl = stl
     if args.gt is None and default_gt.exists():
         args.gt = default_gt
-    out=args.output or stl.with_name(stl.stem+'_render.png')
+    out=args.output or stl.with_name('diff_render.png' if args.gt else stl.stem+'_render.png')
     T=np.asarray(data['transform'],float)
     if T.shape != (4,4): 
         raise ValueError('transform must be 4x4')
@@ -113,7 +113,7 @@ def main():
         half_range=abs(args.clim)
         if half_range == 0:
             raise ValueError('--clim must be non-zero')
-        pl.add_mesh(mesh,scalars='error_mm',cmap='turbo',clim=(-half_range,half_range),smooth_shading=True,show_scalar_bar=True,scalar_bar_args={'title':'Distance (mm)'})
+        pl.add_mesh(mesh,scalars='error_mm',cmap='turbo',clim=(-half_range,half_range),smooth_shading=True,show_scalar_bar=False)
     pl.add_axes(); 
     pl.camera_position='iso'; 
     pl.camera.zoom(1.35)

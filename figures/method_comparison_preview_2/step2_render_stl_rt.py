@@ -15,6 +15,9 @@ from pathlib import Path
 import numpy as np
 import pyvista as pv
 
+# GT_COLOR = '#9a9a9a'
+GT_COLOR = '#d4d4d4'
+
 def _load_transform(path: Path) -> np.ndarray:
     data = json.loads(path.read_text())
     T = np.asarray(data['transform'], float)
@@ -37,7 +40,7 @@ def _render(stl: Path, T: np.ndarray, output: Path, jaw_paths=()) -> None:
                     show_edges=False)
     # Neutral dental-stone gray with Phong highlights, matching the glossy
     # reference rendering while retaining visible surface relief.
-    pl.add_mesh(mesh, color='#9a9a9a', smooth_shading=True, ambient=0.25,
+    pl.add_mesh(mesh, color=GT_COLOR, smooth_shading=True, ambient=0.25,
                 diffuse=0.68, specular=0.52, specular_power=35)
     pl.camera_position = 'iso'
     pl.camera.zoom(1.65)
@@ -136,7 +139,7 @@ def main():
         pl.add_mesh(jaw, color='#a7a7a7', smooth_shading=True, opacity=0.72,
                     show_edges=False)
     if scalars is None:
-        pl.add_mesh(mesh,color='#c9a77d',smooth_shading=True,ambient=0.25,diffuse=0.75,specular=0.15)
+        pl.add_mesh(mesh,color=GT_COLOR,smooth_shading=True,ambient=0.25,diffuse=0.75,specular=0.15)
     else:
         # Keep the colour scale fixed and symmetric so that renders are
         # directly comparable across samples.  The current error values are

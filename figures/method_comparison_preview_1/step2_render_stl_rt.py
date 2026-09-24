@@ -31,8 +31,10 @@ def _render(stl: Path, T: np.ndarray, output: Path) -> None:
     pl.set_background('#f4f7f4')
     # Neutral dental-stone gray with Phong highlights, matching the glossy
     # reference rendering while retaining visible surface relief.
-    pl.add_mesh(mesh, color='#9a9a9a', smooth_shading=True, ambient=0.25,
-                diffuse=0.68, specular=0.52, specular_power=35)
+    # Keep the reference gray while making the predicted crown render whiter.
+    mesh_color = '#d4d4d4' if output.stem.lower() in {'gt', 'out'} else '#9a9a9a'
+    pl.add_mesh(mesh, color=mesh_color, smooth_shading=True, ambient=0.25,
+                diffuse=0.72, specular=0.58, specular_power=40)
     pl.camera_position = 'iso'
     pl.camera.zoom(1.35)
     pl.show(screenshot=str(output), auto_close=True)

@@ -128,6 +128,10 @@ def main():
     if args.gt:
         from scipy.spatial import cKDTree
         gt=pv.read(args.gt)
+        # Compare in the same transformed coordinate system.  This is
+        # essential when T is the saved whole-mesh gt_all pose.
+        gt_pts=np.c_[np.asarray(gt.points),np.ones(gt.n_points)]
+        gt.points=(gt_pts@T.T)[:,:3]
         scalars=cKDTree(np.asarray(gt.points)).query(np.asarray(mesh.points),k=1)[0]
         mesh['error_mm']=scalars
     pl=pv.Plotter(off_screen=True,window_size=(900,900))

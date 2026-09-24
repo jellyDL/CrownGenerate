@@ -20,20 +20,38 @@ import pyvista as pv
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("stl", type=Path, help="input STL file")
+    ap.add_argument("stl", type=Path, help="input STL file or folder containing gt.stl")
     ap.add_argument("-o", "--output", type=Path, help="pose stem (default: input stem_rt)")
     ap.add_argument("--step", type=float, default=0.5, help="translation step in mesh units")
     ap.add_argument("--angle", type=float, default=2.0, help="rotation step in degrees")
     args = ap.parse_args()
-    if not args.stl.exists():
+    input_dir = args.stl if args.stl.is_dir() else args.stl.parent
+    if args.stl.is_dir():
+        args.stl = args.stl / "gt.stl"
+    if not args.stl.is_file():
         ap.error(f"STL not found: {args.stl}")
-    stem = args.output or args.stl.with_name(args.stl.stem + "_rt")
-    mesh = pv.read(args.stl)
+    stem = args.output or args.stl.with_name(args.stl.stem + "_all_rt")
+    crown_mesh = pv.read(args.stl)
+    crown_mesh["display_rgb"] = np.tile([199, 146, 88], (crown_mesh.n_points, 1)).astype(np.uint8)
+    # Build one combined actor so mouse interaction and the saved transform
+    # apply to the upper jaw, lower jaw, and crown as a single rigid object.
+    jaw_paths = []
+    parts = []
+    for name in ("upperjaw.ply", "lowerjaw.ply", "upperjaw.stl", "lowerjaw.stl"):
+        candidate = input_dir / name
+        if candidate.is_file():
+            jaw_paths.append(candidate)
+    for jaw_path in jaw_paths:
+        jaw_mesh = pv.read(jaw_path)
+        jaw_mesh["display_rgb"] = np.tile([167, 167, 167], (jaw_mesh.n_points, 1)).astype(np.uint8)
+        parts.append(jaw_mesh)
+    parts.append(crown_mesh)
+    mesh = pv.merge(parts, merge_points=False)
     original = np.asarray(mesh.points).copy()
     pose = np.eye(4)
     plotter = pv.Plotter(window_size=(1100, 800))
-    actor = plotter.add_mesh(mesh, color="#c79258", smooth_shading=True, show_edges=False)
-    # VTK's trackball-actor style lets the user select the mesh and drag/rotate it.
+    actor = plotter.add_mesh(mesh, scalars="display_rgb", rgb=True,
+                             smooth_shading=True, show_edges=False)
     plotter.enable_trackball_actor_style()
     # VTK exposes trackpad pinch as PinchEvent; apply its scale to the camera.
     interactor = plotter.iren.interactor
@@ -80,19 +98,22 @@ def main() -> None:
         pose = r @ pose; redraw()
 
     def current_pose() -> np.ndarray:
-        matrix = actor.GetUserMatrix()
-        if matrix is None:
-            return pose.copy()
-        return np.array([[matrix.GetElement(i, j) for j in range(4)] for i in range(4)], dtype=float)
+        # Trackball interaction updates the actor's computed matrix, not
+        # necessarily its user matrix.  GetMatrix() therefore captures the
+        # actual mouse rotation and its pivot translation.
+        matrix = actor.GetMatrix()
+        actor_pose = np.array(
+            [[matrix.GetElement(i, j) for j in range(4)] for i in range(4)],
+            dtype=float,
+        )
+        return actor_pose @ pose
 
     def save() -> None:
         matrix = current_pose()
         payload = {"source": str(args.stl.resolve()), "transform": matrix.tolist(), "convention": "p' = R p + t"}
         stem.parent.mkdir(parents=True, exist_ok=True)
         stem.with_suffix(".json").write_text(json.dumps(payload, indent=2) + "\n")
-        # np.savetxt(stem.with_suffix(".txt"), matrix, fmt="%.9f")
-        # np.savetxt(stem.with_suffix(".rt"), matrix, fmt="%.9f")
-        print(f"saved {stem.with_suffix('.json')}, {stem.with_suffix('.txt')} and {stem.with_suffix('.rt')}")
+        print(f"saved {stem.with_suffix('.json')}")
 
     plotter.add_key_event("Left", lambda: move(dx=-args.step)); plotter.add_key_event("Right", lambda: move(dx=args.step))
     plotter.add_key_event("Up", lambda: move(dy=args.step)); plotter.add_key_event("Down", lambda: move(dy=-args.step))

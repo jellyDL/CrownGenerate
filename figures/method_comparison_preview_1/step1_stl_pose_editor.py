@@ -2,7 +2,7 @@
 """Interactive STL viewer and rigid-pose editor.
 
 Example usage:
-python step1_stl_pose_editor.py 26-preparation.stl
+python3 step1_stl_pose_editor.py <folder path>
 
 Keys: arrows/WASD translate in X/Y, Q/E translate in Z; I/K rotate X,
 J/L rotate Y, U/O rotate Z; pinch or two-finger scroll: zoom; R reset; P save; Esc quit.

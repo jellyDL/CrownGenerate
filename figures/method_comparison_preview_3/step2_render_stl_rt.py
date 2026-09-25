@@ -17,6 +17,7 @@ import pyvista as pv
 
 # GT_COLOR = '#9a9a9a'
 GT_COLOR = '#d4d4d4'
+WINDOW_SIZE = (600, 800)
 
 def _load_transform(path: Path) -> np.ndarray:
     data = json.loads(path.read_text())
@@ -26,28 +27,58 @@ def _load_transform(path: Path) -> np.ndarray:
     return T
 
 
-def _render(stl: Path, T: np.ndarray, output: Path, jaw_paths=()) -> None:
-    mesh = pv.read(stl)
-    pts = np.c_[np.asarray(mesh.points), np.ones(mesh.n_points)]
-    mesh.points = (pts @ T.T)[:, :3]
-    # Keep this helper's output size identical to the comparison render below.
-    pl = pv.Plotter(off_screen=True, window_size=(900, 900))
-    pl.set_background('#f4f7f4')
+def _render(stl: Path, T: np.ndarray, output: Path, jaw_paths=(), camera_data=None,
+            primary_color=(199, 146, 88), primary_is_jaw=False,
+            reference_stl=None, clim=5.0) -> None:
+    primary = pv.read(stl)
+    pts = np.c_[np.asarray(primary.points), np.ones(primary.n_points)]
+    primary.points = (pts @ T.T)[:, :3]
+    primary['display_rgb'] = np.tile(
+        (167, 167, 167) if primary_is_jaw else primary_color,
+        (primary.n_points, 1),
+    ).astype(np.uint8)
+    if reference_stl is not None:
+        from scipy.spatial import cKDTree
+        reference = pv.read(reference_stl)
+        ref_pts = np.c_[np.asarray(reference.points), np.ones(reference.n_points)]
+        reference.points = (ref_pts @ T.T)[:, :3]
+        primary['error_mm'] = cKDTree(np.asarray(reference.points)).query(
+            np.asarray(primary.points), k=1
+        )[0]
+    parts = []
     for jaw_path in jaw_paths:
         jaw = pv.read(jaw_path)
         jaw_pts = np.c_[np.asarray(jaw.points), np.ones(jaw.n_points)]
         jaw.points = (jaw_pts @ T.T)[:, :3]
-        # Keep the reference jaw opaque so the depth buffer hides geometry
-        # behind the visible surface instead of letting it show through.
-        pl.add_mesh(jaw, color='#a7a7a7', smooth_shading=True, opacity=1.0,
-                    show_edges=False, backface_culling=True)
-    # Neutral dental-stone gray with Phong highlights, matching the glossy
-    # reference rendering while retaining visible surface relief.
-    pl.add_mesh(mesh, color=GT_COLOR, smooth_shading=True, ambient=0.25,
-                diffuse=0.68, specular=0.52, specular_power=35,
-                opacity=1.0, backface_culling=True)
-    pl.camera_position = 'iso'
-    pl.camera.zoom(1.65)
+        jaw['display_rgb'] = np.tile([167, 167, 167], (jaw.n_points, 1)).astype(np.uint8)
+        parts.append(jaw)
+    parts.append(primary)
+    mesh = pv.merge(parts, merge_points=False)
+    # Match the interactive editor's viewport exactly.
+    pl = pv.Plotter(off_screen=True, window_size=WINDOW_SIZE)
+    pl.set_background('#f4f7f4')
+    if reference_stl is None:
+        pl.add_mesh(mesh, scalars='display_rgb', rgb=True,
+                    smooth_shading=True, show_edges=False)
+    else:
+        # Keep the jaw gray while coloring only the crown by the GT distance,
+        # matching the existing our_diff.png visualization.
+        for jaw in parts[:-1]:
+            pl.add_mesh(jaw, scalars='display_rgb', rgb=True,
+                        smooth_shading=True, show_edges=False)
+        pl.add_mesh(primary, scalars='error_mm', cmap='turbo',
+                    clim=(-abs(clim), abs(clim)), smooth_shading=True,
+                    show_scalar_bar=False)
+    if camera_data:
+        pl.camera.position = camera_data['position']
+        pl.camera.focal_point = camera_data['focal_point']
+        pl.camera.up = camera_data['viewup']
+        pl.camera.parallel_scale = camera_data['parallel_scale']
+        pl.camera.parallel_projection = camera_data.get('parallel_projection', False)
+        if 'view_angle' in camera_data:
+            pl.camera.view_angle = camera_data['view_angle']
+        if 'clipping_range' in camera_data:
+            pl.camera.clipping_range = camera_data['clipping_range']
     pl.show(screenshot=str(output), auto_close=True)
     print(output)
 
@@ -64,23 +95,46 @@ def main():
         help='symmetric heatmap range in mm (default: -2 to 2)',
     )
     args=p.parse_args();
+    if args.clim == 0:
+        p.error('--clim must be non-zero')
     jaw_paths = []
     if args.input_path.is_dir():
         folder=args.input_path
         gt_stl = folder / 'gt.stl'
         our_stl = folder / 'our.stl'
-        # The all-mesh pose is the authoritative view: it was saved after
-        # rotating the upper jaw, lower jaw, and crown as one rigid object.
-        all_rt = folder / 'gt_all_rt.json'
-        gt_rt = folder / 'gt_all_rt.json'
-        rt_for_folder = all_rt if all_rt.is_file() else gt_rt
-        if rt_for_folder.is_file() and gt_stl.is_file() and our_stl.is_file():
-            T = _load_transform(rt_for_folder)
-            jaw_paths = [folder / name for name in
-                         ('upperjaw.ply', 'lowerjaw.ply', 'upperjaw.stl', 'lowerjaw.stl')
-                         if (folder / name).is_file()]
-            _render(gt_stl, T, folder / 'gt_all.png', jaw_paths)
-            _render(our_stl, T, folder / 'our_all.png', jaw_paths)
+        rt_for_folder = folder / 'gt_singlejaw_rt.json'
+        if not rt_for_folder.is_file():
+            raise FileNotFoundError(f'missing required pose JSON: {rt_for_folder}')
+        if not gt_stl.is_file() or not our_stl.is_file():
+            raise FileNotFoundError(f'{folder} must contain gt.stl and our.stl')
+        T = _load_transform(rt_for_folder)
+        pose_data = json.loads(rt_for_folder.read_text())
+        camera_data = pose_data.get('camera')
+        candidates = [folder / name for name in
+                      ('upperjaw.ply', 'lowerjaw.ply', 'upperjaw.stl', 'lowerjaw.stl')
+                      if (folder / name).is_file()]
+        if not candidates:
+            raise FileNotFoundError(f'no upper/lower jaw mesh found in {folder}')
+        # Pick the jaw whose bounding box is nearest to the crown centroid.
+        crown_center = np.asarray(pv.read(gt_stl).points).mean(axis=0)
+        def bbox_distance(path: Path) -> float:
+            points = np.asarray(pv.read(path).points)
+            lower, upper = points.min(axis=0), points.max(axis=0)
+            delta = np.maximum(np.maximum(lower - crown_center, 0), crown_center - upper)
+            return float(np.linalg.norm(delta))
+        jaw_path = min(candidates, key=bbox_distance)
+        jaw_paths = [jaw_path]
+        # All three views use the same gt_singlejaw pose and the same selected
+        # single-jaw mesh for directly comparable framing.
+        _render(jaw_path, T, folder / 'singlejaw.png', camera_data=camera_data,
+                primary_is_jaw=True)
+        # Match the ground-truth crown colour used by the existing gt.png
+        # renderer (#d4d4d4); keep the jaw colour unchanged.
+        _render(gt_stl, T, folder / 'gt_singlejaw.png', jaw_paths, camera_data,
+                primary_color=(212, 212, 212))
+        _render(our_stl, T, folder / 'our_singlejaw.png', jaw_paths, camera_data,
+                reference_stl=gt_stl, clim=abs(args.clim))
+        return
         json_files=[]
         for candidate in sorted(folder.glob('*.json')):
             try:
@@ -91,7 +145,7 @@ def main():
                 json_files.append((candidate, payload))
         if not json_files:
             raise FileNotFoundError(f'no pose JSON containing transform found in {folder}')
-        preferred = folder / 'gt_all_rt.json'
+        preferred = folder / 'gt_singlejaw_rt.json'
         if rt_for_folder.is_file():
             rt_json = rt_for_folder
             data = json.loads(rt_json.read_text())
@@ -138,7 +192,7 @@ def main():
         gt.points=(gt_pts@T.T)[:,:3]
         scalars=cKDTree(np.asarray(gt.points)).query(np.asarray(mesh.points),k=1)[0]
         mesh['error_mm']=scalars
-    pl=pv.Plotter(off_screen=True,window_size=(900,900))
+    pl=pv.Plotter(off_screen=True,window_size=WINDOW_SIZE)
     pl.set_background('#f4f7f4')
     for jaw_path in jaw_paths:
         jaw = pv.read(jaw_path)
@@ -161,8 +215,6 @@ def main():
                     backface_culling=True)
     # Keep the comparison image clean; the coordinate triad is not needed in
     # ``our_diff_all.png`` and otherwise appears in the lower-left corner.
-    pl.camera_position='iso'; 
-    pl.camera.zoom(1.65)
     pl.show(screenshot=str(out),auto_close=True)
     print(out)
 if __name__=='__main__': main()

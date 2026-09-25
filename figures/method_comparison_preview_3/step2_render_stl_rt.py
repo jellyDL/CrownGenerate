@@ -91,7 +91,7 @@ def main():
     p.add_argument(
         '--clim',
         type=float,
-        default=5.0,
+        default=1.0,
         help='symmetric heatmap range in mm (default: -2 to 2)',
     )
     args=p.parse_args();

@@ -10,10 +10,31 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from PIL import Image, ImageOps
+from PIL import Image, ImageDraw, ImageFont, ImageOps
+import numpy as np
+from matplotlib import colormaps
 
 
 ROW_FILES = (("singlejaw.png", "our_singlejaw.png", "gt_singlejaw.png"),)
+COLORBAR_WIDTH = 180
+COLORBAR_HEIGHT = 24
+
+
+def make_colorbar() -> Image.Image:
+    """Create a compact turbo colorbar labelled from -0.5 to 0.5."""
+    values = np.linspace(0.0, 1.0, COLORBAR_WIDTH)
+    rgb = (colormaps["turbo"](values)[:, :3] * 255).astype(np.uint8)
+    bar = Image.fromarray(np.repeat(rgb[None, :, :], COLORBAR_HEIGHT, axis=0), "RGB")
+    canvas = Image.new("RGB", (COLORBAR_WIDTH, COLORBAR_HEIGHT + 20), "white")
+    canvas.paste(bar, (0, 0))
+    draw = ImageDraw.Draw(canvas)
+    font = ImageFont.load_default()
+    draw.text((0, COLORBAR_HEIGHT + 3), "-0.5", fill="black", font=font)
+    label = "0.5"
+    box = draw.textbbox((0, 0), label, font=font)
+    draw.text((COLORBAR_WIDTH - (box[2] - box[0]), COLORBAR_HEIGHT + 3), label,
+              fill="black", font=font)
+    return canvas
 
 
 def main() -> None:
@@ -57,7 +78,8 @@ def main() -> None:
     tile_width = max(image.width for row in images for image in row)
     tile_height = max(image.height for row in images for image in row)
     columns = max(len(row) for row in images)
-    canvas_width = args.gap + columns * tile_width + (columns - 1) * args.gap + args.gap
+    canvas_width = (args.gap + columns * tile_width + (columns - 1) * args.gap
+                    + args.gap + COLORBAR_WIDTH + args.gap)
     canvas_height = args.gap + len(images) * tile_height + (len(images) - 1) * args.gap + args.gap
     canvas = Image.new("RGB", (canvas_width, canvas_height), args.background)
 
@@ -68,6 +90,10 @@ def main() -> None:
             tile = ImageOps.contain(image, (tile_width, tile_height))
             canvas.paste(tile, (x + (tile_width - tile.width) // 2,
                                 y + (tile_height - tile.height) // 2))
+        colorbar = make_colorbar()
+        colorbar_x = args.gap + columns * tile_width + columns * args.gap
+        colorbar_y = y + (tile_height - colorbar.height) // 2
+        canvas.paste(colorbar, (colorbar_x, colorbar_y))
 
     output.parent.mkdir(parents=True, exist_ok=True)
     canvas.save(output)

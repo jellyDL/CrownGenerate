@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 """Apply a matrix from an ``.aln`` file to an STL mesh."""
+"""
+python mesh_match.py <id path>
+对id path下的 sample*.stl，根据 meshlab 配准输出的sample*.aln进行配准，并输出sample*_match.stl。
+"""
+
 from __future__ import annotations
 
 import argparse

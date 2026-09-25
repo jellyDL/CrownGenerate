@@ -3,7 +3,8 @@
 
 For every subfolder, one row is appended in this order::
 
-    singlejaw.png  our_singlejaw.png  gt_singlejaw.png
+    singlejaw.png  sample1_match_singlejaw.png  sample2_match_singlejaw.png
+    sample3_match_singlejaw.png  our_singlejaw.png  gt_singlejaw.png
 """
 from __future__ import annotations
 
@@ -15,25 +16,34 @@ import numpy as np
 from matplotlib import colormaps
 
 
-ROW_FILES = (("singlejaw.png", "our_singlejaw.png", "gt_singlejaw.png"),)
-COLORBAR_WIDTH = 180
-COLORBAR_HEIGHT = 24
+ROW_FILES = ((
+    "singlejaw.png",
+    "sample1_match_singlejaw.png",
+    "sample2_match_singlejaw.png",
+    "sample3_match_singlejaw.png",
+    "our_singlejaw.png",
+    "gt_singlejaw.png",
+),)
+COLORBAR_WIDTH = 62
 
 
-def make_colorbar() -> Image.Image:
-    """Create a compact turbo colorbar labelled from -0.5 to 0.5."""
-    values = np.linspace(0.0, 1.0, COLORBAR_WIDTH)
+def make_colorbar(height: int) -> Image.Image:
+    """Create a vertical turbo colorbar matching method_comparison_preview2."""
+    values = np.linspace(1.0, 0.0, height)
     rgb = (colormaps["turbo"](values)[:, :3] * 255).astype(np.uint8)
-    bar = Image.fromarray(np.repeat(rgb[None, :, :], COLORBAR_HEIGHT, axis=0), "RGB")
-    canvas = Image.new("RGB", (COLORBAR_WIDTH, COLORBAR_HEIGHT + 20), "white")
+    bar_width = 18
+    bar = Image.fromarray(np.repeat(rgb[:, None, :], bar_width, axis=1), "RGB")
+    canvas = Image.new("RGB", (COLORBAR_WIDTH, height), "white")
     canvas.paste(bar, (0, 0))
     draw = ImageDraw.Draw(canvas)
     font = ImageFont.load_default()
-    draw.text((0, COLORBAR_HEIGHT + 3), "-0.5", fill="black", font=font)
-    label = "0.5"
-    box = draw.textbbox((0, 0), label, font=font)
-    draw.text((COLORBAR_WIDTH - (box[2] - box[0]), COLORBAR_HEIGHT + 3), label,
-              fill="black", font=font)
+    # Six evenly spaced ticks, with the largest positive value at the top.
+    labels = ["0.03", "0.02", "0.01", "0.00", "-0.01", "-0.02", "-0.03"]
+    for index, label in enumerate(labels):
+        y = round(index * (height - 1) / (len(labels) - 1))
+        draw.line((bar_width, y, bar_width + 4, y), fill="black", width=1)
+        text_y = max(0, min(height - 11, y - 5))
+        draw.text((bar_width + 7, text_y), label, fill="black", font=font)
     return canvas
 
 
@@ -90,10 +100,9 @@ def main() -> None:
             tile = ImageOps.contain(image, (tile_width, tile_height))
             canvas.paste(tile, (x + (tile_width - tile.width) // 2,
                                 y + (tile_height - tile.height) // 2))
-        colorbar = make_colorbar()
+        colorbar = make_colorbar(tile_height)
         colorbar_x = args.gap + columns * tile_width + columns * args.gap
-        colorbar_y = y + (tile_height - colorbar.height) // 2
-        canvas.paste(colorbar, (colorbar_x, colorbar_y))
+        canvas.paste(colorbar, (colorbar_x, y))
 
     output.parent.mkdir(parents=True, exist_ok=True)
     canvas.save(output)

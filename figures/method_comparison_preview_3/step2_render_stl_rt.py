@@ -102,11 +102,14 @@ def main():
         folder=args.input_path
         gt_stl = folder / 'gt.stl'
         our_stl = folder / 'our.stl'
+        sample1_stl = folder / 'sample1_match.stl'
+        sample2_stl = folder / 'sample2_match.stl'
+        sample3_stl = folder / 'sample3_match.stl'
         rt_for_folder = folder / 'gt_singlejaw_rt.json'
         if not rt_for_folder.is_file():
             raise FileNotFoundError(f'missing required pose JSON: {rt_for_folder}')
-        if not gt_stl.is_file() or not our_stl.is_file():
-            raise FileNotFoundError(f'{folder} must contain gt.stl and our.stl')
+        if not gt_stl.is_file() or not our_stl.is_file() or not sample1_stl.is_file():
+            raise FileNotFoundError(f'{folder} must contain gt.stl, our.stl, and sample1_match.stl')
         T = _load_transform(rt_for_folder)
         pose_data = json.loads(rt_for_folder.read_text())
         camera_data = pose_data.get('camera')
@@ -133,6 +136,12 @@ def main():
         _render(gt_stl, T, folder / 'gt_singlejaw.png', jaw_paths, camera_data,
                 primary_color=(212, 212, 212))
         _render(our_stl, T, folder / 'our_singlejaw.png', jaw_paths, camera_data,
+                reference_stl=gt_stl, clim=abs(args.clim))
+        _render(sample1_stl, T, folder / 'sample1_match_singlejaw.png', jaw_paths, camera_data,
+                reference_stl=gt_stl, clim=abs(args.clim))
+        _render(sample2_stl, T, folder / 'sample2_match_singlejaw.png', jaw_paths, camera_data,
+                reference_stl=gt_stl, clim=abs(args.clim))
+        _render(sample3_stl, T, folder / 'sample3_match_singlejaw.png', jaw_paths, camera_data,
                 reference_stl=gt_stl, clim=abs(args.clim))
         return
         json_files=[]

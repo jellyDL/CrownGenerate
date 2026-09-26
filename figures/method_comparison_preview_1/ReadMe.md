@@ -20,3 +20,5 @@ python mesh_match.py
 
 # bad case:
 00b00867
+019a3d52
+01c02666

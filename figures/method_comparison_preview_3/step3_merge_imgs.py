@@ -43,7 +43,7 @@ def make_colorbar(height: int) -> Image.Image:
     draw.rectangle((0, margin_y, bar_width - 1, margin_y + bar_height - 1),
                    outline="black", width=2)
     try:
-        font = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial.ttf", 48)
+        font = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial.ttf", 60)
     except OSError:
         font = ImageFont.load_default()
     # Six evenly spaced ticks, with the largest positive value at the top.

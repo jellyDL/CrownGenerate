@@ -24,26 +24,31 @@ ROW_FILES = ((
     "our_singlejaw.png",
     "gt_singlejaw.png",
 ),)
-COLORBAR_WIDTH = 62
+COLORBAR_WIDTH = 260
 
 
 def make_colorbar(height: int) -> Image.Image:
     """Create a vertical turbo colorbar matching method_comparison_preview2."""
-    values = np.linspace(1.0, 0.0, height)
+    margin_y = 30
+    bar_height = max(1, height - 2 * margin_y)
+    values = np.linspace(1.0, 0.0, bar_height)
     rgb = (colormaps["turbo"](values)[:, :3] * 255).astype(np.uint8)
-    bar_width = 18
+    bar_width = 60
     bar = Image.fromarray(np.repeat(rgb[:, None, :], bar_width, axis=1), "RGB")
     canvas = Image.new("RGB", (COLORBAR_WIDTH, height), "white")
-    canvas.paste(bar, (0, 0))
+    canvas.paste(bar, (0, margin_y))
     draw = ImageDraw.Draw(canvas)
-    font = ImageFont.load_default()
+    try:
+        font = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial.ttf", 48)
+    except OSError:
+        font = ImageFont.load_default()
     # Six evenly spaced ticks, with the largest positive value at the top.
-    labels = ["0.03", "0.02", "0.01", "0.00", "-0.01", "-0.02", "-0.03"]
+    labels = ["0.3", "0.2", "0.1", "0.0", "-0.1", "-0.2", "-0.3"]
     for index, label in enumerate(labels):
-        y = round(index * (height - 1) / (len(labels) - 1))
-        draw.line((bar_width, y, bar_width + 4, y), fill="black", width=1)
-        text_y = max(0, min(height - 11, y - 5))
-        draw.text((bar_width + 7, text_y), label, fill="black", font=font)
+        y = margin_y + round(index * (bar_height - 1) / (len(labels) - 1))
+        draw.line((bar_width, y, bar_width + 80, y), fill="black", width=1)
+        text_y = max(0, min(height - 52, y - 24))
+        draw.text((bar_width + 10, text_y), label, fill="black", font=font)
     return canvas
 
 

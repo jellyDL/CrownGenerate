@@ -13,3 +13,10 @@ python3 step3_merge_imgs.py
 
 # 遍历当前文件夹中的所有文件夹，删除png文件
 python rm_png.py
+
+# meshlab 将sample********.stl与gt.stl配准后生成 sample.aln 
+# 根据 sample.aln 将 sample.stl 变为配准后的 sample_match.stl
+python mesh_match.py 
+
+# bad case:
+00b00867

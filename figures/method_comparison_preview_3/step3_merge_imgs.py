@@ -72,7 +72,7 @@ def main() -> None:
     args = parser.parse_args()
 
     root = args.folder.resolve()
-    output = (args.output or root / "merged_all.png").resolve()
+    output = (args.output or root / "method_comparison_preview.png").resolve()
     sample_dirs = sorted(
         path for path in root.iterdir()
         if path.is_dir() and not path.name.startswith(".") and path.name != "__pycache__"

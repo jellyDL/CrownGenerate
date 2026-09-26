@@ -65,8 +65,8 @@ def main() -> None:
     )
     parser.add_argument("-o", "--output", type=Path, default=None,
                         help="output image (default: <folder>/merged_singlejaw.png)")
-    parser.add_argument("--gap", type=int, default=12,
-                        help="gap between tiles in pixels (default: 12)")
+    parser.add_argument("--gap", type=int, default=80,
+                        help="gap between tiles and rows in pixels (default: 24)")
     parser.add_argument("--background", default="white",
                         help="background colour (default: white)")
     args = parser.parse_args()

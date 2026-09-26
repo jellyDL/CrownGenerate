@@ -1,3 +1,4 @@
+# 通过以下网址可以压缩网格大小 https://www.meshy.ai/zh/3d-tools/file-compressor/stl
 
 # Step 1 确定观察视角
 ### 调整视角，读取指定目录下的gt.stl, 输出gt_rt.json

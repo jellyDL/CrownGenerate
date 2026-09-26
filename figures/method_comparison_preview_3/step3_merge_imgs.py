@@ -25,11 +25,12 @@ ROW_FILES = ((
     "gt_singlejaw.png",
 ),)
 COLORBAR_WIDTH = 260
+COLORBAR_GAP = 60 #色带与最后一张图片之间间距
 
 
 def make_colorbar(height: int) -> Image.Image:
     """Create a vertical turbo colorbar matching method_comparison_preview2."""
-    margin_y = 30
+    margin_y = 80 # 色带本体上下留白
     bar_height = max(1, height - 2 * margin_y)
     values = np.linspace(1.0, 0.0, bar_height)
     rgb = (colormaps["turbo"](values)[:, :3] * 255).astype(np.uint8)
@@ -38,6 +39,9 @@ def make_colorbar(height: int) -> Image.Image:
     canvas = Image.new("RGB", (COLORBAR_WIDTH, height), "white")
     canvas.paste(bar, (0, margin_y))
     draw = ImageDraw.Draw(canvas)
+    # Frame the color strip so the scale is visually explicit.
+    draw.rectangle((0, margin_y, bar_width - 1, margin_y + bar_height - 1),
+                   outline="black", width=2)
     try:
         font = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial.ttf", 48)
     except OSError:
@@ -46,9 +50,9 @@ def make_colorbar(height: int) -> Image.Image:
     labels = ["0.3", "0.2", "0.1", "0.0", "-0.1", "-0.2", "-0.3"]
     for index, label in enumerate(labels):
         y = margin_y + round(index * (bar_height - 1) / (len(labels) - 1))
-        draw.line((bar_width, y, bar_width + 80, y), fill="black", width=1)
+        draw.line((bar_width - 4, y, bar_width + 8, y), fill="black", width=2)
         text_y = max(0, min(height - 52, y - 24))
-        draw.text((bar_width + 10, text_y), label, fill="black", font=font)
+        draw.text((bar_width + 20, text_y), label, fill="black", font=font)
     return canvas
 
 
@@ -94,7 +98,7 @@ def main() -> None:
     tile_height = max(image.height for row in images for image in row)
     columns = max(len(row) for row in images)
     canvas_width = (args.gap + columns * tile_width + (columns - 1) * args.gap
-                    + args.gap + COLORBAR_WIDTH + args.gap)
+                    + COLORBAR_GAP + COLORBAR_WIDTH + args.gap)
     canvas_height = args.gap + len(images) * tile_height + (len(images) - 1) * args.gap + args.gap
     canvas = Image.new("RGB", (canvas_width, canvas_height), args.background)
 
@@ -106,7 +110,8 @@ def main() -> None:
             canvas.paste(tile, (x + (tile_width - tile.width) // 2,
                                 y + (tile_height - tile.height) // 2))
         colorbar = make_colorbar(tile_height)
-        colorbar_x = args.gap + columns * tile_width + columns * args.gap
+        colorbar_x = (args.gap + columns * tile_width
+                      + (columns - 1) * args.gap + COLORBAR_GAP)
         canvas.paste(colorbar, (colorbar_x, y))
 
     output.parent.mkdir(parents=True, exist_ok=True)

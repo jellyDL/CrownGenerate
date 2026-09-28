@@ -14,11 +14,11 @@ def main() -> None:
     args = parser.parse_args()
     folder = args.folder.resolve()
     gt = pv.read(folder / "gt.stl")
-    jaw = pv.read(folder / "upperjaw.ply")
+    jaw = pv.read(folder / "upperjaw.ply").decimate(0.95, inplace=False)
     plotter = pv.Plotter(window_size=(900, 700))
     plotter.set_background("#f4f7f4")
     gt_actor = plotter.add_mesh(gt, color="#d8d8d0", smooth_shading=True, opacity=1.0)
-    jaw_actor = plotter.add_mesh(jaw, color="#a8aaa5", style="wireframe", line_width=1,
+    jaw_actor = plotter.add_mesh(jaw, color="#a8aaa5", style="wireframe", line_width=2.0,
                                  opacity=0.35, show_edges=True)
     translation = [0.0, 0.0, 0.0]
     plotter.add_text("Adjust view, then press P to save | Esc to quit", position="upper_left")

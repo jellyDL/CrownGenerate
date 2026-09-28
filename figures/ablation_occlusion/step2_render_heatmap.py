@@ -35,7 +35,7 @@ def main() -> None:
         contact_values[np.abs(contact_values) > abs(args.clim)] = np.nan
         crown["implicit_distance"] = contact_values
         plotter = pv.Plotter(off_screen=True, window_size=(900, 700))
-        plotter.set_background("#f4f7f4")
+        plotter.set_background("white")
         plotter.add_mesh(jaw, color="#a8aaa5", style="wireframe", line_width=2.0,
                          opacity=0.32, show_edges=True)
         plotter.add_mesh(crown, scalars="implicit_distance", cmap="jet",

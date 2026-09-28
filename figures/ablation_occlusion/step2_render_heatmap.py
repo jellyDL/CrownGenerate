@@ -19,10 +19,10 @@ def main() -> None:
     jaw = pv.read(folder / "upperjaw.ply")
     # Reduce wireframe density for the sparse opposing-jaw appearance used in
     # the reference figure while preserving the overall jaw silhouette.
-    jaw = jaw.decimate(0.95, inplace=False)
+    jaw = jaw.decimate(0.98, inplace=False)
     translation = view.get("translation", [0.0, 0.0, 0.0]) if view else [0.0, 0.0, 0.0]
     jaw.points = np.asarray(jaw.points) + np.asarray(translation)
-    for stem in ("gt", "our"):
+    for stem in ("gt", "our", "ablation"):
         crown = pv.read(folder / f"{stem}.stl")
         crown.points = np.asarray(crown.points) + np.asarray(translation)
         try:
@@ -41,11 +41,7 @@ def main() -> None:
         plotter.add_mesh(crown, scalars="implicit_distance", cmap="jet",
                          clim=(-abs(args.clim), abs(args.clim)), smooth_shading=True,
                          nan_color="white", nan_opacity=1.0,
-                         show_scalar_bar=True, scalar_bar_args={
-                             "title": "Implicit Distance (mm)",
-                             "vertical": False, "width": 0.55, "height": 0.08,
-                             "position_x": 0.23, "position_y": 0.90,
-                         })
+                         show_scalar_bar=False)
         if view:
             plotter.camera.position = view["position"]
             plotter.camera.focal_point = view["focal_point"]

@@ -22,39 +22,41 @@ def main() -> None:
     jaw = pv.read(folder / "lowerjaw.ply").triangulate()
     translation = view.get("translation", [0.0, 0.0, 0.0]) if view else [0.0, 0.0, 0.0]
     jaw.points = np.asarray(jaw.points) + np.asarray(translation)
-    for stem, reverse_view in (("gt", False), ("gt2", True)):
-        crown = pv.read(folder / "gt.stl")
-        crown.points = np.asarray(crown.points) + np.asarray(translation)
-        result = crown.compute_implicit_distance(jaw, inplace=False)
-        values = np.asarray(result["implicit_distance"])
-        contact_values = values.astype(float, copy=True)
-        contact_values[np.abs(contact_values) > abs(args.clim)] = np.nan
-        crown["implicit_distance"] = contact_values
-        plotter = pv.Plotter(off_screen=True, window_size=(900, 700))
-        plotter.set_background("white")
-        plotter.add_mesh(crown, scalars="implicit_distance", cmap="jet",
-                         clim=(-abs(args.clim), abs(args.clim)), smooth_shading=True,
-                         nan_color="white", nan_opacity=1.0,
-                         show_scalar_bar=False)
-        if view:
-            position = np.asarray(view["position"], dtype=float)
-            focal_point = np.asarray(view["focal_point"], dtype=float)
-            if reverse_view:
-                position = 2.0 * focal_point - position
-            plotter.camera.position = position
-            plotter.camera.focal_point = focal_point
-            plotter.camera.up = view["viewup"]
-            plotter.camera.parallel_scale = view["parallel_scale"]
-            plotter.camera.parallel_projection = view.get("parallel_projection", False)
-            if "view_angle" in view:
-                plotter.camera.view_angle = view["view_angle"]
-            if "clipping_range" in view:
-                plotter.camera.clipping_range = view["clipping_range"]
-        output = args.output if args.output and stem == "gt" else folder / (
-            "gt_heatmap2.png" if stem == "gt2" else "gt_heatmap.png"
-        )
-        plotter.show(screenshot=str(output), auto_close=True)
-        print(output)
+    for stem in ("gt", "our", "ablation"):
+        if not (folder / f"{stem}.stl").is_file():
+            continue
+        for reverse_view in (False, True):
+            crown = pv.read(folder / f"{stem}.stl")
+            crown.points = np.asarray(crown.points) + np.asarray(translation)
+            result = crown.compute_implicit_distance(jaw, inplace=False)
+            values = np.asarray(result["implicit_distance"])
+            contact_values = values.astype(float, copy=True)
+            contact_values[np.abs(contact_values) > abs(args.clim)] = np.nan
+            crown["implicit_distance"] = contact_values
+            plotter = pv.Plotter(off_screen=True, window_size=(900, 700))
+            plotter.set_background("white")
+            plotter.add_mesh(crown, scalars="implicit_distance", cmap="jet",
+                             clim=(-abs(args.clim), abs(args.clim)), smooth_shading=True,
+                             nan_color="white", nan_opacity=1.0,
+                             show_scalar_bar=False)
+            if view:
+                position = np.asarray(view["position"], dtype=float)
+                focal_point = np.asarray(view["focal_point"], dtype=float)
+                if reverse_view:
+                    position = 2.0 * focal_point - position
+                plotter.camera.position = position
+                plotter.camera.focal_point = focal_point
+                plotter.camera.up = view["viewup"]
+                plotter.camera.parallel_scale = view["parallel_scale"]
+                plotter.camera.parallel_projection = view.get("parallel_projection", False)
+                if "view_angle" in view:
+                    plotter.camera.view_angle = view["view_angle"]
+                if "clipping_range" in view:
+                    plotter.camera.clipping_range = view["clipping_range"]
+            suffix = "_heatmap2.png" if reverse_view else "_heatmap.png"
+            output = args.output if args.output and stem == "gt" and not reverse_view else folder / f"{stem}{suffix}"
+            plotter.show(screenshot=str(output), auto_close=True)
+            print(output)
 
 
 if __name__ == "__main__":

@@ -22,8 +22,8 @@ def main() -> None:
     jaw = pv.read(folder / "lowerjaw.ply").triangulate()
     translation = view.get("translation", [0.0, 0.0, 0.0]) if view else [0.0, 0.0, 0.0]
     jaw.points = np.asarray(jaw.points) + np.asarray(translation)
-    for stem in ("gt",):
-        crown = pv.read(folder / f"{stem}.stl")
+    for stem, reverse_view in (("gt", False), ("gt2", True)):
+        crown = pv.read(folder / "gt.stl")
         crown.points = np.asarray(crown.points) + np.asarray(translation)
         result = crown.compute_implicit_distance(jaw, inplace=False)
         values = np.asarray(result["implicit_distance"])
@@ -37,8 +37,12 @@ def main() -> None:
                          nan_color="white", nan_opacity=1.0,
                          show_scalar_bar=False)
         if view:
-            plotter.camera.position = view["position"]
-            plotter.camera.focal_point = view["focal_point"]
+            position = np.asarray(view["position"], dtype=float)
+            focal_point = np.asarray(view["focal_point"], dtype=float)
+            if reverse_view:
+                position = 2.0 * focal_point - position
+            plotter.camera.position = position
+            plotter.camera.focal_point = focal_point
             plotter.camera.up = view["viewup"]
             plotter.camera.parallel_scale = view["parallel_scale"]
             plotter.camera.parallel_projection = view.get("parallel_projection", False)
@@ -46,7 +50,9 @@ def main() -> None:
                 plotter.camera.view_angle = view["view_angle"]
             if "clipping_range" in view:
                 plotter.camera.clipping_range = view["clipping_range"]
-        output = args.output if args.output and stem == "gt" else folder / f"{stem}_heatmap.png"
+        output = args.output if args.output and stem == "gt" else folder / (
+            "gt_heatmap2.png" if stem == "gt2" else "gt_heatmap.png"
+        )
         plotter.show(screenshot=str(output), auto_close=True)
         print(output)
 

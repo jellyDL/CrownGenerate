@@ -3,7 +3,7 @@
 
 For every subfolder, one row is appended in this order::
 
-    ablation_heatmap.png  our_heatmap.png  gt_heatmap.png
+    gt_heatmap.png  ablation_heatmap.png  our_heatmap.png
 """
 from __future__ import annotations
 
@@ -16,9 +16,10 @@ from matplotlib import colormaps
 
 
 ROW_FILES = (
-    ("ablation_heatmap.png", "our_heatmap.png", "gt_heatmap.png"),
-    ("ablation_heatmap2.png", "our_heatmap2.png", "gt_heatmap2.png"),
+    ("gt_heatmap.png", "ablation_heatmap.png", "our_heatmap.png"),
+    ("gt_heatmap2.png", "ablation_heatmap2.png", "our_heatmap2.png"),
 )
+COLUMN_LABELS = ("GT", "With out Intersection", "With Intersection")
 
 
 def main() -> None:
@@ -54,11 +55,26 @@ def main() -> None:
         tile_width = max(image.width for row in images for image in row)
         tile_height = max(image.height for row in images for image in row)
         columns = 3
+        font_size = 68 # 显示字体大小
+        for font_path in ("/System/Library/Fonts/Supplemental/Arial.ttf", "DejaVuSans.ttf"):
+            try:
+                font = ImageFont.truetype(font_path, font_size)
+                break
+            except OSError:
+                continue
+        else:
+            font = ImageFont.load_default()
+        header_height = font_size + 40
         canvas_width = args.gap + columns * tile_width + (columns - 1) * args.gap + args.gap
-        canvas_height = args.gap + 2 * tile_height + args.gap + args.gap
+        canvas_height = header_height + args.gap + 2 * tile_height + args.gap + args.gap
         canvas = Image.new("RGB", (canvas_width, canvas_height), args.background)
+        draw = ImageDraw.Draw(canvas)
+        for col_index, label in enumerate(COLUMN_LABELS):
+            center_x = args.gap + col_index * (tile_width + args.gap) + tile_width // 2
+            draw.text((center_x, args.gap + header_height // 2), label,
+                      font=font, fill="black", anchor="mm")
         for row_index, row in enumerate(images):
-            y = args.gap + row_index * (tile_height + args.gap)
+            y = args.gap + header_height + row_index * (tile_height + args.gap)
             for col_index, image in enumerate(row):
                 x = args.gap + col_index * (tile_width + args.gap)
                 tile = ImageOps.contain(image, (tile_width, tile_height))

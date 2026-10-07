@@ -48,10 +48,10 @@ def main() -> None:
     parser.add_argument("--line_space", "--line-space", type=int, default=80,
                         help="gap between the two rows in each block (default: 80)")
     # 板块之间的竖直间距，单位像素。
-    parser.add_argument("--block_space", "--block-space", type=int, default=200,
+    parser.add_argument("--block_space", "--block-space", type=int, default=140,
                         help="vertical gap between case blocks (default: 80)")
      # 上方文字字体大小
-    parser.add_argument("--font-size", type=int, default=80,
+    parser.add_argument("--font-size", type=int, default=90,
                         help="column title font size (default: 68)")
     # 左侧文字字体大小
     parser.add_argument("--block-font-size", "--block_font_size", type=int, default=90,
@@ -63,7 +63,7 @@ def main() -> None:
     parser.add_argument("--clim", nargs="+", type=float, default=[0.0, 0.2],
                         help="colorbar limits: MAX (min=0) or MIN MAX (default: 0 0.2)")
     # 色带图字体大小
-    parser.add_argument("--colorbar-font-size", type=int, default=80,
+    parser.add_argument("--colorbar-font-size", type=int, default=100,
                         help="colorbar tick font size (default: 80)")
     # 色带图宽度
     parser.add_argument("--colorbar-length", "--colorbar-width", "--colorbar_width", dest="colorbar_width", type=int, default=1800,
@@ -75,7 +75,7 @@ def main() -> None:
                         help="horizontal gap between images and colorbar (default: 80)")
     # 色带图位置
     parser.add_argument("--colorbar-position", "--colorbar_position", nargs=2, type=int,
-                        default=(3600, 1400), metavar=("X", "Y"),
+                        default=(3600, 1300), metavar=("X", "Y"),
                         help="colorbar top-left pixel coordinates; origin is image top-left (default: 3500 1500)")
     args = parser.parse_args()
     if len(args.clim) not in (1, 2):

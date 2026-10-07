@@ -23,14 +23,14 @@ def fit_margin_plane(margin_points: np.ndarray, reference_points: np.ndarray) ->
 def crown_heatmap_values(crown: pv.PolyData, jaw: pv.PolyData,
                          center: np.ndarray, normal: np.ndarray,
                          bottom_height: float, clim: float) -> np.ndarray:
-    """Evaluate distances only above the excluded cervical/bottom region."""
+    """Evaluate absolute surface distances above the excluded bottom region."""
     eligible = (np.asarray(crown.points) - center) @ normal > bottom_height
     values = np.full(crown.n_points, np.nan, dtype=float)
     if np.any(eligible):
         query = pv.PolyData(np.asarray(crown.points)[eligible])
         result = query.compute_implicit_distance(jaw, inplace=False)
-        values[eligible] = np.asarray(result["implicit_distance"])
-    values[np.abs(values) > clim] = np.nan
+        values[eligible] = np.abs(np.asarray(result["implicit_distance"]))
+    values[values > clim] = np.nan
     return values
 
 
@@ -54,7 +54,7 @@ def main() -> None:
     parser.add_argument("folder", type=Path)
     parser.add_argument("--clim", type=float, default=0.2)
     parser.add_argument("--bottom-height", type=float, default=1.3,
-                        help="exclude vertices at/below this height above the fitted margin plane, in model units (default: 0.5)")
+                        help="exclude vertices at/below this height above the fitted margin plane, in model units (default: 1.3)")
     parser.add_argument("-o", "--output", type=Path, default=None)
     args = parser.parse_args()
     if not np.isfinite(args.clim) or args.clim <= 0:
@@ -97,13 +97,14 @@ def main() -> None:
             continue
         crown = pv.read(folder / f"{stem}.stl")
         crown.points = np.asarray(crown.points) + np.asarray(translation)
-        crown["implicit_distance"] = crown_heatmap_values(
+        crown["surface_distance"] = crown_heatmap_values(
             crown, jaw, center, normal, args.bottom_height, args.clim)
         for reverse_view in (False, True):
             plotter = pv.Plotter(off_screen=True, window_size=(900, 700))
             plotter.set_background("white")
-            plotter.add_mesh(crown, scalars="implicit_distance", cmap="jet",
-                             clim=(-abs(args.clim), abs(args.clim)), smooth_shading=True,
+            # Reversed jet maps zero distance to red and the limit to blue.
+            plotter.add_mesh(crown, scalars="surface_distance", cmap="jet_r",
+                             clim=(0.0, args.clim), smooth_shading=True,
                              nan_color="white", nan_opacity=1.0,
                              show_scalar_bar=False)
             if view:

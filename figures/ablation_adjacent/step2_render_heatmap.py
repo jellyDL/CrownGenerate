@@ -52,13 +52,20 @@ def select_jaw_path(folder: Path) -> Path:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("folder", type=Path)
-    parser.add_argument("--clim", type=float, default=0.2)
+    parser.add_argument("--clim", type=float, default=0.2,
+                        help="legacy upper distance limit (default: 0.2; overridden by --vmax)")
+    parser.add_argument("--vmin", "--min", type=float, default=0.0,
+                        help="color scale minimum: red (default: 0)")
+    parser.add_argument("--vmax", "--max", type=float, default=None,
+                        help="color scale maximum: blue; larger distances stay white (default: --clim)")
     parser.add_argument("--bottom-height", type=float, default=1.3,
                         help="exclude vertices at/below this height above the fitted margin plane, in model units (default: 1.3)")
     parser.add_argument("-o", "--output", type=Path, default=None)
     args = parser.parse_args()
-    if not np.isfinite(args.clim) or args.clim <= 0:
-        parser.error('--clim must be a finite positive number')
+    vmax = args.clim if args.vmax is None else args.vmax
+    if (not np.isfinite(args.vmin) or not np.isfinite(vmax)
+            or not args.vmin < vmax or vmax <= 0):
+        parser.error('color limits must be finite and satisfy vmin < vmax and vmax > 0')
     if not np.isfinite(args.bottom_height) or args.bottom_height < 0:
         parser.error('--bottom-height must be a finite nonnegative number')
     folder = args.folder.resolve()
@@ -98,13 +105,13 @@ def main() -> None:
         crown = pv.read(folder / f"{stem}.stl")
         crown.points = np.asarray(crown.points) + np.asarray(translation)
         crown["surface_distance"] = crown_heatmap_values(
-            crown, jaw, center, normal, args.bottom_height, args.clim)
+            crown, jaw, center, normal, args.bottom_height, vmax)
         for reverse_view in (False, True):
             plotter = pv.Plotter(off_screen=True, window_size=(900, 700))
             plotter.set_background("white")
-            # Reversed jet maps zero distance to red and the limit to blue.
+            # Values below vmin saturate red; excluded values remain white.
             plotter.add_mesh(crown, scalars="surface_distance", cmap="jet_r",
-                             clim=(0.0, args.clim), smooth_shading=True,
+                             clim=(args.vmin, vmax), smooth_shading=True,
                              nan_color="white", nan_opacity=1.0,
                              show_scalar_bar=False)
             if view:

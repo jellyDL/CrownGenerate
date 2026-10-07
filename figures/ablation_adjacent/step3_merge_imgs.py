@@ -17,6 +17,18 @@ ROW_FILES = (
     ("gt_heatmap2.png", "ablation_match_heatmap2.png", "our_heatmap2.png"),
 )
 COLUMN_LABELS = ("GT", "With out Intersection", "With Intersection")
+BLOCK_LABELS = ("premolar", "molar")
+
+
+def load_font(size: int, bold: bool = False) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
+    paths = (("/System/Library/Fonts/Supplemental/Arial Bold.ttf", "DejaVuSans-Bold.ttf")
+             if bold else ("/System/Library/Fonts/Supplemental/Arial.ttf", "DejaVuSans.ttf"))
+    for path in paths:
+        try:
+            return ImageFont.truetype(path, size)
+        except OSError:
+            continue
+    return ImageFont.load_default(size=size)
 
 
 def main() -> None:
@@ -34,16 +46,23 @@ def main() -> None:
     parser.add_argument("--line_space", "--line-space", type=int, default=80,
                         help="gap between the two rows in each block (default: 80)")
     # 板块之间的竖直间距，单位像素。
-    parser.add_argument("--block_space", "--block-space", type=int, default=80,
+    parser.add_argument("--block_space", "--block-space", type=int, default=240,
                         help="vertical gap between case blocks (default: 80)")
-    parser.add_argument("--font-size", type=int, default=68,
+     # 上方文字字体大小
+    parser.add_argument("--font-size", type=int, default=80,
                         help="column title font size (default: 68)")
+    # 左侧文字字体大小
+    parser.add_argument("--block-font-size", "--block_font_size", type=int, default=90,
+                        help="left-side block label font size (default: 68)")
+    # 左侧文字是否加粗
+    parser.add_argument("--block-bold", "--block_bold", action="store_true",
+                        help="use bold font for the left-side block labels")
     parser.add_argument("--background", default="white")
     args = parser.parse_args()
     if min(args.gap, args.line_space, args.block_space) < 0:
         parser.error("gap, line_space and block_space must be nonnegative")
-    if args.font_size <= 0:
-        parser.error("font-size must be positive")
+    if args.font_size <= 0 or args.block_font_size <= 0:
+        parser.error("font-size and block-font-size must be positive")
 
     root = args.folder.expanduser().resolve()
     if not root.is_dir():
@@ -78,31 +97,32 @@ def main() -> None:
 
     tile_width = max(image.width for block in blocks for row in block for image in row)
     tile_height = max(image.height for block in blocks for row in block for image in row)
-    for font_path in ("/System/Library/Fonts/Supplemental/Arial.ttf", "DejaVuSans.ttf"):
-        try:
-            font = ImageFont.truetype(font_path, args.font_size)
-            break
-        except OSError:
-            continue
-    else:
-        font = ImageFont.load_default()
+    font = load_font(args.font_size)
+    block_font = load_font(args.block_font_size, bold=args.block_bold)
+    labels = BLOCK_LABELS[:len(blocks)]
+    label_width = max(block_font.getbbox(label)[2] - block_font.getbbox(label)[0]
+                      for label in labels)
+    left_width = label_width + 40
     header_height = args.font_size + 40
     block_height = 2 * tile_height + args.line_space
-    canvas_width = 3 * tile_width + 4 * args.gap
+    canvas_width = left_width + 3 * tile_width + 4 * args.gap
     canvas_height = (2 * args.gap + header_height + len(blocks) * block_height
                      + (len(blocks) - 1) * args.block_space)
     canvas = Image.new("RGB", (canvas_width, canvas_height), args.background)
     draw = ImageDraw.Draw(canvas)
     for column, label in enumerate(COLUMN_LABELS):
-        center_x = args.gap + column * (tile_width + args.gap) + tile_width // 2
+        center_x = left_width + args.gap + column * (tile_width + args.gap) + tile_width // 2
         draw.text((center_x, args.gap + header_height // 2), label,
                   font=font, fill="black", anchor="mm")
     for block_index, block in enumerate(blocks):
         block_y = args.gap + header_height + block_index * (block_height + args.block_space)
+        if block_index < len(BLOCK_LABELS):
+            draw.text((args.gap + label_width // 2, block_y + block_height // 2),
+                      BLOCK_LABELS[block_index], font=block_font, fill="black", anchor="mm")
         for row_index, row in enumerate(block):
             y = block_y + row_index * (tile_height + args.line_space)
             for column, image in enumerate(row):
-                x = args.gap + column * (tile_width + args.gap)
+                x = left_width + args.gap + column * (tile_width + args.gap)
                 tile = ImageOps.contain(image, (tile_width, tile_height))
                 canvas.paste(tile, (x + (tile_width - tile.width) // 2,
                                     y + (tile_height - tile.height) // 2))

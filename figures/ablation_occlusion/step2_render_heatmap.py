@@ -12,16 +12,20 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("folder", type=Path)
     parser.add_argument("--clim", type=float, default=0.2)
+    # 删除多少三角面片，值越大删除越多
+    parser.add_argument("--jaw-reduction", type=float, default=0.9,
+                        help="∂ 0 keeps all (default: 0.9)")
     parser.add_argument("-o", "--output", type=Path, default=None)
     args = parser.parse_args()
+    if not np.isfinite(args.jaw_reduction) or not 0 <= args.jaw_reduction < 1:
+        parser.error('--jaw-reduction must be finite and in [0, 1)')
     folder = args.folder.resolve()
     view = json.loads((folder / "occlusion_view.json").read_text()).get("camera")
-    jaw = pv.read(folder / "upperjaw.ply")
-    # Reduce wireframe density for the sparse opposing-jaw appearance used in
-    # the reference figure while preserving the overall jaw silhouette.
-    jaw = jaw.decimate(0.98, inplace=False)
+    jaw = pv.read(folder / "upperjaw.ply").triangulate()
     translation = view.get("translation", [0.0, 0.0, 0.0]) if view else [0.0, 0.0, 0.0]
     jaw.points = np.asarray(jaw.points) + np.asarray(translation)
+    # Only simplify the displayed wireframe; distances use the full surface.
+    wire_jaw = jaw.decimate(args.jaw_reduction, inplace=False) if args.jaw_reduction else jaw
     for stem in ("gt", "our", "ablation"):
         crown = pv.read(folder / f"{stem}.stl")
         crown.points = np.asarray(crown.points) + np.asarray(translation)
@@ -36,7 +40,7 @@ def main() -> None:
         crown["implicit_distance"] = contact_values
         plotter = pv.Plotter(off_screen=True, window_size=(900, 700))
         plotter.set_background("white")
-        plotter.add_mesh(jaw, color="#a8aaa5", style="wireframe", line_width=2.0,
+        plotter.add_mesh(wire_jaw, color="#a8aaa5", style="wireframe", line_width=2.0,
                          opacity=0.32, show_edges=True)
         plotter.add_mesh(crown, scalars="implicit_distance", cmap="jet",
                          clim=(-abs(args.clim), abs(args.clim)), smooth_shading=True,

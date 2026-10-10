@@ -15,7 +15,7 @@ import numpy as np
 from matplotlib import colormaps
 
 
-ROW_FILES = (("ablation_heatmap.png", "our_heatmap.png", "gt_heatmap.png"),)
+ROW_FILES = (("gt_heatmap.png", "ablation_heatmap.png", "our_heatmap.png"),)
 
 
 def main() -> None:

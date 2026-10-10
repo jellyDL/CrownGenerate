@@ -538,7 +538,7 @@ w_j(y) = \exp\!\left(-\frac{\|y-\xi_j\|_2^2}{2\beta^2}\right),\\
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.7\linewidth]{./figures/figure5_technician_score_distribution_template.png}
-    \caption{\textbf{Blinded technician assessment of modification requirements.} Donut charts compare the case-level modification requirement distributions between the manual workflow (left) and our proposed CAD draft (right). Color segments represent proportions across four modification tiers (no, minor, moderate, and major modifications), illustrating clinical acceptability and workflow efficiency in real-world restorative practice.}
+    \caption{\textbf{Blinded technician assessment of modification requirements.} Paired bars compare the manuscript-reported case-level percentages for manual designs and proposed CAD drafts across four modification tiers (no, minor, moderate, and major modifications). Labels give the percentage in each tier. These aggregate values remain to be verified against raw rating records; individual technician scores and the fifth rubric level (unusable) are not reported.}
     \label{fig:technician_evaluation}
 \end{figure}
 
@@ -645,7 +645,14 @@ w_j(y) = \exp\!\left(-\frac{\|y-\xi_j\|_2^2}{2\beta^2}\right),\\
 The performance of the full model should be interpreted jointly using the primary geometric endpoint, run completeness, and static virtual-occlusion and topological measures in the common endpoint-evaluable cases (Tables~6--8); an overall conclusion should not be replaced by a single case or a method-specific subset that passed its quality gate. Oriented signed-FDG, hierarchical Structure/Feature generation, and multiscale dental conditioning target local geometric encoding, global support prediction, and margin and antagonist constraints, respectively. The ablations in Tables~11--13 assess only the association between these design choices and the observed results; causal attribution and claims of superiority are deferred until independently retrained ablations and multi-seed results have been finalized.
 
 \noindent\textbf{Limitations and Scope of Application.}
-Inadequate tooth preparation, incomplete adjacent- or antagonist-tooth scans, and atypical tooth morphology are risk scenarios that should be reported in the case flow. The system is intended as a CAD draft for the external morphology of tooth-supported posterior single crowns and is not a substitute for automated repair of deficient scans or clinical decision-making. Ethics and data-use authorization, locking of computational artifacts, and auditing of patient-level data splits remain outstanding, and generalizability should be examined in external or temporal cohorts. Reference CAD represents a historical design instance rather than a unique ground truth. Exterior-surface and static virtual-occlusion assessments cannot establish intaglio or marginal fit, dynamic occlusion, safety, or long-term clinical outcomes; likewise, engineering quality gates do not replace clinical safety validation. Future work should include independent multicenter validation, post-manufacturing \textit{in vitro} measurements, and prospective workflow studies.
+Inadequate tooth preparation, incomplete adjacent- or antagonist-tooth scans, and atypical tooth morphology are risk scenarios that should be reported in the case flow. As Show in Figure~\ref{fig:false_cases}, the system is intended as a CAD draft for the external morphology of tooth-supported posterior single crowns and is not a substitute for automated repair of deficient scans or clinical decision-making. Ethics and data-use authorization, locking of computational artifacts, and auditing of patient-level data splits remain outstanding, and generalizability should be examined in external or temporal cohorts. Reference CAD represents a historical design instance rather than a unique ground truth. Exterior-surface and static virtual-occlusion assessments cannot establish intaglio or marginal fit, dynamic occlusion, safety, or long-term clinical outcomes; likewise, engineering quality gates do not replace clinical safety validation. Future work should include independent multicenter validation, post-manufacturing \textit{in vitro} measurements, and prospective workflow studies.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\linewidth]{./figures/false_cases.png}
+    \caption{\textbf{False Cases.} False Cases.}
+    \label{fig:false_cases}
+\end{figure}
 
 %% 5
 \section{Conclusion}\label{sec5}

@@ -18,7 +18,7 @@ ROW_FILES = (
     ("gt_heatmap.png", "ablation_match_heatmap.png", "our_heatmap.png"),
     ("gt_heatmap2.png", "ablation_match_heatmap2.png", "our_heatmap2.png"),
 )
-COLUMN_LABELS = ("GT", "With out Intersection", "With Intersection")
+COLUMN_LABELS = ("GT", "Without Intersection", "With Intersection")
 BLOCK_LABELS = ("premolar", "molar")
 
 

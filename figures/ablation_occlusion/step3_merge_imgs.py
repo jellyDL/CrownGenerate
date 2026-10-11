@@ -21,12 +21,14 @@ def main() -> None:
     parser.add_argument("folder", nargs="?", type=Path, default=SCRIPT_DIR)
     parser.add_argument("-o", "--output", type=Path, default=Path("merged_heatmaps.png"))
     parser.add_argument("--gap", type=int, default=60, help="tile gap and outer margin (pixels)")
-    parser.add_argument("--header-gap", type=int, default=25, help="gap below column labels (pixels)")
+    # 上方文字和图片的距离
+    parser.add_argument("--header-gap", type=int, default=80, help="distance from the bottom of column label text to images (pixels)")
     parser.add_argument("--font-size", type=int, default=80, help="column label font size")
     parser.add_argument("--labels", nargs=3, default=("GT", "Without Intersection", "With Intersection"), metavar=("GT", "WITHOUT", "WITH"))
     parser.add_argument("--background", default="white")
     parser.add_argument("--clim", nargs="+", type=float, default=[0.0, 0.2], help="colorbar limits: MAX or MIN MAX")
-    parser.add_argument("--colorbar-font-size", type=int, default=50)
+    parser.add_argument("--colorbar-font-size", type=int, default=60)
+    parser.add_argument("--colorbar-unit-gap", type=int, default=40, help="vertical distance between (mm) and the top tick label (pixels)")
     parser.add_argument("--colorbar-length", type=int, default=1000, help="vertical colorbar length; default is 70%% of image height")
     parser.add_argument("--colorbar-thickness", type=int, default=40)
     parser.add_argument("--colorbar-gap", type=int, default=100)
@@ -35,7 +37,7 @@ def main() -> None:
     if len(args.clim) not in (1, 2): parser.error("--clim expects MAX or MIN MAX")
     vmin, vmax = (0.0, args.clim[0]) if len(args.clim) == 1 else args.clim
     if not all(math.isfinite(v) for v in (vmin, vmax)) or vmin >= vmax: parser.error("--clim must contain finite limits with MIN < MAX")
-    if min(args.gap, args.header_gap, args.colorbar_gap) < 0 or args.font_size <= 0: parser.error("gaps must be nonnegative and font-size must be positive")
+    if min(args.gap, args.header_gap, args.colorbar_gap, args.colorbar_unit_gap) < 0 or args.font_size <= 0: parser.error("gaps must be nonnegative and font-size must be positive")
     if args.colorbar_thickness <= 0 or args.colorbar_font_size <= 0: parser.error("colorbar dimensions and font size must be positive")
     root = args.folder.expanduser().resolve()
     if not root.is_dir(): parser.error(f"folder does not exist: {root}")
@@ -54,7 +56,9 @@ def main() -> None:
     tile_width = max(image.width for row in rows for image in row)
     tile_height = max(image.height for row in rows for image in row)
     font = load_font(args.font_size)
-    header_height = args.font_size + args.header_gap
+    header_boxes = [font.getbbox(label, anchor="lt") for label in args.labels]
+    header_text_height = max(box[3] for box in header_boxes)
+    header_height = header_text_height + args.header_gap
     image_height = len(rows) * tile_height + (len(rows) - 1) * args.gap
     image_left = args.gap; image_right = image_left + 3 * tile_width + 2 * args.gap
     bar_length = args.colorbar_length or max(2, round(image_height * 0.7))
@@ -64,18 +68,23 @@ def main() -> None:
     colorbar_font = load_font(args.colorbar_font_size)
     tick_labels = [f"{vmin + (vmax - vmin) * i / 4:.4g}" for i in range(5)]
     tick_width = max(colorbar_font.getlength(x) for x in tick_labels)
-    canvas_width = max(image_right + args.gap, bar_x + args.colorbar_thickness + 20 + int(tick_width) + args.gap)
+    top_tick_box = colorbar_font.getbbox(tick_labels[-1], anchor="lm")
+    unit_bottom = bar_y + top_tick_box[1] - args.colorbar_unit_gap
+    unit_box = colorbar_font.getbbox("(mm)", anchor="lb")
+    if unit_bottom + unit_box[1] < 0: parser.error("colorbar unit would extend above canvas; increase colorbar-position Y or reduce colorbar-unit-gap")
+    canvas_width = max(image_right + args.gap, bar_x + args.colorbar_thickness + 20 + math.ceil(tick_width) + args.gap, bar_x + unit_box[2] + args.gap)
     canvas_height = max(args.gap + header_height + image_height + args.gap, bar_y + bar_length + args.colorbar_font_size + args.gap)
     canvas = Image.new("RGB", (canvas_width, canvas_height), args.background); draw = ImageDraw.Draw(canvas)
     for column, label in enumerate(args.labels):
         x = image_left + column * (tile_width + args.gap) + tile_width // 2
-        draw.text((x, args.gap + args.font_size // 2), label, font=font, fill="black", anchor="mm")
+        label_height = header_boxes[column][3]
+        draw.text((x, args.gap + header_text_height - label_height), label, font=font, fill="black", anchor="mt")
     for row_index, row in enumerate(rows):
         y = args.gap + header_height + row_index * (tile_height + args.gap)
         for column, image in enumerate(row):
             x = image_left + column * (tile_width + args.gap); tile = ImageOps.contain(image, (tile_width, tile_height))
             canvas.paste(tile, (x + (tile_width - tile.width) // 2, y + (tile_height - tile.height) // 2))
-    draw.text((bar_x, bar_y - 12), "(mm)", font=colorbar_font, fill="black", anchor="lb")
+    draw.text((bar_x, unit_bottom), "(mm)", font=colorbar_font, fill="black", anchor="lb")
     cmap = colormaps["jet_r"]
     for index in range(bar_length):
         color = tuple(round(c * 255) for c in cmap(1 - index / (bar_length - 1))[:3])

@@ -83,13 +83,13 @@ def main() -> None:
     # 上方文字和图片的距离
     parser.add_argument("--header-gap", type=int, default=60,
                         help="distance from heading text to images in pixels")
-    parser.add_argument("--colorbar-x", type=int, default=4500,
+    parser.add_argument("--colorbar-x", type=int, default=4400,
                         help="colorbar left position in pixels (default: right of images)")
-    parser.add_argument("--colorbar-y", type=int, default=1800,
+    parser.add_argument("--colorbar-y", type=int, default=2300,
                         help="colorbar top position in pixels (default: bottom aligned)")
-    parser.add_argument("--colorbar-length", type=int, default=2000,
+    parser.add_argument("--colorbar-length", type=int, default=1500,
                         help="colorbar length in pixels (default: 70%% of image height)")
-    parser.add_argument("--colorbar-thickness", type=int, default=70,
+    parser.add_argument("--colorbar-thickness", type=int, default=60,
                         help="colorbar strip thickness in pixels")
     parser.add_argument("--colorbar-font-size", type=int, default=90,
                         help="colorbar tick and unit font size in pixels")

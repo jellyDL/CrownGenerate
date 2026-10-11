@@ -465,14 +465,6 @@ w_j(y) = \exp\!\left(-\frac{\|y-\xi_j\|_2^2}{2\beta^2}\right),\\
 
 \hspace{2em}To assess the geometric consistency between the predicted crowns and the reference CAD models, the two surfaces were compared using identical outer-surface segmentation, area-weighted sampling, and post-processing procedures.The generated point clouds and final meshes were evaluated separately; Each mesh was sampled at 50{,}000 outer-surface points in physical coordinates. Surface geometric errors were quantified using the $L_2$-normed Chamfer distance (CD-L2), surface distance error (SDE), and Hausdorff distance (HD). CD-L2 was the mean squared bidirectional nearest-neighbor distance ($\mathrm{mm}^2$)~\cite{Hosseinimanesh2025PointToMesh,Wei2026MADCrowner}; SDE was the sum of the two mean unsigned nearest-neighbor distances ($\mathrm{mm}$)~\cite{Yang2025DCrownFormerPlus}; and HD was the maximum bidirectional surface distance ($\mathrm{mm}$), indicating the worst local deviation~\cite{Wei2026MADCrowner,Yang2025DCrownFormerPlus}. Mean absolute error (MAE) and coefficient of determination ($R^2$) were computed on a unified DPSR indicator field~\cite{Yang2024DCrownFormer}; both metrics are dimensionless. Fidelity Distance is included only in the reference-format cervical-margin table to match the uploaded paper and is not treated as a primary endpoint of the present study. Lower values indicate better performance for CD-L2, MAE, SDE, and HD, whereas higher $R^2$ indicate better performance. All results were summarized per case as mean~$\pm$~standard deviation or median [interquartile range (IQR)] with 95\% confidence intervals.
 
-
-\begin{figure*}[t]
-    \centering
-    \includegraphics[width=1.0\textwidth]{./figures/method_comparison_preview1.png}
-    \caption{\textbf{Qualitative Evaluation of Single-Crown Morphology and Details.} evaluates the intrinsic quality of single-crown generation, focusing on global morphology and local anatomical details, including cusps, grooves, marginal ridges, and the cervical margin. The error maps further show the geometric deviation of each generated crown from the reference CAD design..}
-    \label{fig:qualitative_comparison}
-\end{figure*}
-
 \begin{figure*}[t]
     \centering
     \includegraphics[width=1.0\textwidth]{./figures//method_comparison_preview_1/method_comparison_preview.png}
@@ -537,7 +529,7 @@ w_j(y) = \exp\!\left(-\frac{\|y-\xi_j\|_2^2}{2\beta^2}\right),\\
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.7\linewidth]{./figures/figure5_technician_score_distribution_template.png}
+    \includegraphics[width=0.7\linewidth]{./figures/figure5_technician_score_distribution_template.pdf}
     \caption{\textbf{Blinded technician assessment of modification requirements.} Paired bars compare the manuscript-reported case-level percentages for manual designs and proposed CAD drafts across four modification tiers (no, minor, moderate, and major modifications). Labels give the percentage in each tier. These aggregate values remain to be verified against raw rating records; individual technician scores and the fifth rubric level (unusable) are not reported.}
     \label{fig:technician_evaluation}
 \end{figure}
@@ -552,7 +544,7 @@ w_j(y) = \exp\!\left(-\frac{\|y-\xi_j\|_2^2}{2\beta^2}\right),\\
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.6\linewidth]{figures/ablation_occlusion.png}
+  \includegraphics[width=0.6\linewidth]{figures/ablation_occlusion/merged_heatmaps.png}
   \caption{Representative visualization of the antagonist-conditioning ablation. Ground Truth denotes the reference crown, Without Interaction denotes the model without antagonist-dentition conditioning, and With Interaction denotes the complete model with antagonist conditioning. The color map represents the implicit signed distance between the crown and antagonist surfaces. Removing the antagonist condition results in incomplete occlusal contact regions and localized premature contacts.}
   \label{fig:ablation_occlusion}
 \end{figure}
@@ -632,7 +624,7 @@ w_j(y) = \exp\!\left(-\frac{\|y-\xi_j\|_2^2}{2\beta^2}\right),\\
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.48\linewidth]{figures/ablation_adjacent.png}
+  \includegraphics[width=0.48\linewidth]{figures/ablation_adjacent/merged_heatmaps.png}
   \caption{\textbf{Qualitative reference visualization for adjacency relationships in the two-stage training ablation.} Rows are arranged as Ground Truth, Without Intersection, and With Intersection. Colors indicate the implicit distance between the crown and adjacent or opposing surfaces. The figure is used solely as a reference for the qualitative visualization layout.}
   \label{fig:ablation_adjacent}
 \end{figure}

@@ -130,10 +130,10 @@ def main() -> None:
                 saved_scale = float(plotter.camera.parallel_scale)
             else:
                 # Convert the current perspective framing to an equivalent
-                # orthographic height for the square 900x900 viewport.
+                # orthographic half-height for the square 900x900 viewport.
                 distance = float(np.linalg.norm(np.asarray(saved_position) - np.asarray(saved_focal)))
                 view_angle = np.deg2rad(float(plotter.camera.view_angle))
-                saved_scale = 2.0 * distance * np.tan(view_angle / 2.0)
+                saved_scale = distance * np.tan(view_angle / 2.0)
             plotter.camera.parallel_projection = True
             # VTK may reset the camera while changing projection type.
             plotter.camera_position = (saved_position, saved_focal, saved_up)

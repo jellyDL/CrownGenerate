@@ -40,7 +40,6 @@ def _render_meshes(paths: list[Path], T: np.ndarray, output: Path,
         mesh = _apply_transform(pv.read(path), T)
         pl.add_mesh(mesh, color=color, smooth_shading=True, ambient=0.25,
                     diffuse=0.72, specular=0.58, specular_power=40)
-    pl.add_axes()
     pl.camera_position = 'iso'
     if camera is not None and all(key in camera for key in ('position', 'focal_point', 'view_up')):
         pl.camera_position = (tuple(camera['position']),

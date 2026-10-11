@@ -7,6 +7,8 @@
 *.spl
 *.pyc
 main.pdf
+main.out
+main.blg
 .DS_Store
 *.png
 *.json

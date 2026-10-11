@@ -57,7 +57,8 @@ def main() -> None:
     print(f"FDI {fdi}: displaying {jaw_path.name} with {args.stl.name}")
     original = np.asarray(mesh.points).copy()
     pose = np.eye(4)
-    plotter = pv.Plotter(window_size=(1100, 800))
+    # Match step2_render_stl_rt.py so a saved camera produces the same frame.
+    plotter = pv.Plotter(window_size=(900, 900))
     actor = plotter.add_mesh(mesh, color="#c79258", smooth_shading=True, show_edges=False)
     # VTK's trackball-actor style lets the user select the mesh and drag/rotate it.
     plotter.enable_trackball_actor_style()
@@ -109,16 +110,54 @@ def main() -> None:
         matrix = actor.GetUserMatrix()
         if matrix is None:
             return pose.copy()
-        return np.array([[matrix.GetElement(i, j) for j in range(4)] for i in range(4)], dtype=float)
+        actor_matrix = np.array(
+            [[matrix.GetElement(i, j) for j in range(4)] for i in range(4)],
+            dtype=float,
+        )
+        # Keyboard edits are applied to mesh.points, while trackball edits
+        # are stored on the actor.  The saved transform must include both.
+        return actor_matrix @ pose
 
-    def save() -> None:
+    def save_rt(filename: str, scope: str) -> None:
+        if scope == "all":
+            # The all-mesh view is saved as an orthographic projection so the
+            # jaw and crown can be compared without perspective distortion.
+            saved_position = tuple(plotter.camera.position)
+            saved_focal = tuple(plotter.camera.focal_point)
+            saved_up = tuple(plotter.camera.up)
+            was_parallel = bool(plotter.camera.parallel_projection)
+            if was_parallel:
+                saved_scale = float(plotter.camera.parallel_scale)
+            else:
+                # Convert the current perspective framing to an equivalent
+                # orthographic height for the square 900x900 viewport.
+                distance = float(np.linalg.norm(np.asarray(saved_position) - np.asarray(saved_focal)))
+                view_angle = np.deg2rad(float(plotter.camera.view_angle))
+                saved_scale = 2.0 * distance * np.tan(view_angle / 2.0)
+            plotter.camera.parallel_projection = True
+            # VTK may reset the camera while changing projection type.
+            plotter.camera_position = (saved_position, saved_focal, saved_up)
+            plotter.camera.parallel_scale = saved_scale
+            plotter.render()
         matrix = current_pose()
-        payload = {"source": str(args.stl.resolve()), "jaw_source": str(jaw_path.resolve()), "fdi": fdi, "transform": matrix.tolist(), "convention": "p' = R p + t"}
-        stem.parent.mkdir(parents=True, exist_ok=True)
-        stem.with_suffix(".json").write_text(json.dumps(payload, indent=2) + "\n")
-        # np.savetxt(stem.with_suffix(".txt"), matrix, fmt="%.9f")
-        # np.savetxt(stem.with_suffix(".rt"), matrix, fmt="%.9f")
-        print(f"saved {stem.with_suffix('.json')}, {stem.with_suffix('.txt')} and {stem.with_suffix('.rt')}")
+        payload = {
+            "source": str(args.stl.resolve()),
+            "jaw_source": str(jaw_path.resolve()),
+            "fdi": fdi,
+            "scope": scope,
+            "transform": matrix.tolist(),
+            "camera": {
+                "position": list(plotter.camera.position),
+                "focal_point": list(plotter.camera.focal_point),
+                "view_up": list(plotter.camera.up),
+                "parallel_scale": float(plotter.camera.parallel_scale),
+                "parallel_projection": bool(plotter.camera.parallel_projection),
+            },
+            "convention": "p' = R p + t",
+        }
+        output = args.stl.parent / filename
+        output.write_text(json.dumps(payload, indent=2) + "\n")
+        print(f"saved {output}")
 
     plotter.add_key_event("Left", lambda: move(dx=-args.step)); plotter.add_key_event("Right", lambda: move(dx=args.step))
     plotter.add_key_event("Up", lambda: move(dy=args.step)); plotter.add_key_event("Down", lambda: move(dy=-args.step))
@@ -128,7 +167,8 @@ def main() -> None:
     for key, axis, sign in (("i", "x", 1), ("k", "x", -1), ("j", "y", 1), ("l", "y", -1), ("u", "z", 1), ("o", "z", -1)):
         plotter.add_key_event(key, lambda axis=axis, sign=sign: rotate(axis, sign * args.angle))
     plotter.add_key_event("r", lambda: (pose.__setitem__((slice(None), slice(None)), np.eye(4)), redraw()))
-    plotter.add_key_event("p", save)
+    plotter.add_key_event("P", lambda: save_rt("single_rt.json", "single"))
+    plotter.add_key_event("O", lambda: save_rt("all_rt.json", "all"))
     plotter.show()
 
 

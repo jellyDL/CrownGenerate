@@ -388,48 +388,48 @@ Specifically, the active coordinates of the VAE latent representation are first 
 \hspace{2em}The sparse geometry VAE, Structure Flow, and Feature Flow are optimized sequentially. Their respective objectives comprise VAE reconstruction and geometric-consistency losses, flow matching for Structure Flow, and latent-space, decoded-surface, and short-trajectory endpoint supervision for Feature Flow.
 
 %% 3.6.1
-\subsubsection{VAE Reconstruction and Geometric Consistency Objective}\label{subsec3_6_1}
+\subsubsection{VAE Reconstruction and Geometric Consistency Objective}\label{subsubsec3_6_1}
 
-\hspace{2em}The geometry VAE jointly reconstructs vertex offsets, axis-aligned intersection indicators, multi-level subdivision masks, quadrilateral split locations, signed distances, and oriented normals, while the Kullback--Leibler (KL) divergence regularizes the latent space. To preserve local continuity and high-frequency detail, we additionally constrain the first-order differences and discrete Laplacians of the vertex, distance, and normal fields over the six-neighborhood, together with signed-distance--normal line-integral consistency and high-frequency detail supervision. The overall objective is
+\hspace{2em}The signed-surface VAE reconstructs the Flexible Dual Grid attributes and their local geometric structure. To keep the objective consistent with the implementation, we group the active loss terms into five composite terms:
+\begin{enumerate}
+    \item \textbf{Attribute reconstruction} ($\mathcal L_{\mathrm{attr}}$) combines Smooth-L1 or binary-cross-entropy losses for vertex offsets, axis-intersection indicators, subdivision masks, and quadrilateral split parameters.
+    \item \textbf{Latent regularization} ($\mathcal L_{\mathrm{KL}}$) applies the Kullback--Leibler divergence to the sparse VAE posterior.
+    \item \textbf{Signed-surface supervision} ($\mathcal L_{\mathrm{surf}}$) combines truncated signed-distance regression with cosine-based oriented-normal supervision.
+    \item \textbf{Neighborhood smoothness} ($\mathcal L_{\mathrm{smooth}}$) matches first-order differences and discrete Laplacians of the vertex, signed-distance, and normal fields on sampled axial neighborhoods.
+    \item \textbf{Local consistency and detail} ($\mathcal L_{\mathrm{cons}}$) combines signed-distance--normal consistency along neighboring edges with detail-weighted supervision that emphasizes regions with high normal variation.
+\end{enumerate}
+The VAE objective is therefore written as
 \[
 \mathcal L_{\mathrm{VAE}}=
-\mathcal L_{\mathrm{rec}}+
+\mathcal L_{\mathrm{attr}}+
 \lambda_{\mathrm{KL}}\mathcal L_{\mathrm{KL}}+
-\mathcal L_{\mathrm{grad}}+
-\mathcal L_{\mathrm{lap}}+
-\lambda_{\mathrm{int}}\mathcal L_{\mathrm{int}}+
-\mathcal L_{\mathrm{detail}}.
+\lambda_{\mathrm{surf}}\mathcal L_{\mathrm{surf}}+
+\lambda_{\mathrm{smooth}}\mathcal L_{\mathrm{smooth}}+
+\lambda_{\mathrm{cons}}\mathcal L_{\mathrm{cons}}.
 \]
-
-Here, \(\mathcal L_{\mathrm{rec}}\), \(\mathcal L_{\mathrm{grad}}\), and \(\mathcal L_{\mathrm{lap}}\) are weighted combinations of the corresponding geometric attributes. High-frequency weights are computed from the mean cosine discrepancy of reference normals over valid six-neighborhoods, assigning greater supervision weights to high-variation regions such as cusps, ridges, grooves, and fossae.
-
-\hspace{2em}Rather than imposing the standard Eikonal constraint of unit gradient norm, we characterize local distance variation through signed-distance--normal line-integral consistency. For adjacent active cells \((j,k)\), we define
-\[
-r_{jk}(d,n)=(d_j-d_k)-\frac{1}{2}(n_j+n_k)^\top(\xi_j-\xi_k).
-\]
-
-Here, \((\hat d,\hat n)\) and \((d,n)\) denote the VAE-decoded predictions and reference targets, respectively. \(\mathcal L_{\mathrm{int}}\) is the Smooth-L1 loss between their corresponding line-integral residuals. This term aligns finite differences of the discrete distance field with normal line integrals along adjacent edges while allowing normal variations induced by local curvature.
+Here, each composite term contains the implementation-level components described above and is averaged across cases with equal case weights. The detail weights are derived from local normal variation, increasing supervision around cusps, ridges, grooves, and fossae. The signed-distance--normal component compares the predicted and target finite-difference residuals along neighboring active cells; it is used as a local oriented-field consistency constraint rather than as a claim that every input mesh is globally watertight.
 
 %% 3.6.2
 \subsubsection{Structure and Feature Generation Objectives}\label{subsec3_6_2}
 
-\hspace{2em}Structure Flow is optimized solely using the flow-matching loss,
+\hspace{2em}The two flow stages are trained sequentially. Structure Flow uses the flow-matching velocity objective only:
 \[
-\mathcal L_{\mathrm{Structure}}=\mathcal L_{\mathrm{FM}}^S.
+\mathcal L_{\mathrm{Structure}}=\mathcal L_{\mathrm{FM}}^{S}.
 \]
-The time variable \(t\) is sampled from a logit-normal distribution. Structure latent reconstruction error, occupancy Dice, and IoU are used only for diagnostic and validation purposes. Feature Flow employs randomly shifted stratified uniform time sampling and is optimized as
+The decoded occupancy Dice and IoU values are used for validation and diagnostics, rather than added to the Structure Flow training loss.
+
+\hspace{2em}Feature Flow uses five terms that correspond to the implemented training path:
 \[
 \mathcal L_{\mathrm{Feature}}=
-\mathcal L_{\mathrm{FM}}^{w}+
-\lambda_0\mathcal L_{x_0}+
-\lambda_{\Delta}\mathcal L_{\Delta}+
+\mathcal L_{\mathrm{FM}}^{F}+
+\lambda_{x_0}\mathcal L_{x_0}+
+\lambda_{\nabla}\mathcal L_{\nabla}+
 \lambda_{\mathrm{surf}}\mathcal L_{\mathrm{surf}}+
 \lambda_{\mathrm{end}}\mathcal L_{\mathrm{end}}.
 \]
+Here, \(\mathcal L_{\mathrm{FM}}^{F}\) is the sparse latent velocity-matching loss. \(\mathcal L_{x_0}\) supervises the data-end estimate reconstructed from the predicted velocity, and \(\mathcal L_{\nabla}\) matches local latent differences over the sparse neighborhood graph. \(\mathcal L_{\mathrm{surf}}\) decodes the estimated feature latent with the frozen VAE and applies the composite signed-FDG surface objective described in Sec.~\ref{subsubsec3_6_1}; it is evaluated for near-endpoint time samples. \(\mathcal L_{\mathrm{end}}\) is the short Euler-rollout endpoint-consistency loss. In the current configuration, endpoint supervision uses latent endpoint error, while the optional decoded endpoint-surface term is disabled.
 
-Here, \(\mathcal L_{\mathrm{FM}}^{w}\) uses normalized temporal weighting, whereas \(\mathcal L_{x_0}\) and \(\mathcal L_{\Delta}\) supervise the data-end estimate and local latent differences, respectively, with time-dependent attenuation. Sparse losses are aggregated within each case and then averaged across cases with equal weights; regions with higher local gradient energy in the reference latent variables receive greater weights.
-
-\hspace{2em}Near the data endpoint, a frozen VAE computes \(\mathcal L_{\mathrm{surf}}\) without subdivision teacher forcing to enforce geometric, sign, orientation, and neighborhood consistency over overlapping FDG supports. \(\mathcal L_{\mathrm{end}}\) constrains the endpoint latent error along a short conditional Euler trajectory.
+\hspace{2em}The flow-matching time samples and auxiliary losses are weighted by time-dependent factors, and all sparse terms are aggregated within each case before averaging across cases. The Structure and Feature stages use independent velocity networks and condition encoders; no additional Dice, IoU, or occupancy loss is included in the Structure Flow objective.
 
 %% 3.7 
 \subsection{Continuous Oriented Field Reconstruction and Mesh Extraction} \label{subsec3_7}

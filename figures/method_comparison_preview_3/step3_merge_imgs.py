@@ -24,6 +24,7 @@ ROW_FILES = ((
     "our_singlejaw.png",
     "gt_singlejaw.png",
 ),)
+COLUMN_LABELS = ("Prep Tooth", "CrownFormer", "VBCD", "MADCrowner", "Ours", "Ground Truth")
 COLORBAR_WIDTH = 260
 COLORBAR_GAP = 60 #色带与最后一张图片之间间距
 
@@ -77,9 +78,14 @@ def main() -> None:
                         help="gap between tiles and rows in pixels (default: 24)")
     parser.add_argument("--background", default="white",
                         help="background colour (default: white)")
+    parser.add_argument("--font-size", type=int, default=80,
+                        help="column heading font size")
+    # 上方文字和图片的距离
+    parser.add_argument("--header-gap", type=int, default=60,
+                        help="distance from heading text to images in pixels")
     parser.add_argument("--colorbar-x", type=int, default=4500,
                         help="colorbar left position in pixels (default: right of images)")
-    parser.add_argument("--colorbar-y", type=int, default=1620,
+    parser.add_argument("--colorbar-y", type=int, default=1800,
                         help="colorbar top position in pixels (default: bottom aligned)")
     parser.add_argument("--colorbar-length", type=int, default=2000,
                         help="colorbar length in pixels (default: 70%% of image height)")
@@ -94,6 +100,8 @@ def main() -> None:
         parser.error("colorbar-thickness must be positive")
     if args.colorbar_font_size <= 0:
         parser.error("colorbar-font-size must be positive")
+    if args.font_size <= 0 or args.header_gap < 0:
+        parser.error("font-size must be positive and header-gap nonnegative")
 
     root = args.folder.resolve()
     output = (args.output or root / "method_comparison_preview.png").resolve()
@@ -121,11 +129,13 @@ def main() -> None:
     tile_width = max(image.width for row in images for image in row)
     tile_height = max(image.height for row in images for image in row)
     columns = max(len(row) for row in images)
+    header_height = args.font_size + args.header_gap
     bar_length = args.colorbar_length or max(2, round(tile_height * 0.7))
     default_x = (args.gap + columns * tile_width + (columns - 1) * args.gap
                  + COLORBAR_GAP)
     colorbar_x = default_x if args.colorbar_x is None else args.colorbar_x
-    canvas_height = args.gap + len(images) * tile_height + (len(images) - 1) * args.gap + args.gap
+    canvas_height = (args.gap + header_height + len(images) * tile_height
+                     + (len(images) - 1) * args.gap + args.gap)
     colorbar_y = (canvas_height - args.gap - (bar_length + 50)
                   if args.colorbar_y is None else args.colorbar_y)
     if min(colorbar_x, colorbar_y) < 0:
@@ -134,9 +144,18 @@ def main() -> None:
                        + args.gap, colorbar_x + COLORBAR_WIDTH + args.gap)
     canvas_height = max(canvas_height, colorbar_y + bar_length + 50 + args.gap)
     canvas = Image.new("RGB", (canvas_width, canvas_height), args.background)
+    draw = ImageDraw.Draw(canvas)
+    try:
+        heading_font = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial.ttf", args.font_size)
+    except OSError:
+        heading_font = ImageFont.load_default(size=args.font_size)
+    for column, label in enumerate(COLUMN_LABELS[:columns]):
+        x = args.gap + column * (tile_width + args.gap) + tile_width // 2
+        draw.text((x, args.gap + args.font_size // 2), label,
+                  font=heading_font, fill="black", anchor="mm")
 
     for row_index, row in enumerate(images):
-        y = args.gap + row_index * (tile_height + args.gap)
+        y = args.gap + header_height + row_index * (tile_height + args.gap)
         for col_index, image in enumerate(row):
             x = args.gap + col_index * (tile_width + args.gap)
             tile = ImageOps.contain(image, (tile_width, tile_height))

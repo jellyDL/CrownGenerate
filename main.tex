@@ -183,8 +183,7 @@ organization={Zhejiang University},
 %% Abstract
 \begin{abstract}
 %% Text of abstract 
-%% Todo：后期需要精简到 250 词内
-Personalized dental crown design is a critical step in digital restorative workflows for structurally compromised teeth, requiring the recovery of detailed anatomy while ensuring compatibility with the preparation margin, adjacent teeth, and opposing dentition. Conventional computer-aided design (CAD) workflows require dental technicians to repeatedly adjust template crowns, making the process time-consuming and highly dependent on operator experience. To address this limitation, we propose a case-conditioned 3D generative method for tooth-supported posterior single crowns. Given full-arch maxillary and mandibular scans, a manually delineated three-dimensional preparation margin, and the FDI tooth number, the method directly generates an editable crown mesh. It employs a Flexible Dual Grid (FDG) representation augmented with oriented signed-distance and normal fields, while a sparse variational autoencoder compresses high-resolution geometry into a compact latent space. Structure and feature flows sequentially generate occupancy and local surface features. Multiscale dental condition injection and surface supervision during decoding preserve anatomical details, marginal continuity, and spatial coordination within the dentition. Experiments on an in-house dataset showed that the proposed method outperformed baseline approaches in both geometric reconstruction and spatial coordination. Blinded assessments by dental technicians further indicated superior crown quality and practical usability. These findings demonstrate the potential of the proposed method to improve design efficiency and generate case-adapted CAD starting designs for posterior single-crown restorations.
+Personalized dental crown design is a critical component of digital restorative workflows for structurally compromised teeth. It requires reconstructing detailed anatomy while maintaining compatibility with the preparation margin, adjacent teeth, and opposing dentition. Conventional computer-aided design (CAD) relies on repeated template adjustment, making the process time-consuming and operator-dependent. To address this limitation, we propose a case-conditioned generative method for tooth-supported posterior single crowns. Given full-arch maxillary and mandibular scans, a three-dimensional preparation margin line, and the FDI tooth designation, the method directly generates an editable crown mesh. It employs a Flexible Dual Grid (FDG) representation with oriented signed-distance and surface-normal fields, while a sparse variational autoencoder compresses high-resolution geometry into a compact latent space. Structure Flow and Feature Flow sequentially generate crown occupancy and local surface features. Multiscale dental conditioning and surface supervision help preserve anatomical details, marginal continuity, and spatial relationships within the dentition. Evaluation on an in-house dataset showed improved geometric reconstruction and spatial compatibility compared with baseline methods. Blinded technician assessments supported the quality and usability of the generated crowns, indicating their potential as case-adapted CAD drafts for posterior single-crown restorations.
 \end{abstract}
 
 %%Graphical abstract
@@ -211,7 +210,7 @@ The method outperforms baselines in geometry and source-blinded technician ratin
 
 %% Keywords
 \begin{keyword}
-Personalized crown design \sep Crown generation\sep Conditional flow matching \sep Flexible dual grids\sep Digital dental restoration
+Personalized crown design \sep Crown generation\sep Conditional flow matching \sep Digital dental restoration
 \end{keyword}
 
 \end{frontmatter}

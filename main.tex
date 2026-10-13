@@ -277,7 +277,7 @@ Personalized crown design \sep Crown generation\sep Conditional flow matching \s
 \begin{figure*}[t]  % [t] 表示尽量放在页面顶部
     \centering % 图片居中
     \includegraphics[width=1.0\textwidth]{./figures/method_framework.pdf}
-    \caption{\textbf{Overall architecture of the case-conditioned dental crown generation framework.} (a) Independent encoders extract multiscale conditions from dental scans, the margin line, and the FDI designation. (b) A sparse VAE encode learns signed-FDG latents from reference CAD models. (c) Structure and Feature Flows sequentially generate active support and local features, followed by frozen VAE decoding, oriented-field reconstruction, and quality assessment. Purple dash-dotted lines indicate conditioning; blue lines indicate generation and support dependencies; solid and dashed orange lines indicate VAE forward computation and training supervision, respectively.}
+    \caption{\textbf{Overall architecture of the dental crown generation framework.} (a) Independent encoders extract multiscale conditions from dental scans, the margin line, and the FDI designation. (b) A sparse VAE encode learns signed-FDG latents from reference CAD models. (c) Structure and Feature Flows sequentially generate active support and local features, followed by frozen VAE decoding, oriented-field reconstruction, and quality assessment. Purple dash-dotted lines indicate conditioning; blue lines indicate generation and support dependencies; solid and dashed orange lines indicate VAE forward computation and training supervision, respectively.}
     \label{fig:figure_overall_architecture} 
 \end{figure*}
 

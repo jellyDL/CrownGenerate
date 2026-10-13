@@ -632,6 +632,8 @@ Inadequate tooth preparation, incomplete adjacent- or antagonist-tooth scans, an
 \hspace{2em}We present a case-conditioned framework for generating the external morphology of tooth-supported posterior single crowns. The signed-FDG representation and a sparse VAE efficiently encode local geometry, signed distance, and oriented normals within the crown surface neighborhood, while two-stage Structure/Feature conditional flow matching separately models global support and local anatomic detail. Global, voxel-aligned, and coordinate-neighborhood conditions further integrate maxillary and mandibular scans, a three-dimensional margin line, and FDI tooth-position information, allowing tooth-type priors, spatial arch relationships, and local boundary constraints to be incorporated during generation. Together with continuous-field reconstruction, mesh cleanup, and engineering quality control, the framework establishes an end-to-end pathway from case inputs to candidate triangular meshes and provides a technical basis for high-resolution, editable, case-adapted crown design. Future work will extend the framework to broader tooth positions, missing-tooth patterns, and restorative settings; enable controllable editing of local crown details; incorporate surface texture information in addition to geometry; incorporate dynamic occlusion, manufacturing constraints, and human-in-the-loop design information; and investigate its use for anterior crowns, implant-supported restorations, and multi-unit prostheses to strengthen integration with digital restorative workflows.
 
 \bibliographystyle{elsarticle-num} 
+\renewcommand{\bibfont}{\footnotesize}
+\setlength{\bibsep}{2pt}
 \bibliography{sn-bibliography}% common bib file
 
 \end{document}

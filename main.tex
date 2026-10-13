@@ -439,18 +439,6 @@ Here, \(\mathcal L_{\mathrm{FM}}^{F}\) is the sparse latent velocity-matching lo
 
 \hspace{2em}Inference generated one candidate per case with a seed derived from 2026 and the case identifier. Structure Flow and Feature Flow used 50-step Heun and Euler solvers, respectively, with guidance scale 3.0; Feature Flow processed up to 32,768 active locations. The frozen VAE decoded latents into FDG geometry, distances, and normals. Cells contributing to the largest raw-mesh component were retained, and cuVS IVF-Flat retrieved neighboring cells. Gaussian-weighted extrapolation of decoded distances and normals reconstructed a continuous oriented field. After filtering and boundary cleanup, Marching Cubes extracted the zero level set~\cite{Lorensen1987MarchingCubes}, followed by largest-component retention and mesh cleaning. Final meshes had to be watertight, consistently oriented, single-component, and genus-0, and meet predefined connectivity and geometric quality criteria.
 
-%% 4.4
-\subsection{Results and Analysis}\label{subsec4}
-
-%% 4.4.1 Experiment Result
-\subsubsection{Experimental Results}\label{subsubsec4_4_1}
-
-\hspace{2em}We systematically evaluated the proposed model against four baselines: the FDI nearest-neighbor, MADCrowner~\cite{Wei2026MADCrowner}, VBCD~\cite{Wei2025VBCD}, and DCrownFormer+~\cite{Yang2025DCrownFormerPlus}. All methods used identical dataset splits ($n_{\text{test}} = 252$) and preprocessing protocols. Paired comparisons were conducted on the common evaluable subset ($n_{\text{common}} = 241$) using two-tailed Wilcoxon signed-rank tests ($\alpha = 0.05$) for continuous metrics and McNemar's tests for dichotomous metrics, with 95\% CIs and $p$-values reported.
-
-\bigskip
-
-\textbf{Geometric and Functional Evaluation.} As shown in Table~\ref{tab:main_comparison}, the proposed model achieved the highest completion rate and geometric fidelity among the evaluated methods, with lower surface and cervical margin errors, a higher F-score, and improved normal accuracy. Compared with DCrownFormer+, Chamfer-\(L_1\) and HD95 decreased by \(0.034\,\mathrm{mm}\) (95\% CI: [0.030, 0.038]) and \(0.097\,\mathrm{mm}\) (95\% CI: [0.088, 0.106]), respectively (both \(p<0.001\)), while the completion rate reached 99.6\%. Virtual occlusion measurements were close to those of reference CAD designs, with severe antagonist penetration reduced from 4.1\% to 1.2\% (\(p<0.001\)). The model also achieved higher rates of watertight, consistently oriented, and single-component genus-0 meshes, with few mesh defects. Figure~\ref{fig:method_comparison_preview} supports these findings across three representative cases, showing more uniform surface errors and fewer artifacts around cusps, central grooves, and cervical margins.
-
 \begin{table*}[htbp]
     \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm}
     \caption{\\ Generation coverage, geometric fidelity, and severe antagonist penetration across evaluated methods}
@@ -476,7 +464,19 @@ Here, \(\mathcal L_{\mathrm{FM}}^{F}\) is the sparse latent velocity-matching lo
     \end{minipage}
 \end{table*}
 
-\begin{figure}[h]
+%% 4.4
+\subsection{Results and Analysis}\label{subsec4}
+
+%% 4.4.1 Experiment Result
+\subsubsection{Experimental Results}\label{subsubsec4_4_1}
+
+\hspace{2em}We systematically evaluated the proposed model against four baselines: the FDI nearest-neighbor, MADCrowner~\cite{Wei2026MADCrowner}, VBCD~\cite{Wei2025VBCD}, and DCrownFormer+~\cite{Yang2025DCrownFormerPlus}. All methods used identical dataset splits ($n_{\text{test}} = 252$) and preprocessing protocols. Paired comparisons were conducted on the common evaluable subset ($n_{\text{common}} = 241$) using two-tailed Wilcoxon signed-rank tests ($\alpha = 0.05$) for continuous metrics and McNemar's tests for dichotomous metrics, with 95\% CIs and $p$-values reported.
+
+\bigskip
+
+\textbf{Geometric and Functional Evaluation.} As shown in Table~\ref{tab:main_comparison}, the proposed model achieved the highest completion rate and geometric fidelity among the evaluated methods, with lower surface and cervical margin errors, a higher F-score, and improved normal accuracy. Compared with DCrownFormer+, Chamfer-\(L_1\) and HD95 decreased by \(0.034\,\mathrm{mm}\) (95\% CI: [0.030, 0.038]) and \(0.097\,\mathrm{mm}\) (95\% CI: [0.088, 0.106]), respectively (both \(p<0.001\)), while the completion rate reached 99.6\%. Virtual occlusion measurements were close to those of reference CAD designs, with severe antagonist penetration reduced from 4.1\% to 1.2\% (\(p<0.001\)). The model also achieved higher rates of watertight, consistently oriented, and single-component genus-0 meshes, with few mesh defects. Figure~\ref{fig:method_comparison_preview} supports these findings across three representative cases, showing more uniform surface errors and fewer artifacts around cusps, central grooves, and cervical margins.
+
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.7\linewidth]{./figures/technician_score_distribution_template.pdf}
     \caption{\textbf{Blinded technician assessment of modification requirements.} Paired bars compare the manuscript-reported case-level percentages for manual designs and proposed CAD drafts across four modification tiers (no, minor, moderate, and major modifications). Labels give the percentage in each tier. These aggregate values remain to be verified against raw rating records; individual technician scores and the fifth rubric level (unusable) are not reported.}
@@ -489,7 +489,6 @@ Here, \(\mathcal L_{\mathrm{FM}}^{F}\) is the sparse latent velocity-matching lo
 \subsubsection{Ablation Study}\label{subsubsec4_4_2}
 
 %%%% Ablation Study 1
-
 \textbf{Ablation Study of Antagonist Conditioning} To evaluate the role of the antagonist dentition as a conditioning input for generating occlusal relationships, we compared the complete model with a variant without antagonist conditioning, denoted as I-Opposing. The complete model receives the prepared tooth, adjacent teeth, and antagonist dentition as inputs, providing information about crown morphology, proximal relationships, and interarch spatial correspondence. In I-Opposing, the antagonist-dentition condition is removed while all other inputs, network components, training epochs, random seeds, and inference settings remain unchanged. With the A2 VAE frozen, the two configurations are trained independently and compared in terms of occlusal contact coverage, penetration area ratio, and maximum penetration depth. This ablation specifically examines whether antagonist conditioning guides the model to learn the spatial relationship between the generated crown and the opposing dentition. Removing the antagonist condition is expected to preserve the overall crown morphology but may result in missing, fragmented, or spatially displaced occlusal contact regions, accompanied by localized premature contacts (Fig.~\ref{fig:ablation_occlusion}). This experiment therefore assesses the contribution of antagonist conditioning to the formation of continuous, stable, and anatomically appropriate occlusal contact patterns.
 
 \begin{figure}[H]
@@ -500,8 +499,6 @@ Here, \(\mathcal L_{\mathrm{FM}}^{F}\) is the sparse latent velocity-matching lo
 \end{figure}
 
 %%%% Ablation Study 2
-\bigskip
-
 \textbf{Ablation Study of Tooth-number Constraint.} This experiment examines the effect of the Tooth Position Prompt (TP Prompt) on crown geometric quality. TP Prompt is encoded from the FDI tooth designation and injected into the global conditioning branch. Except for enabling or disabling TP Prompt, the two configurations use identical data splits, maxillary and mandibular scans, three-dimensional cervical-margin line, network parameters, A2 VAE, training budget, random seeds, and post-processing. After freezing the A2 VAE, Structure Flow and Feature Flow are retrained independently and evaluated on the common evaluable subset using CD-L2, Fidelity Distance, HD, F-score, and cervical-margin P95 error. The analysis focuses on whether TP Prompt produces consistent changes in overall geometric error, worst local deviation, and tooth-position-specific shape fidelity. If only a subset of metrics improves, the differences and confidence intervals should be reported separately rather than summarized as an overall performance gain. Numerical values, effect sizes, and statistical tests are provided in Table~\ref{table_tooth_number_ablation}.
 
 \begin{table*}[htbp]
@@ -525,9 +522,9 @@ Here, \(\mathcal L_{\mathrm{FM}}^{F}\) is the sparse latent velocity-matching lo
   \end{tabular}
 \end{table*}
 
-%%%% Ablation Study 3
 \bigskip
 
+%%%% Ablation Study 3
 \textbf{Ablation Study of Cervical-margin Constraint.} This experiment compares models with and without cervical-margin conditioning to assess its contribution to crown geometric quality. Both configurations retain the maxillary and mandibular scans and the tooth-position prompt, with identical data splits, network architecture, training budget, random seeds, and post-processing. After freezing the same VAE, Structure Flow and Feature Flow are retrained independently. The evaluation focuses on overall surface error and worst local deviation, with results stratified by premolar, molar, and overall cases. The reference results in Table~\ref{table_cervical_margin_ablation} show lower CD-L2, Fidelity Distance, and HD and higher F-score with cervical-margin conditioning. The two tooth groups exhibit the same direction of change, suggesting improved surface geometric consistency and reduced maximum local deviation. Numerical values are presented in the table.
 
 \begin{table*}[htbp]

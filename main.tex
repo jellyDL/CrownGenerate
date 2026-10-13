@@ -277,7 +277,7 @@ Personalized crown design \sep Crown generation\sep Conditional flow matching \s
 \begin{figure*}[t]  % [t] 表示尽量放在页面顶部
     \centering % 图片居中
     \includegraphics[width=1.0\textwidth]{./figures/method_framework.pdf}
-    \caption{\textbf{Overall architecture of the dental crown generation framework.} (a) Independent encoders extract multiscale conditions from dental scans, the margin line, and the FDI designation. (b) A sparse VAE encode learns signed-FDG latents from reference CAD models. (c) Structure and Feature Flows sequentially generate active support and local features, followed by frozen VAE decoding, oriented-field reconstruction, and quality assessment. Purple dash-dotted lines indicate conditioning; blue lines indicate generation and support dependencies; solid and dashed orange lines indicate VAE forward computation and training supervision, respectively.}
+    \caption{\textbf{Overall architecture of the dental crown generation framework.} (a) Independent encoders extract multiscale conditions from dental scans, the margin line, and the FDI designation. (b) A sparse VAE learns signed-FDG latents from reference CAD models. (c) Structure and Feature Flows sequentially generate active support and local features, followed by frozen VAE decoding, oriented-field reconstruction, and quality assessment. Purple dash-dotted lines indicate conditioning; blue lines indicate generation and support dependencies; solid and dashed orange lines indicate VAE forward computation and training supervision, respectively.}
     \label{fig:figure_overall_architecture} 
 \end{figure*}
 
@@ -287,24 +287,15 @@ Personalized crown design \sep Crown generation\sep Conditional flow matching \s
 %% 3.1
 \subsection{Overview}\label{subsec3_1}
 
-\hspace{2em}Figure~\ref{fig:figure_overall_architecture} presents the proposed case-conditioned crown generation framework with five components: input preprocessing and local coordinate construction, signed-FDG representation learning, multiscale dental conditioning, two-stage conditional flow matching, and oriented-field reconstruction with mesh extraction. The framework uses maxillary and mandibular scans, a 3D margin line, and an FDI tooth identifier as inputs, with reference CAD meshes as supervision to generate tooth-supported posterior single-crown meshes. In panel (a), the dental conditioner samples the dental arches and margin line, encodes the FDI identifier, and supplies $G$ and $V$ to both flows and $N(\hat{O})$ to Feature Flow. Panel (b) converts the reference CAD mesh into a signed-FDG representation, which the sparse VAE encodes as $Z=(O,F)$. In panel (c), Structure Flow generates $\hat{O}$, on which Feature Flow predicts $\hat{F}$. The resulting latent $\hat{Z}=(\hat{O},\hat{F})$ is decoded by the frozen VAE into the candidate crown mesh.
+\hspace{2em}The proposed framework generates editable external crown morphology for tooth-supported posterior single crown. It takes registered maxillary and mandibular scans, a three-dimensional preparation-margin line, and the FDI tooth designation as inputs, combining signed-FDG representation learning, multiscale dental conditioning, and two-stage conditional flow matching. Reference CAD meshes provide supervision during training and are not required at inference.
 
-\hspace{2em}The proposed design preserves high-resolution crown geometry and surface orientation through a sparse representation, integrates tooth-position, interarch, and margin constraints via multiscale conditioning, and models global structure and local anatomy through two-stage generation. The following subsections detail each module.
+\hspace{2em}Figure~\ref{fig:figure_overall_architecture} summarizes the framework. Panel (a) extracts dental conditions using independent encoders for the two generation stages. Panel (b) learns a sparse VAE representation comprising active support and local features. In panel (c), Structure Flow predicts the active support, and Feature Flow generates local features at the predicted locations. Frozen VAE decoding produces signed-FDG attributes, followed by oriented-field reconstruction and mesh extraction. The following subsections detail representation learning, dental conditioning, two-stage generation, and training objectives; reconstruction settings are provided in Sec.~\ref{subsec4_3}.
 
 %% 3.2
-\subsection{Data Preprocessing and Local Coordinates}\label{subsec3_2}
+\subsection{Signed-FDG Representation and Sparse VAE}\label{subsec3_2}
 
-\hspace{2em}This stage corresponds to input alignment and sampling in the left portion of Fig.~\ref{fig:figure_overall_architecture}(a). To remove inter-case variation in position and orientation, we construct a local orthonormal coordinate system from the margin line and dental arches. The origin \(o_i\) is defined as the mean of the margin points. The SVD direction associated with the smallest singular value of the centered margin points defines the candidate \(z\) axis; after identifying the target and opposing arches from the FDI tooth identifier, its sign is selected to point toward the mean of the nearest opposing-arch vertices. The \(y\) axis is obtained by normalizing the projection of the vector from the target-arch coordinate-wise median to \(o_i\) onto the plane orthogonal to \(z\); if this projection is degenerate, the first principal direction of the margin SVD is used. We then set \(x=y\times z\) and reorthogonalize \(y=z\times x\) to form the right-handed matrix \(A_i\), which maps world coordinates to local coordinates as \(T_i(p)=(p-o_i)A_i\). This transformation uses only the maxillary and mandibular scans, margin line, and FDI tooth identifier, without accessing the reference CAD; therefore, it introduces no target-geometry leakage during preprocessing.
-
-\hspace{2em}After rigid alignment, the reference CAD mesh is discretized within a fixed physical domain with half-side length \(h=12\,\mathrm{mm}\). Vertices from the maxillary and mandibular meshes are used as candidates, prioritizing those near the margin centroid; if the local candidate set is insufficient, all vertices of the corresponding arch are used as a fallback. For each arch, 4,096 points with normals are randomly sampled, and the margin line is resampled to 1,024 points. The dental-arch and margin coordinates are normalized before encoder input, whereas normals are rotated, normalized, and set to zero when degenerate. Sampling randomness is determined by a fixed seed and the case-ID hash.
-
-%% 3.3
-\subsection{Signed-FDG Representation and Sparse Geometric VAE}\label{subsec3_3}
-
-\hspace{2em}This module corresponds to the geometric representation and latent-space compression pathway in Fig.~\ref{fig:figure_overall_architecture}(b): the reference CAD mesh is first converted into a signed-FDG representation and then encoded by the sparse geometric VAE into the latent representation \(Z=(O,F)\).
-
-%% 3.3.1
-\subsubsection{Signed-FDG Representation}\label{subsubsec3_3_1}
+%% 3.2.1
+\subsubsection{Signed-FDG Representation}\label{subsubsec3_2_1}
 
 \hspace{2em}The Flexible Dual Grid (FDG) stores geometric information only in active cells within the crown surface neighborhood, thereby avoiding construction of a dense high-resolution voxel grid~\cite{Xiang2025TRELLIS2}. For a grid of resolution \(R\), let \(c_j\in\{0,\ldots,R-1\}^3\) denote an active cell coordinate and \(\xi_j=c_j+0.5\) its center. The corresponding local physical coordinate is \(x_j=2h(\xi_j/R-0.5)\). Standard FDG encodes the within-cell offset of the dual-grid vertex, \(v_j\in[0,1]^3\), and three axial intersection indicators, \(b_j\in\{0,1\}^3\). Its nominal spacing, \(\Delta=2h/R\), specifies the discretization resolution rather than scan or clinical measurement accuracy.
 
@@ -320,8 +311,8 @@ g_j&=[v_j-0.5,\ b_j-0.5,\ d_j,\ n_j]\in\mathbb R^{10}.
 \]
 This representation jointly encodes local geometry, distance, and orientation within the sparse surface neighborhood. For watertight, consistently oriented meshes, the sign of \(d_j\) denotes global inside--outside status; for non-watertight meshes, it indicates only the local direction defined by the nearest surface normal. Fig.~\ref{fig:figure_oriented_signed_fdg_detail} illustrates the latent encoding of sparse active cells and their oriented signed attributes.
 
-%% 3.3.2
-\subsubsection{Sparse Geometric VAE}\label{subsubsec3_3_2}
+%% 3.2.2
+\subsubsection{Sparse Geometric VAE}\label{subsubsec3_2_2}
 
 \hspace{2em}The sparse geometric VAE compresses the high-resolution representation into a latent space suitable for generative modeling. Its five-level encoder has channel widths of 48, 96, 192, 384, and 512, with two encoding blocks per level. Four spatial-to-channel rearrangements reduce the active support at \(1024^3\) resolution to a 32-channel latent representation defined on a sparse \(64^3\) grid, where each active location predicts a 32-dimensional mean vector and log-variance vector. VAE training uses reparameterized sampling; the posterior mean is used for validation, free decoding, and Flow latent caching, whereas generation directly uses latents predicted by the Flow models. The symmetric decoder progressively predicts refinement masks and restores vertex offsets, axial-intersection logits, truncated signed distances, and normalized normals at the original resolution. It also predicts the quadrilateral triangulation weights required for differentiable FDG mesh extraction.
 
@@ -332,10 +323,10 @@ This representation jointly encodes local geometry, distance, and orientation wi
     \label{fig:figure_oriented_signed_fdg_detail} 
 \end{figure*}
 
-%% 3.4
-\subsection{Multiscale Dental Conditions}\label{subsec3_4}
+%% 3.3
+\subsection{Multiscale Dental Conditions}\label{subsec3_3}
 
-\hspace{2em}This section defines the multiscale dental conditions required by the two-stage generation; their allocation to and fusion within the two Flows are detailed in Sec.~\ref{subsec3_5}. After the alignment and sampling described in Sec.~\ref{subsec3_2}, the maxillary, mandibular, and margin point sets are fed into two conditional encoders with independent parameters corresponding to the Structure and Feature stages. In the following, $d\in\{S,F\}$ indexes the stage: the maxillary and mandibular points take both position and normal as input, whereas the margin points use positions only. Each of the three sources is first encoded by a source-specific point-wise multilayer perceptron (MLP), augmented with learnable source embeddings.
+\hspace{2em}This section defines the multiscale dental conditions required by the two-stage generation;. After alignment and sampling, the maxillary, mandibular, and margin point sets are fed into two conditional encoders with independent parameters corresponding to the Structure and Feature stages. In the following, $d\in\{S,F\}$ indexes the stage: the maxillary and mandibular points take both position and normal as input, whereas the margin points use positions only. Each of the three sources is first encoded by a source-specific point-wise multilayer perceptron (MLP), augmented with learnable source embeddings.
 
 \bigskip
 
@@ -347,45 +338,37 @@ This representation jointly encodes local geometry, distance, and orientation wi
 
 \bigskip
 
-\textbf{Coordinate-level neighborhood condition $C_F^n(q)$.} For a query coordinate $q$, the Feature encoder retrieves four nearest neighbors from the maxillary, mandibular, and margin point sets, respectively. Each neighbor is represented by a 7-dimensional descriptor composed of relative coordinates, source normal, and distance; both the relative coordinates and the distance are normalized by $h=12$~mm, and the 3-D normal for margin points is set to zero. The resulting $3\times4\times7$ descriptor is projected by an MLP into $C_F^n(q)$. During inference, $\{C_F^n(q)\mid q\in\hat O\}$ corresponds to $N(\hat O
-)$ in Fig.~\ref{fig:figure_overall_architecture}.
-
-\bigskip
-
-\hspace{2em}These outputs provide case-level, voxel-level, and coordinate-level dental information. The concrete stage allocation and coordinate-level injection are described in Sec.~\ref{subsec3_5}.
+\textbf{Coordinate-level neighborhood condition $C_F^n(q)$.} For a query coordinate $q$, the Feature encoder retrieves four nearest neighbors from the maxillary, mandibular, and margin point sets, respectively. Each neighbor is represented by a 7-dimensional descriptor composed of relative coordinates, source normal, and distance; both the relative coordinates and the distance are normalized by $h=12$~mm, and the 3-D normal for margin points is set to zero. The resulting $3\times4\times7$ descriptor is projected by an MLP into $C_F^n(q)$. During inference, $\{C_F^n(q)\mid q\in\hat O\}$ corresponds to $N(\hat O)$ in Fig.~\ref{fig:figure_overall_architecture}.
 
 \begin{figure*}[t]  % [t] 表示尽量放在页面顶部
     \centering % 图片居中
     \includegraphics[width=1.0\textwidth]{./figures/feature_condition_detail.pdf}
-    \caption{\textbf{Two-stage conditional flow matching.} (a) Structure Flow. The dental encoder combines source-specific point features, global pooling with an FDI embedding, and voxel refinement. Global and coarse voxel tokens provide cross-attention conditions, while a separate voxel-aligned readout supplies residual injection to Structure DiT. ODE integration, frozen structure decoding and occupancy selection yield active support \(\hat O\). (b) Feature Flow. At inference, for each query \(q\in S=\hat O\), three pathways supply complementary conditions. Within condition fusion, linear maps project global and voxel-aligned conditions, while local MLPs encode dental-neighborhood geometry and axial support context. These conditions are added to the adapted noisy feature token. Feature DiT performs time-modulated sparse feature interactions and accesses global and coarse voxel tokens through cross-attention. ODE integration yields local features \(\hat F_q\), forming \(\hat Z=(\hat O,\hat F)\). The stages use independent condition encoders and velocity networks. Muted green and peach highlight the Transformer and fusion modules; purple denotes dental conditioning, blue latent representations, teal active support and yellow ODE integration. Solid arrows indicate data flow, dashed arrows conditioning, and the circled plus addition. Token columns mark representation interfaces; tensor stacks and occupancy cells distinguish latent features from support. The small curves indicate ODE integration schematically, and the lock marks the frozen structure decoder. These glyphs do not encode dimensions or measured values. The states \(x^S(t)\) and \(x^F(q,t)\) correspond to \(x_t^S\) and \(x_t^F(q)\); velocity labels omit full arguments. Input adaptation groups normalization and projection; the circled plus adds the encoded conditions. Output adaptation and Transformer residual operations remain within the DiT modules. The inset rows summarize operation types.}
+    \caption{\textbf{Two-stage conditional flow matching.} (a) Structure Flow uses global and voxel-aligned dental conditions to generate structural latents, which a frozen decoder maps to active support \(\hat O\). (b) Feature Flow combines dental conditions and support context to generate local features on \(\hat O\). The stages use independent condition encoders and velocity networks. Purple denotes conditioning, blue latent representations, teal active support, and yellow ODE integration. Solid and dashed arrows indicate data flow and conditioning, respectively; the circled plus indicates addition, and the lock marks the frozen decoder.}
     \label{fig:figure_feature_condition_detail} 
 \end{figure*}
 
+%% 3.4
+\subsection{Two-Stage Conditional Flow Matching}\label{subsec3_4}
+
+\hspace{2em}The generation process follows a coarse-to-fine two-stage conditional flow matching framework. Structure Flow first predicts the active crown support $\hat{O}$ from noise, guided by the global condition $C_S^g$ and the downsampled voxel condition $C_{S,16}^v$. Feature Flow then generates local geometric latent features at each coordinate within the predicted support, using a more comprehensive set of dental conditions, including case-level, voxel-aligned, and coordinate-neighborhood conditions, together with structural context derived from the active support. The two stages share the same flow-matching probability path, but operate in separate latent spaces and adopt independent condition sets and velocity networks. During training, all dental conditions are dropped jointly with probability 0.1 for classifier-free guidance~\cite{Ho2022ClassifierFree}. Figure~\ref{fig:figure_feature_condition_detail} summarizes the two stages and their conditioning pathways.
+
+%% 3.4.1
+\subsubsection{Structure Flow}\label{subsec3_4_1}
+
+\hspace{2em}Structure Flow generates the sparse spatial support on which Feature Flow predicts local crown features. During training, the active coordinates of the VAE latent representation form a $64^3$ binary occupancy grid $O$, which a frozen structure encoder compresses into an eight-channel structural latent $x_0^S$ at $16^3$ resolution~\cite{Xiang2025TRELLIS,Xiang2025TRELLIS2}. This compact representation separates overall spatial structure from local geometric detail. The conditional velocity network, Structure DiT, combines time-modulated self-attention, dental cross-attention, and feed-forward layers, conditioned on $C^S=\{C_S^g,C_{S,16}^v\}$. Global and flattened coarse voxel tokens provide cross-attention conditions, while a voxel-aligned readout of $C_{S,16}^v$ supplies residual conditioning at corresponding latent locations. During inference (Fig.~\ref{fig:figure_feature_condition_detail}(a)), Structure DiT predicts $v_\theta^S(x_t^S,t,C^S)$ from the noisy state and dental conditions. ODE integration from the noise endpoint to the near-data endpoint yields $\hat{x}_0^S$, which the frozen structure decoder maps to $64^3$ occupancy scores. The selected active support $\hat{O}$ then defines the locations for Feature Flow generation.
+
+%% 3.4.2
+\subsubsection{Feature Flow}\label{subsec3_4_2}
+
+\hspace{2em}Feature Flow models the normalized local latent \(x_0^F(q)\) at each coordinate \(q\in S\), with \(S=O\) during training and \(S=\hat O\) during inference. Multiscale dental conditions are incorporated through cross-attention and additive token fusion (Fig.~\ref{fig:figure_feature_condition_detail}(b)). Cross-attention accesses global and coarse voxel tokens, \(C_F^g\) and \(C_{F,16}^v\), while token fusion adds projected global and voxel-aligned features, \(C_F^g\) and \(C_{F,64}^v(q)\), together with encoded neighborhood geometry \(C_F^n(q)\) and support context \(A(q;S)\), to the adapted noisy feature token. The support context encodes occupancy at 18 axial neighbor sites with dilation rates of 1, 2, and 4, providing structural information distinct from dental conditioning. Feature DiT combines time-modulated sparse self-attention within \(S\) with dental cross-attention to predict the conditional velocity \(v_\theta^F(x_t^F(q),t,\mathcal C^F(S))\). ODE integration yields local features \(\hat F_q\), which, together with the predicted support, form \(\hat Z=(\hat O,\hat F)\) for frozen VAE decoding at inference.
+
 %% 3.5
-\subsection{Two-Stage Conditional Flow Matching}\label{subsec3_5}
-
-\hspace{2em}The generation process follows a coarse-to-fine two-stage conditional flow matching framework. Structure Flow first predicts the active crown support $\hat{O}$ from noise, guided by the global condition $C_S^g$ and the downsampled voxel condition $C_{S,16}^v$. Feature Flow then generates local geometric latent features at each coordinate within the predicted support, using a more comprehensive set of dental conditions, including case-level, voxel-aligned, and coordinate-neighborhood conditions, together with structural context derived from the active support. The two stages share the same flow-matching probability path, but operate in separate latent spaces and adopt independent condition sets and velocity networks. During training, all dental conditions are dropped at the case level with a probability of 0.1, following the classifier-free conditioning strategy~\cite{Ho2022ClassifierFree}. Figure~\ref{fig:figure_feature_condition_detail} summarizes the two stages and their conditioning pathways.
-
-%% 3.5.1
-\subsubsection{Structure Flow}\label{subsec3_5_1}
-
-\hspace{2em}Structure Flow is designed to determine the spatial support of the crown latent variables. 
-Specifically, the active coordinates of the VAE latent representation are first represented as a $64^3$ binary occupancy grid $O$, which is then compressed by the frozen TRELLIS structure encoder into a $16^3$ structural latent variable $x_0^S$ with 8 channels~\cite{Xiang2025TRELLIS,Xiang2025TRELLIS2}. The structural condition set is $C^S=\{C_S^g,C_{S,16}^v\}$. Global and flattened coarse voxel tokens provide cross-attention conditions, while a separate aligned readout of $C_{S,16}^v$ supplies residual injection. Structure DiT combines time-modulated self-attention, dental cross-attention, and feed-forward processing. During inference, as illustrated in Fig.~\ref{fig:figure_feature_condition_detail}(a), the noisy state $x_t^S$ and the structural condition $C^S$ are fed into Structure DiT to predict the conditional velocity $v_\theta^S(x_t^S,t,C^S)$. The resulting velocity field is integrated from the noise endpoint to the near-data endpoint using an ordinary differential equation (ODE), yielding $\hat{x}_0^S$. Finally, the frozen structure decoder reconstructs $\hat{x}_0^S$ into $64^3$ occupancy scores, from which the predicted active support $\hat{O}$ is determined.
-
-%% 3.5.2
-\subsubsection{Feature Flow}\label{subsec3_5_2}
-
-\hspace{2em}Given an active support $S$, with $S=O$ during training and $S=\hat O$ during inference, Feature Flow models the normalized local geometric latent variable $x_0^F(q)$ at each coordinate $q \in S$. The multi-scale dental conditions defined in Section~3.4 and the structural context derived from the active support jointly form three complementary injection pathways, as shown in Fig.~\ref{fig:figure_feature_condition_detail}(b). In the cross-attention pathway, $C_F^g$ and the flattened $C_{F,16}^v$ serve as global and coarse-scale condition tokens that can be directly accessed by Feature DiT. In the residual injection pathway, $C_F^g$ and the voxel-aligned condition $C_{F,64}^v(q)$ at the query position are injected into the feature token in a residual manner. In the local modulation pathway, $C_F^n(q)$ and $A(q;S)$ jointly modulate the feature token. The structural context $A(q;S)$ encodes occupancy at 18 axial neighbor sites with dilation rates of 1, 2, and 4, and is not considered a dental condition.
-
-\hspace{2em}The noisy state $x_t^F(q)$ is first adapted to a feature token. The projected global and voxel-aligned conditions and the locally encoded dental-neighborhood and support context are added to this token, as shown by the circled plus in Fig.~\ref{fig:figure_feature_condition_detail}(b). The fused tokens enter Feature DiT, whose time-modulated sparse self-attention operates within $S$ and whose dental cross-attention accesses the global and coarse voxel conditions. The network predicts the local conditional velocity $v_\theta^F\bigl(x_t^F(q),t,\mathcal{C}^F(S)\bigr)$. After ODE integration, the local geometric latent feature $\hat{F}_q$ is obtained. During formal inference, $\hat{F}=\{\hat{F}_q \mid q \in \hat{O}\}$ and the predicted support jointly form $\hat{Z}=(\hat{O},\hat{F})$, which is then decoded by the frozen VAE.
-
-%% 3.6 
-\subsection{Training Objectives}\label{subsec3_6}
+\subsection{Training Objectives}\label{subsec3_5}
 
 \hspace{2em}The sparse geometry VAE, Structure Flow, and Feature Flow are optimized sequentially. Their respective objectives comprise VAE reconstruction and geometric-consistency losses, flow matching for Structure Flow, and latent-space, decoded-surface, and short-trajectory endpoint supervision for Feature Flow.
 
-%% 3.6.1
-\subsubsection{VAE Reconstruction and Geometric Consistency Objective}\label{subsubsec3_6_1}
+%% 3.5.1
+\subsubsection{VAE Reconstruction and Geometric Consistency Objective}\label{subsubsec3_5_1}
 
 \hspace{2em}The signed-surface VAE reconstructs the Flexible Dual Grid attributes and their local geometric structure. To keep the objective consistent with the implementation, we group the active loss terms into five composite terms:
 \begin{enumerate}
@@ -404,10 +387,10 @@ The VAE objective is therefore written as
 \lambda_{\mathrm{smooth}}\mathcal L_{\mathrm{smooth}}+
 \lambda_{\mathrm{cons}}\mathcal L_{\mathrm{cons}}.
 \]
-Here, each composite term contains the implementation-level components described above and is averaged across cases with equal case weights. The detail weights are derived from local normal variation, increasing supervision around cusps, ridges, grooves, and fossae. The signed-distance--normal component compares the predicted and target finite-difference residuals along neighboring active cells; it is used as a local oriented-field consistency constraint rather than as a claim that every input mesh is globally watertight.
+Each composite term is averaged across cases with equal case weights. The detail weights are derived from local normal variation, increasing supervision around cusps, ridges, grooves, and fossae. The signed-distance--normal component compares the predicted and target finite-difference residuals along neighboring active cells; it is used as a local oriented-field consistency constraint rather than as a claim that every input mesh is globally watertight.
 
-%% 3.6.2
-\subsubsection{Structure and Feature Generation Objectives}\label{subsec3_6_2}
+%% 3.5.2
+\subsubsection{Structure and Feature Generation Objectives}\label{subsec3_5_2}
 
 \hspace{2em}The two flow stages are trained sequentially. Structure Flow uses the flow-matching velocity objective only:
 \[
@@ -415,7 +398,7 @@ Here, each composite term contains the implementation-level components described
 \]
 The decoded occupancy Dice and IoU values are used for validation and diagnostics, rather than added to the Structure Flow training loss.
 
-\hspace{2em}Feature Flow uses five terms that correspond to the implemented training path:
+\hspace{2em}The Feature Flow objective comprises five terms:
 \[
 \mathcal L_{\mathrm{Feature}}=
 \mathcal L_{\mathrm{FM}}^{F}+
@@ -424,29 +407,9 @@ The decoded occupancy Dice and IoU values are used for validation and diagnostic
 \lambda_{\mathrm{surf}}\mathcal L_{\mathrm{surf}}+
 \lambda_{\mathrm{end}}\mathcal L_{\mathrm{end}}.
 \]
-Here, \(\mathcal L_{\mathrm{FM}}^{F}\) is the sparse latent velocity-matching loss. \(\mathcal L_{x_0}\) supervises the data-end estimate reconstructed from the predicted velocity, and \(\mathcal L_{\nabla}\) matches local latent differences over the sparse neighborhood graph. \(\mathcal L_{\mathrm{surf}}\) decodes the estimated feature latent with the frozen VAE and applies the composite signed-FDG surface objective described in Sec.~\ref{subsubsec3_6_1}; it is evaluated for near-endpoint time samples. \(\mathcal L_{\mathrm{end}}\) is the short Euler-rollout endpoint-consistency loss. In the current configuration, endpoint supervision uses latent endpoint error, while the optional decoded endpoint-surface term is disabled.
+Here, \(\mathcal L_{\mathrm{FM}}^{F}\) is the sparse latent velocity-matching loss. \(\mathcal L_{x_0}\) supervises the data-end estimate reconstructed from the predicted velocity, and \(\mathcal L_{\nabla}\) matches local latent differences over the sparse neighborhood graph. \(\mathcal L_{\mathrm{surf}}\) decodes the estimated feature latent with the frozen VAE and applies the composite signed-FDG surface objective described in Sec.~\ref{subsubsec3_5_1}; it is evaluated for near-endpoint time samples. \(\mathcal L_{\mathrm{end}}\) is the short Euler-rollout endpoint-consistency loss. Endpoint supervision is applied in latent space only.
 
 \hspace{2em}The flow-matching time samples and auxiliary losses are weighted by time-dependent factors, and all sparse terms are aggregated within each case before averaging across cases. The Structure and Feature stages use independent velocity networks and condition encoders; no additional Dice, IoU, or occupancy loss is included in the Structure Flow objective.
-
-%% 3.7 
-\subsection{Continuous Oriented Field Reconstruction and Mesh Extraction} \label{subsec3_7}
-
-\hspace{2em}As shown in Fig.~\ref{fig:framework}(c), the predicted latent representation \(\hat Z=(\hat O,\hat F)\) is decoded by the frozen VAE and reconstructed as a continuous oriented field for mesh extraction.
-
-\hspace{2em}At inference, one candidate is generated per case. Structure Flow and Feature Flow are integrated from Gaussian noise to the data endpoint under conditional guidance: Structure Flow predicts and gates the active support, whereas Feature Flow generates local geometric latent features that are decoded into sparse FDG geometry, distances, and normals.
-
-\hspace{2em}Only active cells contributing to the largest connected component of the raw FDG mesh are retained. Let \(d_j\) and \(n_j\) denote the decoded distance and normalized normal at cell center \(\xi_j\). For query point \(y\), the retrieved neighborhood \(\mathcal N_K(y)\) defines
-\[
-\begin{aligned}
-\tilde d_j(y) &= d_j + (y-\xi_j)^\top n_j,\qquad
-w_j(y) = \exp\!\left(-\frac{\|y-\xi_j\|_2^2}{2\beta^2}\right),\\
-\bar d(y) &=
-\frac{\sum_{j\in\mathcal N_K(y)}w_j(y)\tilde d_j(y)}
-{\sum_{j\in\mathcal N_K(y)}w_j(y)}.
-\end{aligned}
-\]
-
-\hspace{2em}This field combines local distance and orientation information to reduce surface discontinuities. After filtering and boundary cleanup, Marching Cubes extracts the zero level set~\cite{Lorensen1987MarchingCubes}, followed by mesh cleanup and quality gating.
 
 %% 4
 \section{Experimental and Discussions}\label{sec4}
@@ -473,9 +436,11 @@ w_j(y) = \exp\!\left(-\frac{\|y-\xi_j\|_2^2}{2\beta^2}\right),\\
 %% 4.3 
 \subsection{Implementation Details}\label{subsec4_3}
 
+\hspace{2em}After rigid alignment, the reference CAD mesh is discretized within a fixed physical domain with half-side length \(h=12\,\mathrm{mm}\). Vertices from the maxillary and mandibular meshes are used as candidates, prioritizing those near the margin centroid; if the local candidate set is insufficient, all vertices of the corresponding arch are used as a fallback. For each arch, 4,096 points with normals are randomly sampled, and the margin line is resampled to 1,024 points. The dental-arch and margin coordinates are normalized before encoder input, whereas normals are rotated, normalized, and set to zero when degenerate. Sampling randomness is determined by a fixed seed and the case-ID hash.
+
 \hspace{2em}We adopted a sequential training strategy comprising a sparse VAE, Structure Flow, and Feature Flow. The model consisted of a sparse structural autoencoder, conditional three-dimensional diffusion Transformer (DiT) velocity networks, and dental conditioning adapters. The Transformer implementation used rotary position embedding and memory-efficient exact attention~\cite{Su2024RoFormer,Dao2022FlashAttention}. The batch size was set to 2 for all stages, with eight gradient-accumulation steps during Structure Flow training. All models were optimized using AdamW with automatic mixed precision, a weight decay of 0.01, gradient-norm clipping, and cosine learning-rate decay after a 1,000-step warm-up. The initial learning rate was \(1\times10^{-4}\) for the VAE and non-denoising Structure parameters; it was \(5\times10^{-5}\) for Structure LoRA modules~\cite{Hu2022LoRA} and \(1\times10^{-5}\) for unfrozen DiT blocks. For Feature Flow, the learning rates were \(2\times10^{-5}\) for LoRA modules and \(1\times10^{-4}\) for the remaining trainable parameters. The structural autoencoder was frozen during Structure Flow training, whereas the BF16 Transformer backbone was frozen during Feature Flow training. LoRA rank and dropout were set to 32 and 0, respectively, and checkpoints were selected according to validation performance.
 
-\hspace{2em}At inference, one candidate was generated per case using a seed derived from 2026 and the case identifier. Structure Flow and Feature Flow used 50-step Heun and Euler solvers, respectively, with a classifier-free guidance scale of 3.0. Feature Flow processed up to 32,768 active locations per case. The continuous field was reconstructed using cuVS IVF-Flat interpolation and Marching Cubes~\cite{Lorensen1987MarchingCubes}, followed by largest-connected-component retention and mesh cleaning. Final meshes were required to be watertight, consistently oriented, single-component, and genus-0, and to satisfy the predefined connectivity and geometric quality gates.
+\hspace{2em}At inference, one candidate was generated per case using a seed derived from 2026 and the case identifier. Structure Flow and Feature Flow used 50-step Heun and Euler solvers, respectively, with a classifier-free guidance scale of 3.0. Feature Flow processed up to 32,768 active locations per case. The frozen VAE decoded generated latents into FDG geometry, distances, and normals. Cells contributing to the largest connected component of the raw FDG mesh were retained. cuVS IVF-Flat retrieved neighboring cells, and Gaussian-weighted local distance extrapolation using their decoded distances and normals reconstructed a continuous oriented field. After filtering and boundary cleanup, Marching Cubes extracted its zero level set~\cite{Lorensen1987MarchingCubes}, followed by largest-component retention and mesh cleaning. Final meshes were required to be watertight, consistently oriented, single-component, and genus-0, and to satisfy the predefined connectivity and geometric quality gates.
 
 %% 4.4
 \subsection{Results and Analysis}\label{subsec4}

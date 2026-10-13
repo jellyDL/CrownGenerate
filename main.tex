@@ -428,6 +428,26 @@ Here, \(\mathcal L_{\mathrm{FM}}^{F}\) is the sparse latent velocity-matching lo
 
 \hspace{2em}The flow-matching time samples and auxiliary losses are weighted by time-dependent factors, and all sparse terms are aggregated within each case before averaging across cases. The Structure and Feature stages use independent velocity networks and condition encoders; no additional Dice, IoU, or occupancy loss is included in the Structure Flow objective.
 
+%% 3.7 
+\subsection{Continuous Oriented Field Reconstruction and Mesh Extraction} \label{subsec3_7}
+
+\hspace{2em}As shown in Fig.~\ref{fig:framework}(c), the predicted latent representation \(\hat Z=(\hat O,\hat F)\) is decoded by the frozen VAE and reconstructed as a continuous oriented field for mesh extraction.
+
+\hspace{2em}At inference, one candidate is generated per case. Structure Flow and Feature Flow are integrated from Gaussian noise to the data endpoint under conditional guidance: Structure Flow predicts and gates the active support, whereas Feature Flow generates local geometric latent features that are decoded into sparse FDG geometry, distances, and normals.
+
+\hspace{2em}Only active cells contributing to the largest connected component of the raw FDG mesh are retained. Let \(d_j\) and \(n_j\) denote the decoded distance and normalized normal at cell center \(\xi_j\). For query point \(y\), the retrieved neighborhood \(\mathcal N_K(y)\) defines
+\[
+\begin{aligned}
+\tilde d_j(y) &= d_j + (y-\xi_j)^\top n_j,\qquad
+w_j(y) = \exp\!\left(-\frac{\|y-\xi_j\|_2^2}{2\beta^2}\right),\\
+\bar d(y) &=
+\frac{\sum_{j\in\mathcal N_K(y)}w_j(y)\tilde d_j(y)}
+{\sum_{j\in\mathcal N_K(y)}w_j(y)}.
+\end{aligned}
+\]
+
+\hspace{2em}This field combines local distance and orientation information to reduce surface discontinuities. After filtering and boundary cleanup, Marching Cubes extracts the zero level set~\cite{Lorensen1987MarchingCubes}, followed by mesh cleanup and quality gating.
+
 %% 4
 \section{Experimental and Discussions}\label{sec4}
 

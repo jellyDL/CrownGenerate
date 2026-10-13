@@ -360,6 +360,7 @@ This representation jointly encodes local geometry, distance, and orientation wi
     \caption{\textbf{Two-stage conditional flow matching.} (a) Structure Flow. The dental encoder combines source-specific point features, global pooling with an FDI embedding, and voxel refinement. Global and coarse voxel tokens provide cross-attention conditions, while a separate voxel-aligned readout supplies residual injection to Structure DiT. ODE integration, frozen structure decoding and occupancy selection yield active support \(\hat O\). (b) Feature Flow. At inference, for each query \(q\in S=\hat O\), three pathways supply complementary conditions. Within condition fusion, linear maps project global and voxel-aligned conditions, while local MLPs encode dental-neighborhood geometry and axial support context. These conditions are added to the adapted noisy feature token. Feature DiT performs time-modulated sparse feature interactions and accesses global and coarse voxel tokens through cross-attention. ODE integration yields local features \(\hat F_q\), forming \(\hat Z=(\hat O,\hat F)\). The stages use independent condition encoders and velocity networks. Muted green and peach highlight the Transformer and fusion modules; purple denotes dental conditioning, blue latent representations, teal active support and yellow ODE integration. Solid arrows indicate data flow, dashed arrows conditioning, and the circled plus addition. Token columns mark representation interfaces; tensor stacks and occupancy cells distinguish latent features from support. The small curves indicate ODE integration schematically, and the lock marks the frozen structure decoder. These glyphs do not encode dimensions or measured values. The states \(x^S(t)\) and \(x^F(q,t)\) correspond to \(x_t^S\) and \(x_t^F(q)\); velocity labels omit full arguments. Input adaptation groups normalization and projection; the circled plus adds the encoded conditions. Output adaptation and Transformer residual operations remain within the DiT modules. The inset rows summarize operation types.}
     \label{fig:figure_feature_condition_detail} 
 \end{figure*}
+
 %% 3.5
 \subsection{Two-Stage Conditional Flow Matching}\label{subsec3_5}
 
@@ -427,26 +428,6 @@ Here, \(\mathcal L_{\mathrm{FM}}^{F}\) is the sparse latent velocity-matching lo
 
 \hspace{2em}The flow-matching time samples and auxiliary losses are weighted by time-dependent factors, and all sparse terms are aggregated within each case before averaging across cases. The Structure and Feature stages use independent velocity networks and condition encoders; no additional Dice, IoU, or occupancy loss is included in the Structure Flow objective.
 
-%% 3.7 
-\subsection{Continuous Oriented Field Reconstruction and Mesh Extraction} \label{subsec3_7}
-
-\hspace{2em}As shown in Fig.~\ref{fig:framework}(c), the predicted latent representation \(\hat Z=(\hat O,\hat F)\) is decoded by the frozen VAE and reconstructed as a continuous oriented field for mesh extraction.
-
-\hspace{2em}At inference, one candidate is generated per case. Structure Flow and Feature Flow are integrated from Gaussian noise to the data endpoint under conditional guidance: Structure Flow predicts and gates the active support, whereas Feature Flow generates local geometric latent features that are decoded into sparse FDG geometry, distances, and normals.
-
-\hspace{2em}Only active cells contributing to the largest connected component of the raw FDG mesh are retained. Let \(d_j\) and \(n_j\) denote the decoded distance and normalized normal at cell center \(\xi_j\). For query point \(y\), the retrieved neighborhood \(\mathcal N_K(y)\) defines
-\[
-\begin{aligned}
-\tilde d_j(y) &= d_j + (y-\xi_j)^\top n_j,\qquad
-w_j(y) = \exp\!\left(-\frac{\|y-\xi_j\|_2^2}{2\beta^2}\right),\\
-\bar d(y) &=
-\frac{\sum_{j\in\mathcal N_K(y)}w_j(y)\tilde d_j(y)}
-{\sum_{j\in\mathcal N_K(y)}w_j(y)}.
-\end{aligned}
-\]
-
-\hspace{2em}This field combines local distance and orientation information to reduce surface discontinuities. After filtering and boundary cleanup, Marching Cubes extracts the zero level set~\cite{Lorensen1987MarchingCubes}, followed by mesh cleanup and quality gating.
-
 %% 4
 \section{Experimental and Discussions}\label{sec4}
 
@@ -474,7 +455,7 @@ w_j(y) = \exp\!\left(-\frac{\|y-\xi_j\|_2^2}{2\beta^2}\right),\\
 
 \hspace{2em}We adopted a sequential training strategy comprising a sparse VAE, Structure Flow, and Feature Flow. The model consisted of a sparse structural autoencoder, conditional three-dimensional diffusion Transformer (DiT) velocity networks, and dental conditioning adapters. The Transformer implementation used rotary position embedding and memory-efficient exact attention~\cite{Su2024RoFormer,Dao2022FlashAttention}. The batch size was set to 2 for all stages, with eight gradient-accumulation steps during Structure Flow training. All models were optimized using AdamW with automatic mixed precision, a weight decay of 0.01, gradient-norm clipping, and cosine learning-rate decay after a 1,000-step warm-up. The initial learning rate was \(1\times10^{-4}\) for the VAE and non-denoising Structure parameters; it was \(5\times10^{-5}\) for Structure LoRA modules~\cite{Hu2022LoRA} and \(1\times10^{-5}\) for unfrozen DiT blocks. For Feature Flow, the learning rates were \(2\times10^{-5}\) for LoRA modules and \(1\times10^{-4}\) for the remaining trainable parameters. The structural autoencoder was frozen during Structure Flow training, whereas the BF16 Transformer backbone was frozen during Feature Flow training. LoRA rank and dropout were set to 32 and 0, respectively, and checkpoints were selected according to validation performance.
 
-\hspace{2em}At inference, one candidate was generated per case using a seed derived from 2026 and the case identifier. Structure Flow and Feature Flow used 50-step Heun and Euler solvers, respectively, with a classifier-free guidance scale of 3.0. Feature Flow processed up to 32,768 active locations per case. The continuous field was reconstructed using cuVS IVF-Flat interpolation and Marching Cubes, followed by largest-connected-component retention and mesh cleaning. Final meshes were required to be watertight, consistently oriented, single-component, and genus-0, and to satisfy the predefined connectivity and geometric quality gates.
+\hspace{2em}At inference, one candidate was generated per case using a seed derived from 2026 and the case identifier. Structure Flow and Feature Flow used 50-step Heun and Euler solvers, respectively, with a classifier-free guidance scale of 3.0. Feature Flow processed up to 32,768 active locations per case. The continuous field was reconstructed using cuVS IVF-Flat interpolation and Marching Cubes~\cite{Lorensen1987MarchingCubes}, followed by largest-connected-component retention and mesh cleaning. Final meshes were required to be watertight, consistently oriented, single-component, and genus-0, and to satisfy the predefined connectivity and geometric quality gates.
 
 %% 4.4
 \subsection{Results and Analysis}\label{subsec4}

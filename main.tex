@@ -449,7 +449,7 @@ Here, \(\mathcal L_{\mathrm{FM}}^{F}\) is the sparse latent velocity-matching lo
 
 \begin{table*}[htbp]
     \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm}
-    \caption{\\ Generation coverage, geometric fidelity, and severe antagonist penetration across evaluated methods}
+    \caption{\hspace{0.5em}Generation coverage, geometric fidelity, and severe antagonist penetration across evaluated methods}
     \label{tab:main_comparison}
     \centering
     \footnotesize
@@ -498,14 +498,12 @@ Here, \(\mathcal L_{\mathrm{FM}}^{F}\) is the sparse latent velocity-matching lo
   \label{fig:ablation_occlusion}
 \end{figure}
 
-%%%% Ablation Study 2
-\textbf{Ablation Study of Tooth-number Constraint.} This experiment examines the effect of the Tooth Position Prompt (TP Prompt) on crown geometric quality. TP Prompt is encoded from the FDI tooth designation and injected into the global conditioning branch. Except for enabling or disabling TP Prompt, the two configurations use identical data splits, maxillary and mandibular scans, three-dimensional cervical-margin line, network parameters, A2 VAE, training budget, random seeds, and post-processing. After freezing the A2 VAE, Structure Flow and Feature Flow are retrained independently and evaluated on the common evaluable subset using CD-L2, Fidelity Distance, HD, F-score, and cervical-margin P95 error. The analysis focuses on whether TP Prompt produces consistent changes in overall geometric error, worst local deviation, and tooth-position-specific shape fidelity. If only a subset of metrics improves, the differences and confidence intervals should be reported separately rather than summarized as an overall performance gain. Numerical values, effect sizes, and statistical tests are provided in Table~\ref{table_tooth_number_ablation}.
 
 \begin{table*}[htbp]
   \centering
   \scriptsize
   \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm}
-  \caption{\\ Quantitative results for the tooth-position prompt. Values are reported in the related study~\cite{Wei2025VBCD}; the independent TP Prompt effect is assessed by comparing the ``+PCR'' and ``+PCR+TP Prompt'' rows.}
+  \caption{\hspace{0.5em}Quantitative results for the tooth-position prompt. Values are reported in the related study~\cite{Wei2025VBCD}; the independent TP Prompt effect is assessed by comparing the ``+PCR'' and ``+PCR+TP Prompt'' rows.}
   \label{table_tooth_number_ablation}
   \setlength{\tabcolsep}{5pt}
   \begin{tabular}{lcccccc}
@@ -522,6 +520,10 @@ Here, \(\mathcal L_{\mathrm{FM}}^{F}\) is the sparse latent velocity-matching lo
   \end{tabular}
 \end{table*}
 
+%%%% Ablation Study 2
+\textbf{Ablation Study of Tooth-number Constraint.} This experiment examines the effect of the Tooth Position Prompt (TP Prompt) on crown geometric quality. TP Prompt is encoded from the FDI tooth designation and injected into the global conditioning branch. Except for enabling or disabling TP Prompt, the two configurations use identical data splits, maxillary and mandibular scans, three-dimensional cervical-margin line, network parameters, A2 VAE, training budget, random seeds, and post-processing. After freezing the A2 VAE, Structure Flow and Feature Flow are retrained independently and evaluated on the common evaluable subset using CD-L2, Fidelity Distance, HD, F-score, and cervical-margin P95 error. The analysis focuses on whether TP Prompt produces consistent changes in overall geometric error, worst local deviation, and tooth-position-specific shape fidelity. If only a subset of metrics improves, the differences and confidence intervals should be reported separately rather than summarized as an overall performance gain. Numerical values, effect sizes, and statistical tests are provided in Table~\ref{table_tooth_number_ablation}.
+
+
 \bigskip
 
 %%%% Ablation Study 3
@@ -531,7 +533,7 @@ Here, \(\mathcal L_{\mathrm{FM}}^{F}\) is the sparse latent velocity-matching lo
   \centering
   \scriptsize
   \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm}
-  \caption{\\ Quantitative ablation of the cervical-margin constraint. Values are reported in the related study~\cite{Wei2026MADCrowner} and are not measurements from the present test set.}
+  \caption{\hspace{0.5em}Quantitative ablation of the cervical-margin constraint. Values are reported in the related study~\cite{Wei2026MADCrowner} and are not measurements from the present test set.}
   \label{table_cervical_margin_ablation}
   \setlength{\tabcolsep}{3.1pt}
   \begin{tabular}{lccc|ccc|ccc|ccc}
@@ -550,27 +552,6 @@ Here, \(\mathcal L_{\mathrm{FM}}^{F}\) is the sparse latent velocity-matching lo
 \bigskip
 
 \textbf{Ablation Study of Two-Stage Training.} This experiment evaluates the effect of staged Structure Flow and Feature Flow training on structural support and local-detail modeling. The single-stage baseline uses a conditional flow network to jointly predict crown occupancy and local geometric features, whereas the two-stage configuration first uses Structure Flow to generate the crown-occupancy support and then uses Feature Flow to refine local geometric and anatomical details within that support. Both configurations retain identical input conditions, data split, VAE, optimization budget, random seeds, solver steps, and post-processing, with trainable parameter counts constrained to a predefined matching range. On the common endpoint-evaluable subset, we compare overall geometric error, adjacent-tooth spacing error, adjacency preservation, cervical-margin P95 error, and engineering quality-gate pass rate. This design hypothesizes that explicit support dependency reduces the modeling of inactive locations and allows Feature Flow to concentrate on local regions such as cusps, fissures, proximal surfaces, and cervical transitions, thereby reducing adjacency conflicts and local discontinuities. Fig.~\ref{fig:ablation_adjacent} serves as a qualitative visualization reference for adjacency and contact regions.
-
-\begin{table*}[htbp]
-  \centering
-  \scriptsize
-  \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm}
-  \caption{\\ Quantitative comparison of single-stage joint generation and two-stage training. Values must be obtained by independently retraining both configurations on the same test protocol.}
-  \label{table_two_stage_ablation}
-  \setlength{\tabcolsep}{4pt}
-  \resizebox{\textwidth}{!}{%
-  \begin{tabular}{lccccccc}
-    \hline
-    Configuration & CD-L2 (mm$^2$) $\downarrow$ & HD (mm) $\downarrow$ & F-score@0.10 mm (\%) $\uparrow$ & Adjacent-spacing error (mm) $\downarrow$ & Adjacency preservation (\%) $\uparrow$ & Margin P95 error (mm) $\downarrow$ & Quality-gate pass (\%) $\uparrow$ \\
-    \hline
-    Single-stage joint generation & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} \\
-    Two-stage: Structure Flow $\rightarrow$ Feature Flow & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} \\
-    Two-stage $-$ single-stage & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} & \textit{TBD} \\
-    \hline
-  \end{tabular}%
-  }
-  \parbox{\textwidth}{\footnotesize \textit{Note:} Continuous endpoints should be reported as paired case-level differences with 95\% confidence intervals. Lower is better for CD-L2, HD, adjacent-spacing error, and margin P95 error; higher is better for F-score, adjacency preservation, and quality-gate pass rate.}
-\end{table*}
 
 \begin{figure}[H]
   \centering

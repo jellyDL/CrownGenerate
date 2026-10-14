@@ -18,7 +18,7 @@ ROW_FILES = (
     ("gt_heatmap.png", "ablation_match_heatmap.png", "our_heatmap.png"),
     ("gt_heatmap2.png", "ablation_match_heatmap2.png", "our_heatmap2.png"),
 )
-COLUMN_LABELS = ("GT", "Without Intersection", "With Intersection")
+COLUMN_LABELS = ("Reference Crown", "Without Intersection", "With Intersection")
 BLOCK_LABELS = ("premolar", "molar")
 
 
@@ -42,7 +42,7 @@ def main() -> None:
     parser.add_argument("--folders", nargs="+", help="case folder names in display order")
     parser.add_argument("-o", "--output", type=Path, default=Path("merged_heatmaps.png"),
                         help="output filename; relative paths use the script directory")
-    parser.add_argument("--gap", type=int, default=80,
+    parser.add_argument("--gap", type=int, default=90,
                         help="column gap and outer margin in pixels (default: 80)")
     # 板块内两行间距，单位像素。
     parser.add_argument("--line_space", "--line-space", type=int, default=80,

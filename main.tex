@@ -259,6 +259,13 @@ Personalized crown design \sep Crown generation\sep Conditional flow matching \s
 
 \hspace{2em}Implicit-field and diffusion models have further extended dental shape completion. ToothDIT constructs individualized implicit templates from complete anterior-tooth morphology, whereas ToothCraft performs conditional diffusion over signed-distance-function voxels~\cite{Chen2024PreciseTooth,Pukanec2026ToothCraft}. Several other studies investigate point-cloud completion and generative restoration for dental crowns~\cite{Zhu2022ToothCR,Ying2026Tooth3dNet,Shu2026AIDrivenCrown,Zhao2026ToothGAN,Tian2022DCPRGAN,Chanintonsongkhla2025PointFlow,Bae2026CrownGen}. Some of these methods are evaluated with anterior-tooth templates or synthetic data, which may limit their direct applicability to posterior crown design with prepared abutments and surrounding dental constraints.
 
+\begin{figure*}[t]  % [t] 表示尽量放在页面顶部
+    \centering % 图片居中
+    \includegraphics[width=1.0\textwidth]{./figures/method_framework.pdf}
+    \caption{\textbf{Overall architecture of the dental crown generation framework.} (a) Independent encoders extract multiscale conditions from dental scans, the margin line, and the FDI designation. (b) A sparse VAE learns oriented signed-FDG latents from reference CAD models. (c) Structure and Feature Flows sequentially generate active support and local features, followed by frozen VAE decoding, oriented-field reconstruction, and quality assessment. Purple dash-dotted lines indicate conditioning; blue lines indicate generation and support dependencies; solid and dashed orange lines indicate VAE forward computation and training supervision, respectively.}
+    \label{fig:figure_overall_architecture} 
+\end{figure*}
+
 %% 2.2
 \subsection{High-Resolution 3D Geometry Generation}\label{subsec2_2}
 
@@ -272,13 +279,6 @@ Personalized crown design \sep Crown generation\sep Conditional flow matching \s
 \hspace{2em}Dental conditions serve distinct roles in crown generation. The three-dimensional preparation-margin line provides a boundary reference for the cervical contour; adjacent teeth and the opposing dentition provide proximal and static-occlusal constraints, respectively; and the FDI tooth designation supplies tooth-type and arch-related morphological priors. Previous methods introduce selected conditions at the input, loss, or post-processing stages~\cite{Wei2026MADCrowner,Yang2025DCrownFormerPlus,Wei2025VBCD}. However, existing studies do not consistently integrate tooth-position semantics, dentition-level spatial correspondences, and margin-neighborhood geometry within a unified multiscale framework.
 
 \hspace{2em}Crown-design evaluation should jointly assess geometric fidelity, dental spatial compatibility, and laboratory usability. Differences in distance definitions, coordinate normalization, and numerical scaling can make direct comparisons across studies misleading~\cite{Yang2024DCrownFormer,Hosseinimanesh2025PointToMesh,Pukanec2026ToothCraft}. This study therefore combines surface-distance, margin, and static-occlusion metrics with technician assessments. These complementary measures evaluate overall geometry, local boundary fidelity, spatial relationships, and required modifications. The evaluation is restricted to CAD drafts of external crown morphology and does not establish marginal or internal fit, dynamic occlusal performance, or patient outcomes.
-
-\begin{figure*}[t]  % [t] 表示尽量放在页面顶部
-    \centering % 图片居中
-    \includegraphics[width=1.0\textwidth]{./figures/method_framework.pdf}
-    \caption{\textbf{Overall architecture of the dental crown generation framework.} (a) Independent encoders extract multiscale conditions from dental scans, the margin line, and the FDI designation. (b) A sparse VAE learns oriented signed-FDG latents from reference CAD models. (c) Structure and Feature Flows sequentially generate active support and local features, followed by frozen VAE decoding, oriented-field reconstruction, and quality assessment. Purple dash-dotted lines indicate conditioning; blue lines indicate generation and support dependencies; solid and dashed orange lines indicate VAE forward computation and training supervision, respectively.}
-    \label{fig:figure_overall_architecture} 
-\end{figure*}
 
 %% 3
 \section{Method}\label{sec3}
@@ -425,19 +425,27 @@ Here, \(\mathcal L_{\mathrm{FM}}^{F}\) is the sparse latent velocity-matching lo
 
 \hspace{2em}To assess the geometric consistency between the predicted crowns and the reference CAD models, the two surfaces were compared using identical outer-surface segmentation, area-weighted sampling, and post-processing procedures. Each mesh was sampled at 50{,}000 outer-surface points in physical coordinates. Selected ablation analyses quantified surface geometric errors using CD-L2 and Hausdorff distance (HD). CD-L2 was the mean squared bidirectional nearest-neighbor distance ($\mathrm{mm}^2$)~\cite{Hosseinimanesh2025PointToMesh,Wei2026MADCrowner}, and HD was the maximum bidirectional surface distance ($\mathrm{mm}$), indicating the worst local deviation~\cite{Wei2026MADCrowner,Yang2025DCrownFormerPlus}. Fidelity Distance was included only in reference-format ablation tables and was not treated as a primary endpoint. Lower values indicate better performance for these distance metrics. Results were summarized across cases as mean~$\pm$~standard deviation, with 95\% confidence intervals reported for between-method differences.
 
-\begin{figure*}[t]
-    \centering
-    \includegraphics[width=1.0\textwidth]{./figures//method_comparison_preview_1/method_comparison_preview.png}
-    \caption{\textbf{Qualitative comparison of crown geometry across representative cases.} Each row shows the prepared tooth, crowns generated by the compared methods, and the reference CAD crown within the surrounding dentition, allowing visual comparison of crown morphology and spatial relationships with adjacent teeth. Color maps indicate signed surface deviations from the reference crown in millimeters, illustrating differences around cusps, central grooves, and cervical margins.}
-    \label{fig:method_comparison_preview}
-\end{figure*}
-
 %% 4.3 
 \subsection{Implementation Details}\label{subsec4_3}
 
 \hspace{2em}After rigid alignment, the reference CAD mesh was discretized within a domain of half-side length \(h=12\,\mathrm{mm}\). Each arch was sampled to 4,096 points with normals, prioritizing vertices near the margin centroid with all arch vertices as a fallback; margins were resampled to 1,024 points. Coordinates were normalized, and normals were rotated, normalized, and zeroed if degenerate. Sampling used a fixed seed and case-ID hash. The sparse VAE, Structure Flow, and Feature Flow were trained sequentially with DiT networks and dental adapters using rotary embeddings and memory-efficient exact attention~\cite{Su2024RoFormer,Dao2022FlashAttention}. Training used AdamW, mixed precision, batch size 2, weight decay 0.01, gradient clipping, and cosine learning-rate decay after a 1,000-step warm-up; Structure Flow used eight accumulation steps. Learning rates were \(10^{-4}\) for the VAE and non-denoising Structure parameters, \(5\times10^{-5}\) for Structure LoRA, and \(10^{-5}\) for unfrozen DiT blocks. Feature Flow used \(2\times10^{-5}\) for LoRA and \(10^{-4}\) otherwise. LoRA rank/dropout were 32/0~\cite{Hu2022LoRA}. The structural autoencoder and BF16 Transformer backbone were frozen during Structure Flow and Feature Flow training, respectively; checkpoints were selected by validation performance.
 
 \hspace{2em}Inference generated one candidate per case with a seed derived from 2026 and the case identifier. Structure Flow and Feature Flow used 50-step Heun and Euler solvers, respectively, with guidance scale 3.0; Feature Flow processed up to 32,768 active locations. The frozen VAE decoded latents into FDG geometry, distances, and normals. Cells contributing to the largest raw-mesh component were retained, and cuVS IVF-Flat retrieved neighboring cells. Gaussian-weighted extrapolation of decoded distances and normals reconstructed a continuous oriented field. After filtering and boundary cleanup, Marching Cubes extracted the zero level set~\cite{Lorensen1987MarchingCubes}, followed by largest-component retention and mesh cleaning. Final meshes had to be watertight, consistently oriented, single-component, and genus-0, and meet predefined connectivity and geometric quality criteria.
+
+\begin{figure*}[t!]
+    \centering
+    \includegraphics[width=0.85\textwidth]{./figures//method_comparison_preview_1/method_comparison_preview.png}
+    \caption{\textbf{Qualitative comparison of crown geometry across representative cases.} Each row shows the prepared tooth, crowns generated by the compared methods, and the reference CAD crown within the surrounding dentition, allowing visual comparison of crown morphology and spatial relationships with adjacent teeth. Color maps indicate signed surface deviations from the reference crown in millimeters, illustrating differences around cusps, central grooves, and cervical margins.}
+    \label{fig:method_comparison_preview}
+\end{figure*}
+
+%% 4.4
+\subsection{Results and Analysis}\label{subsec4}
+
+%% 4.4.1 Experiment Result
+\subsubsection{Experimental Results}\label{subsubsec4_4_1}
+
+\hspace{2em}We systematically evaluated the proposed model against four baselines: the FDI nearest-neighbor, MADCrowner~\cite{Wei2026MADCrowner}, VBCD~\cite{Wei2025VBCD}, and DCrownFormer+~\cite{Yang2025DCrownFormerPlus}. All methods used identical dataset splits ($n_{\text{test}} = 252$) and preprocessing protocols. Paired comparisons were conducted on the common evaluable subset ($n_{\text{common}} = 241$) using two-tailed Wilcoxon signed-rank tests ($\alpha = 0.05$) for continuous metrics and McNemar's tests for dichotomous metrics, with 95\% CIs and $p$-values reported.
 
 \begin{table*}[htbp]
     \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm}
@@ -464,17 +472,11 @@ Here, \(\mathcal L_{\mathrm{FM}}^{F}\) is the sparse latent velocity-matching lo
     \end{minipage}
 \end{table*}
 
-%% 4.4
-\subsection{Results and Analysis}\label{subsec4}
-
-%% 4.4.1 Experiment Result
-\subsubsection{Experimental Results}\label{subsubsec4_4_1}
-
-\hspace{2em}We systematically evaluated the proposed model against four baselines: the FDI nearest-neighbor, MADCrowner~\cite{Wei2026MADCrowner}, VBCD~\cite{Wei2025VBCD}, and DCrownFormer+~\cite{Yang2025DCrownFormerPlus}. All methods used identical dataset splits ($n_{\text{test}} = 252$) and preprocessing protocols. Paired comparisons were conducted on the common evaluable subset ($n_{\text{common}} = 241$) using two-tailed Wilcoxon signed-rank tests ($\alpha = 0.05$) for continuous metrics and McNemar's tests for dichotomous metrics, with 95\% CIs and $p$-values reported.
+\textbf{Geometric and Functional Evaluation.} As shown in Table~\ref{tab:main_comparison}, the proposed model achieved the highest completion rate and geometric fidelity among the evaluated methods, with lower surface and cervical margin errors, a higher F-score, and improved normal accuracy. Compared with DCrownFormer+, Chamfer-\(L_1\) and HD95 decreased by \(0.034\,\mathrm{mm}\) (95\% CI: [0.030, 0.038]) and \(0.097\,\mathrm{mm}\) (95\% CI: [0.088, 0.106]), respectively (both \(p<0.001\)), while the completion rate reached 99.6\%. Virtual occlusion measurements were close to those of reference CAD designs, with severe antagonist penetration reduced from 4.1\% to 1.2\% (\(p<0.001\)). The model also achieved higher rates of watertight, consistently oriented, and single-component genus-0 meshes, with few mesh defects. Fig.~\ref{fig:method_comparison_preview} illustrates these geometric differences across representative cases, showing fewer pronounced surface deviations and local artifacts around cusps, central grooves, and cervical margins.
 
 \bigskip
 
-\textbf{Geometric and Functional Evaluation.} As shown in Table~\ref{tab:main_comparison}, the proposed model achieved the highest completion rate and geometric fidelity among the evaluated methods, with lower surface and cervical margin errors, a higher F-score, and improved normal accuracy. Compared with DCrownFormer+, Chamfer-\(L_1\) and HD95 decreased by \(0.034\,\mathrm{mm}\) (95\% CI: [0.030, 0.038]) and \(0.097\,\mathrm{mm}\) (95\% CI: [0.088, 0.106]), respectively (both \(p<0.001\)), while the completion rate reached 99.6\%. Virtual occlusion measurements were close to those of reference CAD designs, with severe antagonist penetration reduced from 4.1\% to 1.2\% (\(p<0.001\)). The model also achieved higher rates of watertight, consistently oriented, and single-component genus-0 meshes, with few mesh defects. Fig.~\ref{fig:method_comparison_preview} illustrates these geometric differences across representative cases, showing fewer pronounced surface deviations and local artifacts around cusps, central grooves, and cervical margins.
+\textbf{Technician and Workflow Evaluation.} Three certified dental technicians assessed generated crowns and manual designs using a source-blinded five-point Likert scale (Fig.~\ref{fig:technician_evaluation}). The reported modification distributions were similar, with most designs requiring no or only minor adjustments. Inter-rater agreement was substantial (Fleiss' \(\kappa=0.742\)), and source identification did not differ significantly from chance (\(p=0.647\)). Generated drafts reduced mean refinement time from 11.5 to 3.8 minutes, corresponding to a 67.0\% reduction (\(p<0.001\)), suggesting potential workflow benefits.
 
 \begin{figure}[H]
     \centering
@@ -482,8 +484,6 @@ Here, \(\mathcal L_{\mathrm{FM}}^{F}\) is the sparse latent velocity-matching lo
     \caption{Modification requirements assessed by blinded dental technicians. Bars show case-level percentages for manual designs and proposed CAD drafts across four modification categories. Both groups show similar distributions, with most designs requiring no or minor modifications. Labels indicate percentages. The unusable category of the five-point scale is not shown; aggregate values remain subject to verification against raw rating records.}
     \label{fig:technician_evaluation}
 \end{figure}
-
-\textbf{Technician and Workflow Evaluation.} Three certified dental technicians assessed generated crowns and manual designs using a source-blinded five-point Likert scale (Fig.~\ref{fig:technician_evaluation}). The reported modification distributions were similar, with most designs requiring no or only minor adjustments. Inter-rater agreement was substantial (Fleiss' \(\kappa=0.742\)), and source identification did not differ significantly from chance (\(p=0.647\)). Generated drafts reduced mean refinement time from 11.5 to 3.8 minutes, corresponding to a 67.0\% reduction (\(p<0.001\)), suggesting potential workflow benefits.
 
 %% 4.4.2
 \subsubsection{Ablation Study}\label{subsubsec4_4_2}
@@ -585,19 +585,21 @@ Here, \(\mathcal L_{\mathrm{FM}}^{F}\) is the sparse latent velocity-matching lo
 \noindent\textbf{Interpretation of Results.}
 The performance of the full model should be interpreted jointly using the primary geometric endpoint, run completeness, and static virtual-occlusion and topological measures in the common endpoint-evaluable cases (Tables~6--8); an overall conclusion should not be replaced by a single case or a method-specific subset that passed its quality gate. The oriented signed-FDG representation, hierarchical Structure/Feature generation, and multiscale dental conditioning target local geometric encoding, global support prediction, and margin and antagonist constraints, respectively. The ablations in Tables~11--13 assess only the association between these design choices and the observed results; causal attribution and claims of superiority are deferred until independently retrained ablations and multi-seed results have been finalized.
 
+\bigskip
+
 % 失败案例
 % （1）窝沟形态不好， 暂时未考虑如何加约束
 % （2）外观形态不好， 未来考虑广顺和加更多数据
 
-\begin{figure}[h]
+\noindent\textbf{Limitations and Scope of Application.}
+Inadequate tooth preparation, incomplete adjacent- or antagonist-tooth scans, and atypical tooth morphology are risk scenarios that should be reported in the case flow. Fig.~\ref{fig:false_cases} further shows that some generated crowns exhibit hole-like discontinuities in their occlusal pits and fissures, despite preserving the overall crown shape. The absence of an explicit pit-and-fissure morphology constraint may contribute to these local defects in narrow, deeply recessed regions. These limitations reinforce the intended use of the system as a CAD draft for the external morphology of tooth-supported posterior single crowns, requiring inspection and correction before downstream CAD use rather than replacing scan repair or clinical decision-making. Generalizability should be examined in external or temporal gypsum-model cohorts. Reference CAD represents a historical design instance rather than a unique ground truth. Exterior-surface and static virtual-occlusion assessments cannot establish intaglio or marginal fit, dynamic occlusion, safety, or long-term clinical outcomes; likewise, engineering quality gates do not replace clinical safety validation. Future work should investigate explicit constraints on pit-and-fissure continuity and local surface topology through dedicated ablation experiments, alongside controllable editing of localized crown details, such as cusps, ridges, grooves, and fossae. The framework should also be extended to encode and edit surface texture information, including clinically relevant texture patterns and material appearance, rather than geometry alone. These developments should be evaluated through independent laboratory validation, post-manufacturing \textit{in vitro} measurements, and prospective workflow studies.
+
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.5\linewidth]{./figures/false_cases/merged_heatmaps.png}
     \caption{\textbf{Failure cases.} Each row shows a case, with columns displaying the generated crown with its corresponding dental arch, the generated crown alone, the reference crown with the arch, and the reference crown alone. Some generated crowns exhibit hole-like defects in the occlusal pits and fissures. These local discontinuities may be related to the absence of an explicit pit-and-fissure morphology constraint in the current formulation.}
     \label{fig:false_cases}
 \end{figure}
-
-\noindent\textbf{Limitations and Scope of Application.}
-Inadequate tooth preparation, incomplete adjacent- or antagonist-tooth scans, and atypical tooth morphology are risk scenarios that should be reported in the case flow. Fig.~\ref{fig:false_cases} further shows that some generated crowns exhibit hole-like discontinuities in their occlusal pits and fissures, despite preserving the overall crown shape. The absence of an explicit pit-and-fissure morphology constraint may contribute to these local defects in narrow, deeply recessed regions. These limitations reinforce the intended use of the system as a CAD draft for the external morphology of tooth-supported posterior single crowns, requiring inspection and correction before downstream CAD use rather than replacing scan repair or clinical decision-making. Generalizability should be examined in external or temporal gypsum-model cohorts. Reference CAD represents a historical design instance rather than a unique ground truth. Exterior-surface and static virtual-occlusion assessments cannot establish intaglio or marginal fit, dynamic occlusion, safety, or long-term clinical outcomes; likewise, engineering quality gates do not replace clinical safety validation. Future work should investigate explicit constraints on pit-and-fissure continuity and local surface topology through dedicated ablation experiments, alongside controllable editing of localized crown details, such as cusps, ridges, grooves, and fossae. The framework should also be extended to encode and edit surface texture information, including clinically relevant texture patterns and material appearance, rather than geometry alone. These developments should be evaluated through independent laboratory validation, post-manufacturing \textit{in vitro} measurements, and prospective workflow studies.
 
 %% 5
 \section{Conclusion}\label{sec5}

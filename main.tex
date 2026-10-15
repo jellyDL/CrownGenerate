@@ -364,29 +364,27 @@ This representation jointly encodes local geometry, distance, and orientation wi
 %% 3.5
 \subsection{Training Objectives}\label{subsec3_5}
 
-\hspace{2em}The sparse geometry VAE, Structure Flow, and Feature Flow are optimized sequentially. Their respective objectives comprise VAE reconstruction and geometric-consistency losses, flow matching for Structure Flow, and latent-space, decoded-surface, and short-trajectory endpoint supervision for Feature Flow.
+\hspace{2em}The sparse geometric VAE, Structure Flow, and Feature Flow are optimized sequentially, with stage-specific objectives formulated as follows.
 
 %% 3.5.1
-\subsubsection{VAE Reconstruction and Geometric Consistency Objective}\label{subsubsec3_5_1}
+\subsubsection{VAE Reconstruction and Geometric Regularization}\label{subsubsec3_5_1}
 
-\hspace{2em}The signed-surface VAE reconstructs the Flexible Dual Grid attributes and their local geometric structure. To keep the objective consistent with the implementation, we group the active loss terms into five composite terms:
-\begin{enumerate}
-    \item \textbf{Attribute reconstruction} ($\mathcal L_{\mathrm{attr}}$) combines Smooth-L1 or binary-cross-entropy losses for vertex offsets, axis-intersection indicators, subdivision masks, and quadrilateral split parameters.
-    \item \textbf{Latent regularization} ($\mathcal L_{\mathrm{KL}}$) applies the Kullback--Leibler divergence to the sparse VAE posterior.
-    \item \textbf{Signed-surface supervision} ($\mathcal L_{\mathrm{surf}}$) combines truncated signed-distance regression with cosine-based oriented-normal supervision.
-    \item \textbf{Neighborhood smoothness} ($\mathcal L_{\mathrm{smooth}}$) matches first-order differences and discrete Laplacians of the vertex, signed-distance, and normal fields on sampled axial neighborhoods.
-    \item \textbf{Local consistency and detail} ($\mathcal L_{\mathrm{cons}}$) combines signed-distance--normal consistency along neighboring edges with detail-weighted supervision that emphasizes regions with high normal variation.
-\end{enumerate}
-The VAE objective is therefore written as
-\[
-\mathcal L_{\mathrm{VAE}}=
-\mathcal L_{\mathrm{attr}}+
-\lambda_{\mathrm{KL}}\mathcal L_{\mathrm{KL}}+
-\lambda_{\mathrm{surf}}\mathcal L_{\mathrm{surf}}+
-\lambda_{\mathrm{smooth}}\mathcal L_{\mathrm{smooth}}+
-\lambda_{\mathrm{cons}}\mathcal L_{\mathrm{cons}}.
-\]
-Each composite term is averaged across cases with equal case weights. The detail weights are derived from local normal variation, increasing supervision around cusps, ridges, grooves, and fossae. The signed-distance--normal component compares the predicted and target finite-difference residuals along neighboring active cells; it is used as a local oriented-field consistency constraint rather than as a claim that every input mesh is globally watertight.
+\hspace{2em}The VAE reconstructs oriented signed-FDG attributes by minimizing
+\begin{equation}
+L_{\mathrm{VAE}} = L_{\mathrm{attr}} + \lambda L_{\mathrm{KL}}
++ L_{\mathrm{surf}} + L_{\mathrm{smooth}} + L_{\mathrm{cons}},
+\label{eq:vae_training_objective}
+\end{equation}
+where \(\lambda\) weights latent regularization and composite terms include their component weights. \(L_{\mathrm{attr}}\) supervises geometry and connectivity using vertex-offset MSE, intersection and subdivision BCE, and quadrilateral-midpoint Smooth-L1 error~\cite{Girshick2015FastRCNN} relative to reference diagonal midpoints. \(L_{\mathrm{KL}}\) averages \(\tfrac12(\mu^2+e^{\ell}-\ell-1)\) over latent entries to regularize the posterior toward a standard normal prior~\cite{Kingma2013AutoEncoding}; \(\mu,\ell\) denote posterior mean and clipped log-variance.
+
+\hspace{2em}\(L_{\mathrm{surf}}\) combines distance Smooth-L1 and cosine error \(1-\hat n^{\top}n\) for predicted and reference normalized normals \(\hat n,n\), supervising surface location and orientation. \(L_{\mathrm{smooth}}\) uses Smooth-L1 to match reference axial differences and Laplacians of vertex, distance, and normal fields; Laplacians average valid center-minus-neighbor differences.
+
+\hspace{2em}\(L_{\mathrm{cons}}\) matches predicted and reference distance--normal residuals using Smooth-L1:
+\begin{equation}
+r_{ij}=d_i-d_j-\tfrac12(n_i+n_j)^{\top}(c_i-c_j),
+\label{eq:distance_normal_residual}
+\end{equation}
+where \(i,j\) index neighboring active cells and \(c_i,d_i,n_i\) denote grid coordinates, signed distance in grid-spacing units, and normalized normals. This promotes distance--orientation consistency. Detail reconstruction additionally averages vertex and distance Smooth-L1 errors and normal cosine errors. Reference-normal-variation weights emphasize anatomical detail in neighborhood, residual, and reconstruction terms. Training and inference settings are provided in Sec.~\ref{subsec4_3}.
 
 %% 3.5.2
 \subsubsection{Structure and Feature Generation Objectives}\label{subsec3_5_2}
@@ -428,9 +426,9 @@ Here, \(\mathcal L_{\mathrm{FM}}^{F}\) is the sparse latent velocity-matching lo
 %% 4.3 
 \subsection{Implementation Details}\label{subsec4_3}
 
-\hspace{2em}After rigid alignment, the reference CAD mesh was discretized within a domain of half-side length \(h=12\,\mathrm{mm}\). Each arch was sampled to 4,096 points with normals, prioritizing vertices near the margin centroid with all arch vertices as a fallback; margins were resampled to 1,024 points. Coordinates were normalized, and normals were rotated, normalized, and zeroed if degenerate. Sampling used a fixed seed and case-ID hash. The sparse VAE, Structure Flow, and Feature Flow were trained sequentially with DiT networks and dental adapters using rotary embeddings and memory-efficient exact attention~\cite{Su2024RoFormer,Dao2022FlashAttention}. Training used AdamW, mixed precision, batch size 2, weight decay 0.01, gradient clipping, and cosine learning-rate decay after a 1,000-step warm-up; Structure Flow used eight accumulation steps. Learning rates were \(10^{-4}\) for the VAE and non-denoising Structure parameters, \(5\times10^{-5}\) for Structure LoRA, and \(10^{-5}\) for unfrozen DiT blocks. Feature Flow used \(2\times10^{-5}\) for LoRA and \(10^{-4}\) otherwise. LoRA rank/dropout were 32/0~\cite{Hu2022LoRA}. The structural autoencoder and BF16 Transformer backbone were frozen during Structure Flow and Feature Flow training, respectively; checkpoints were selected by validation performance.
+\hspace{2em}Training was performed on an NVIDIA GeForce RTX 5090 GPU. The VAE, Structure Flow, and Feature Flow were optimized sequentially using AdamW with mixed precision, a batch size of 2, and weight decay of 0.01. Learning rates ranged from \(10^{-5}\) to \(10^{-4}\), with cosine decay after 1,000 warm-up steps. Structure Flow used eight gradient-accumulation steps. The structural autoencoder was frozen during Structure Flow training, while Feature Flow adapted the frozen Transformer backbone using rank-32 LoRA~\cite{Hu2022LoRA}. Checkpoints were selected based on validation performance.
 
-\hspace{2em}Inference generated one candidate per case with a seed derived from 2026 and the case identifier. Structure Flow and Feature Flow used 50-step Heun and Euler solvers, respectively, with guidance scale 3.0; Feature Flow processed up to 32,768 active locations. The frozen VAE decoded latents into FDG geometry, distances, and normals. Cells contributing to the largest raw-mesh component were retained, and cuVS IVF-Flat retrieved neighboring cells. Gaussian-weighted extrapolation of decoded distances and normals reconstructed a continuous oriented field. After filtering and boundary cleanup, Marching Cubes extracted the zero level set~\cite{Lorensen1987MarchingCubes}, followed by largest-component retention and mesh cleaning. Final meshes had to be watertight, consistently oriented, single-component, and genus-0, and meet predefined connectivity and geometric quality criteria.
+\hspace{2em}At inference, one crown candidate was generated per case using a fixed case-specific seed. Structure Flow and Feature Flow used 50-step Heun and Euler solvers, respectively, with a classifier-free guidance scale of 3.0. The frozen VAE decoded the generated latents into oriented signed-FDG attributes. Gaussian-weighted local distance extrapolation reconstructed a continuous oriented field, from which Marching Cubes extracted the crown surface~\cite{Lorensen1987MarchingCubes}. Post-processing included boundary cleanup, largest-component retention, and mesh cleaning. Final meshes were checked for watertightness, consistent orientation, single-component genus-0 topology, and geometric quality.
 
 \begin{figure*}[t!]
     \centering

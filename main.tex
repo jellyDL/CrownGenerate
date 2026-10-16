@@ -387,26 +387,27 @@ r_{ij}=d_i-d_j-\tfrac12(n_i+n_j)^{\top}(c_i-c_j),
 where \(i,j\) index neighboring active cells and \(c_i,d_i,n_i\) denote grid coordinates, signed distance in grid-spacing units, and normalized normals. This promotes distance--orientation consistency. Detail reconstruction additionally averages vertex and distance Smooth-L1 errors and normal cosine errors. Reference-normal-variation weights emphasize anatomical detail in neighborhood, residual, and reconstruction terms. Training and inference settings are provided in Sec.~\ref{subsec4_3}.
 
 %% 3.5.2
-\subsubsection{Structure and Feature Generation Objectives}\label{subsec3_5_2}
+\subsubsection{Structure and Feature Flow Objectives}\label{subsec3_5_2}
 
-\hspace{2em}The two flow stages are trained sequentially. Structure Flow uses the flow-matching velocity objective only:
-\[
-\mathcal L_{\mathrm{Structure}}=\mathcal L_{\mathrm{FM}}^{S}.
-\]
-The decoded occupancy Dice and IoU values are used for validation and diagnostics, rather than added to the Structure Flow training loss.
+\hspace{2em}Both stages use the flow-matching path~\cite{Lipman2023FlowMatching}
+\begin{equation}
+x_t=(1-t)x_0+[\sigma+(1-\sigma)t]\epsilon,
+\qquad u_t=(1-\sigma)\epsilon-x_0,
+\label{eq:flow_training_path}
+\end{equation}
+where \(x_0,x_t\) are target and noisy latents, \(u_t\) is target velocity, \(t\in[0,1]\) is time, and \(\sigma\) is the residual noise scale. Noise follows \(\epsilon\sim\mathcal N(0,I)\), with identity covariance \(I\). Structure Flow minimizes velocity mean squared error (MSE).
 
-\hspace{2em}The Feature Flow objective comprises five terms:
-\[
-\mathcal L_{\mathrm{Feature}}=
-\mathcal L_{\mathrm{FM}}^{F}+
-\lambda_{x_0}\mathcal L_{x_0}+
-\lambda_{\nabla}\mathcal L_{\nabla}+
-\lambda_{\mathrm{surf}}\mathcal L_{\mathrm{surf}}+
-\lambda_{\mathrm{end}}\mathcal L_{\mathrm{end}}.
-\]
-Here, \(\mathcal L_{\mathrm{FM}}^{F}\) is the sparse latent velocity-matching loss. \(\mathcal L_{x_0}\) supervises the data-end estimate reconstructed from the predicted velocity, and \(\mathcal L_{\nabla}\) matches local latent differences over the sparse neighborhood graph. \(\mathcal L_{\mathrm{surf}}\) decodes the estimated feature latent with the frozen VAE and applies the composite oriented signed-FDG surface objective described in Sec.~\ref{subsubsec3_5_1}; it is evaluated for near-endpoint time samples. \(\mathcal L_{\mathrm{end}}\) is the short Euler-rollout endpoint-consistency loss. Endpoint supervision is applied in latent space only.
+\begin{samepage}
+\hspace{2em}Feature Flow minimizes
+\begin{equation}
+L_{\mathrm{Feature}}=L_{\mathrm{FM}}+\lambda_1L_{\mathrm{rec}}
++\lambda_2L_{\mathrm{grad}}+\lambda_3L_{\mathrm{dec}}+\lambda_4L_{\mathrm{end}},
+\label{eq:feature_training_objective}
+\end{equation}
+where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{FM}}\) is time-weighted velocity MSE. Predicted velocity \(v\) yields \(\hat x_0=(1-\sigma)x_t-[\sigma+(1-\sigma)t]v\). \(L_{\mathrm{rec}}\) and \(L_{\mathrm{grad}}\) compare \(\hat x_0\) with \(x_0\) using MSE in latent values and axial-neighbor differences, respectively, weighted by \(1-t\). Velocity and reconstruction errors additionally use normalized target-neighborhood weights.
+\end{samepage}
 
-\hspace{2em}The flow-matching time samples and auxiliary losses are weighted by time-dependent factors, and all sparse terms are aggregated within each case before averaging across cases. The Structure and Feature stages use independent velocity networks and condition encoders; no additional Dice, IoU, or occupancy loss is included in the Structure Flow objective.
+\hspace{2em}\(L_{\mathrm{dec}}\) compares frozen-VAE decodings of denormalized \(\hat x_0\) and \(x_0\): vertex and distance Smooth-L1~\cite{Girshick2015FastRCNN}, normal cosine error, binary cross-entropy for signs, intersections, and subdivision, and neighborhood, distance--normal consistency, and detail penalties. Surface comparisons use overlapping cells at near-data times, weighted by the selected cases' mean \(1-t\). \(L_{\mathrm{end}}\) is latent MSE between an Euler-rollout endpoint and \(x_0\). Sparse errors are averaged within each case, then across cases.
 
 %% 4
 \section{Experimental and Discussions}\label{sec4}
@@ -426,7 +427,7 @@ Here, \(\mathcal L_{\mathrm{FM}}^{F}\) is the sparse latent velocity-matching lo
 %% 4.3 
 \subsection{Implementation Details}\label{subsec4_3}
 
-\hspace{2em}Training was performed on an NVIDIA GeForce RTX 5090 GPU. The VAE, Structure Flow, and Feature Flow were optimized sequentially using AdamW with mixed precision, a batch size of 2, and weight decay of 0.01. Learning rates ranged from \(10^{-5}\) to \(10^{-4}\), with cosine decay after 1,000 warm-up steps. Structure Flow used eight gradient-accumulation steps. The structural autoencoder was frozen during Structure Flow training, while Feature Flow adapted the frozen Transformer backbone using rank-32 LoRA~\cite{Hu2022LoRA}. Checkpoints were selected based on validation performance.
+\hspace{2em}Training was performed on an NVIDIA GeForce RTX 5090 GPU. The VAE, Structure Flow, and Feature Flow were optimized sequentially using AdamW with mixed precision, a batch size of 2, and weight decay of 0.01. Learning rates ranged from \(10^{-5}\) to \(10^{-4}\), with cosine decay after 1,000 warm-up steps. Structure Flow used eight gradient-accumulation steps. The structural autoencoder was frozen during Structure Flow training, while Feature Flow adapted the frozen Transformer backbone using rank-32 LoRA~\cite{Hu2022LoRA}. Checkpoints were selected based on validation performance. Flow training used \(\sigma=10^{-5}\) and auxiliary weights \((\lambda_1,\lambda_2,\lambda_3,\lambda_4)=(0.6,0.35,3.0,0.5)\); velocity time weighting was \((1+2t^4)/1.4\), decoded supervision used \(t\leq0.75\), and endpoint supervision used four Euler steps.
 
 \hspace{2em}At inference, one crown candidate was generated per case using a fixed case-specific seed. Structure Flow and Feature Flow used 50-step Heun and Euler solvers, respectively, with a classifier-free guidance scale of 3.0. The frozen VAE decoded the generated latents into oriented signed-FDG attributes. Gaussian-weighted local distance extrapolation reconstructed a continuous oriented field, from which Marching Cubes extracted the crown surface~\cite{Lorensen1987MarchingCubes}. Post-processing included boundary cleanup, largest-component retention, and mesh cleaning. Final meshes were checked for watertightness, consistent orientation, single-component genus-0 topology, and geometric quality.
 

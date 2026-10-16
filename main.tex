@@ -375,16 +375,16 @@ L_{\mathrm{VAE}} = L_{\mathrm{attr}} + \lambda L_{\mathrm{KL}}
 + L_{\mathrm{surf}} + L_{\mathrm{smooth}} + L_{\mathrm{cons}},
 \label{eq:vae_training_objective}
 \end{equation}
-where \(\lambda\) weights latent regularization and composite terms include their component weights. \(L_{\mathrm{attr}}\) supervises geometry and connectivity using vertex-offset MSE, intersection and subdivision BCE, and quadrilateral-midpoint Smooth-L1 error~\cite{Girshick2015FastRCNN} relative to reference diagonal midpoints. \(L_{\mathrm{KL}}\) averages \(\tfrac12(\mu^2+e^{\ell}-\ell-1)\) over latent entries to regularize the posterior toward a standard normal prior~\cite{Kingma2013AutoEncoding}; \(\mu,\ell\) denote posterior mean and clipped log-variance.
+where \(\lambda\) weights latent regularization and composite terms include their component weights. \(L_{\mathrm{attr}}\) combines vertex-offset MSE, intersection and subdivision BCE, and quadrilateral-midpoint error measured against reference diagonal midpoints. \(L_{\mathrm{KL}}\) averages \(\tfrac12(\mu^2+e^{\ell}-\ell-1)\) over latent entries to regularize the posterior toward a standard normal prior~\cite{Kingma2013AutoEncoding}; \(\mu,\ell\) denote posterior mean and clipped log-variance.
 
-\hspace{2em}\(L_{\mathrm{surf}}\) combines distance Smooth-L1 and cosine error \(1-\hat n^{\top}n\) for predicted and reference normalized normals \(\hat n,n\), supervising surface location and orientation. \(L_{\mathrm{smooth}}\) uses Smooth-L1 to match reference axial differences and Laplacians of vertex, distance, and normal fields; Laplacians average valid center-minus-neighbor differences.
+\hspace{2em}\(L_{\mathrm{surf}}\) supervises signed distances and normal alignment. Midpoint and distance errors use Smooth-L1~\cite{Girshick2015FastRCNN}, while normal alignment uses \(1-\hat n^{\top}n\) for predicted and reference unit normals \(\hat n,n\). To constrain local geometry, \(L_{\mathrm{smooth}}\) applies the same robust penalty to axial-difference and Laplacian errors in vertex, distance, and normal fields; Laplacians average valid center-minus-neighbor differences.
 
-\hspace{2em}\(L_{\mathrm{cons}}\) matches predicted and reference distance--normal residuals using Smooth-L1:
+\hspace{2em}The consistency term \(L_{\mathrm{cons}}\) applies this penalty to differences between predicted and reference distance--normal residuals:
 \begin{equation}
 r_{ij}=d_i-d_j-\tfrac12(n_i+n_j)^{\top}(c_i-c_j),
 \label{eq:distance_normal_residual}
 \end{equation}
-where \(i,j\) index neighboring active cells and \(c_i,d_i,n_i\) denote grid coordinates, signed distance in grid-spacing units, and normalized normals. This promotes distance--orientation consistency. Detail reconstruction additionally averages vertex and distance Smooth-L1 errors and normal cosine errors. Reference-normal-variation weights emphasize anatomical detail in neighborhood, residual, and reconstruction terms. Training and inference settings are provided in Sec.~\ref{subsec4_3}.
+where \(i,j\) index neighboring active cells and \(c_i,d_i,n_i\) denote grid coordinates, signed distance in grid-spacing units, and normalized normals. Detail reconstruction averages the same robust errors for vertices and distances with normal cosine errors. Reference-normal-variation weights emphasize anatomical detail in neighborhood, residual, and reconstruction terms. Training and inference settings are provided in Sec.~\ref{subsec4_3}.
 
 %% 3.5.2
 \subsubsection{Structure and Feature Flow Objectives}\label{subsec3_5_2}
@@ -395,7 +395,7 @@ x_t=(1-t)x_0+[\sigma+(1-\sigma)t]\epsilon,
 \qquad u_t=(1-\sigma)\epsilon-x_0,
 \label{eq:flow_training_path}
 \end{equation}
-where \(x_0,x_t\) are target and noisy latents, \(u_t\) is target velocity, \(t\in[0,1]\) is time, and \(\sigma\) is the residual noise scale. Noise follows \(\epsilon\sim\mathcal N(0,I)\), with identity covariance \(I\). Structure Flow minimizes velocity mean squared error (MSE).
+where \(x_0,x_t\) are target and noisy latents, \(u_t\) is target velocity, \(t\in[0,1]\) is time, and \(\sigma\) is the residual noise scale. Noise follows \(\epsilon\sim\mathcal N(0,I)\). Structure Flow minimizes velocity mean squared error (MSE).
 
 \begin{samepage}
 \hspace{2em}Feature Flow minimizes
@@ -407,7 +407,7 @@ L_{\mathrm{Feature}}=L_{\mathrm{FM}}+\lambda_1L_{\mathrm{rec}}
 where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{FM}}\) is time-weighted velocity MSE. Predicted velocity \(v\) yields \(\hat x_0=(1-\sigma)x_t-[\sigma+(1-\sigma)t]v\). \(L_{\mathrm{rec}}\) and \(L_{\mathrm{grad}}\) compare \(\hat x_0\) with \(x_0\) using MSE in latent values and axial-neighbor differences, respectively, weighted by \(1-t\). Velocity and reconstruction errors additionally use normalized target-neighborhood weights.
 \end{samepage}
 
-\hspace{2em}\(L_{\mathrm{dec}}\) compares frozen-VAE decodings of denormalized \(\hat x_0\) and \(x_0\): vertex and distance Smooth-L1~\cite{Girshick2015FastRCNN}, normal cosine error, binary cross-entropy for signs, intersections, and subdivision, and neighborhood, distance--normal consistency, and detail penalties. Surface comparisons use overlapping cells at near-data times, weighted by the selected cases' mean \(1-t\). \(L_{\mathrm{end}}\) is latent MSE between an Euler-rollout endpoint and \(x_0\). Sparse errors are averaged within each case, then across cases.
+\hspace{2em}\(L_{\mathrm{dec}}\) extends geometric supervision to frozen-VAE decodings of denormalized \(\hat x_0\) and \(x_0\), reusing the detail-reconstruction, neighborhood, and distance--normal consistency penalties above, together with BCE for signs, intersections, and subdivision. Surface comparisons use overlapping cells at near-data times, weighted by the selected cases' mean \(1-t\). \(L_{\mathrm{end}}\) is latent MSE between an Euler-rollout endpoint and \(x_0\). Sparse errors are averaged within each case, then across cases.
 
 %% 4
 \section{Experimental and Discussions}\label{sec4}

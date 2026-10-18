@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Render crown meshes using the supplied exocad Intersection color scale.
+"""Render crown meshes with an IntraoralScan-style occlusion color map.
 
-Distances from MIN to MAX: red, orange, yellow, green, cyan, dark blue.
-Below MIN saturates red; above MAX is white. Default range: -1..0 mm.
-Geometry and distance computation are unchanged by this visual mapping.
-The opposing jaw is selected from the FDI prefix of <FDI>-margin.xyz.
+Negative implicit distance: blue-violet penetration; zero: red contact;
+positive clearance: red through yellow to green; beyond MAX: white.
+This matches the manual's color semantics, not its proprietary computation.
 """
 from __future__ import annotations
 
@@ -12,7 +11,7 @@ import argparse, json, re
 from pathlib import Path
 import numpy as np
 import pyvista as pv
-from occlusion_colormap import (
+from occlusion_colormap_shining3d import (
     BACKGROUND_COLOR, DEFAULT_LIMITS, PENETRATION_COLOR, occlusion_colormap,
 )
 
@@ -51,17 +50,17 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("folder", type=Path)
     parser.add_argument("--clim", nargs="+", type=float, default=DEFAULT_LIMITS,
-                        help="distance range in mm: MIN or MIN MAX (default: -1 0); a single MIN uses MAX=0; any finite MIN < MAX is allowed")
+                        help="clearance range in mm: MAX or 0 MAX (default: 0 0.2); negative distances are blue-violet")
     # 删除多少三角面片，值越大删除越多
     parser.add_argument("--jaw-reduction", type=float, default=0.9,
                         help="∂ 0 keeps all (default: 0.9)")
     parser.add_argument("-o", "--output", type=Path, default=None)
     args = parser.parse_args()
     if len(args.clim) not in (1, 2):
-        parser.error("--clim expects MIN or MIN MAX")
-    vmin, vmax = (args.clim[0], 0.0) if len(args.clim) == 1 else args.clim
-    if not np.isfinite(vmin) or not np.isfinite(vmax) or vmin >= vmax:
-        parser.error("--clim requires finite MIN < MAX")
+        parser.error("--clim expects MAX or MIN MAX")
+    vmin, vmax = (0.0, args.clim[0]) if len(args.clim) == 1 else args.clim
+    if not np.isfinite(vmin) or not np.isfinite(vmax) or vmin != 0 or vmax <= 0:
+        parser.error("--clim requires MIN=0 and finite MAX>0; negative distances use the penetration color")
     if not np.isfinite(args.jaw_reduction) or not 0 <= args.jaw_reduction < 1:
         parser.error('--jaw-reduction must be finite and in [0, 1)')
     folder = args.folder.expanduser().resolve()
@@ -89,8 +88,8 @@ def main() -> None:
             ) from exc
         if not np.all(np.isfinite(values)):
             raise ValueError(f"Non-finite signed distances in {stem}")
-        # Use the signed distance directly: MIN maps to red and MAX to blue.
-        # Positive distances remain visible whenever MAX includes clearance.
+        # Keep negative values so the lookup table's below-range color marks
+        # penetration independently of the positive-clearance color ramp.
         contact_values = values.astype(float, copy=True)
         contact_values[contact_values > vmax] = np.nan
         crown["surface_distance"] = contact_values

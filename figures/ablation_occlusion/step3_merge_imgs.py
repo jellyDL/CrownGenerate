@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Merge occlusion-ablation heatmaps into a labelled contact sheet."""
+"""Merge occlusion-ablation heatmaps with the shared Shining3D-style legend."""
 from __future__ import annotations
 import argparse, math
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageOps
-from matplotlib import colormaps
+from occlusion_colormap_shining3d import DEFAULT_LIMITS, PENETRATION_COLOR, occlusion_colormap
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 ROW_FILES = ("gt_heatmap.png", "ablation_heatmap.png", "our_heatmap.png")
@@ -26,17 +26,17 @@ def main() -> None:
     parser.add_argument("--font-size", type=int, default=80, help="column label font size")
     parser.add_argument("--labels", nargs=3, default=("Reference Crown", "Without Intersection", "With Intersection"), metavar=("GT", "WITHOUT", "WITH"))
     parser.add_argument("--background", default="white")
-    parser.add_argument("--clim", nargs="+", type=float, default=[0.0, 0.2], help="colorbar limits: MAX or MIN MAX")
-    parser.add_argument("--colorbar-font-size", type=int, default=60)
-    parser.add_argument("--colorbar-unit-gap", type=int, default=40, help="vertical distance between (mm) and the top tick label (pixels)")
-    parser.add_argument("--colorbar-length", type=int, default=1000, help="vertical colorbar length; default is 70%% of image height")
+    parser.add_argument("--clim", nargs="+", type=float, default=DEFAULT_LIMITS, help="clearance limits in mm: MAX or 0 MAX (default: 0 0.2); use the same limits as step2")
+    parser.add_argument("--colorbar-font-size", type=int, default=80)
+    parser.add_argument("--colorbar-unit-gap", type=int, default=30, help="vertical distance between (mm) and the top tick label (pixels)")
+    parser.add_argument("--colorbar-length", type=int, default=1200, help="vertical colorbar length; default is 70%% of image height")
     parser.add_argument("--colorbar-thickness", type=int, default=40)
     parser.add_argument("--colorbar-gap", type=int, default=100)
     parser.add_argument("--colorbar-position", nargs=2, type=int, default=(3100,580), metavar=("X", "Y"), help="colorbar top-left position; default is right of images")
     args = parser.parse_args()
     if len(args.clim) not in (1, 2): parser.error("--clim expects MAX or MIN MAX")
     vmin, vmax = (0.0, args.clim[0]) if len(args.clim) == 1 else args.clim
-    if not all(math.isfinite(v) for v in (vmin, vmax)) or vmin >= vmax: parser.error("--clim must contain finite limits with MIN < MAX")
+    if not all(math.isfinite(v) for v in (vmin, vmax)) or vmin != 0 or vmax <= 0: parser.error("--clim requires MIN=0 and finite MAX>0; negative distances use the penetration color")
     if min(args.gap, args.header_gap, args.colorbar_gap, args.colorbar_unit_gap) < 0 or args.font_size <= 0: parser.error("gaps must be nonnegative and font-size must be positive")
     if args.colorbar_thickness <= 0 or args.colorbar_font_size <= 0: parser.error("colorbar dimensions and font size must be positive")
     root = args.folder.expanduser().resolve()
@@ -62,14 +62,17 @@ def main() -> None:
     image_height = len(rows) * tile_height + (len(rows) - 1) * args.gap
     image_left = args.gap; image_right = image_left + 3 * tile_width + 2 * args.gap
     bar_length = args.colorbar_length or max(2, round(image_height * 0.7))
-    if bar_length > image_height: parser.error(f"colorbar-length must not exceed image region height ({image_height} pixels)")
+    if not 2 <= bar_length <= image_height: parser.error(f"colorbar-length must be between 2 and image region height ({image_height} pixels)")
     bar_x, bar_y = args.colorbar_position or (image_right + args.colorbar_gap, args.gap + header_height + image_height - bar_length)
     if min(bar_x, bar_y) < 0: parser.error("colorbar-position coordinates must be nonnegative")
     colorbar_font = load_font(args.colorbar_font_size)
-    tick_labels = [f"{vmin + (vmax - vmin) * i / 4:.4g}" for i in range(5)]
-    tick_width = max(colorbar_font.getlength(x) for x in tick_labels)
-    top_tick_box = colorbar_font.getbbox(tick_labels[-1], anchor="lm")
-    unit_bottom = bar_y + top_tick_box[1] - args.colorbar_unit_gap
+    tick_count = 5
+    tick_labels = [f"{vmin + (vmax - vmin) * i / (tick_count - 1):.4g}" for i in range(tick_count)]
+    tick_width = max(colorbar_font.getlength(x) for x in tick_labels + ["<0"])
+    penetration_height = max(12, args.colorbar_font_size)
+    cap_top = bar_y - penetration_height
+    top_tick_box = colorbar_font.getbbox("<0", anchor="lm")
+    unit_bottom = cap_top + top_tick_box[1] - args.colorbar_unit_gap
     unit_box = colorbar_font.getbbox("(mm)", anchor="lb")
     if unit_bottom + unit_box[1] < 0: parser.error("colorbar unit would extend above canvas; increase colorbar-position Y or reduce colorbar-unit-gap")
     canvas_width = max(image_right + args.gap, bar_x + args.colorbar_thickness + 20 + math.ceil(tick_width) + args.gap, bar_x + unit_box[2] + args.gap)
@@ -85,13 +88,17 @@ def main() -> None:
             x = image_left + column * (tile_width + args.gap); tile = ImageOps.contain(image, (tile_width, tile_height))
             canvas.paste(tile, (x + (tile_width - tile.width) // 2, y + (tile_height - tile.height) // 2))
     draw.text((bar_x, unit_bottom), "(mm)", font=colorbar_font, fill="black", anchor="lb")
-    cmap = colormaps["jet_r"]
+    # Negative distance is blue-violet. Clearance runs from red at zero
+    # through yellow to green, using the exact same lookup table as step2.
+    cmap = occlusion_colormap()
+    draw.rectangle((bar_x, cap_top, bar_x + args.colorbar_thickness - 1, bar_y - 1), fill=PENETRATION_COLOR, outline="black")
+    draw.text((bar_x + args.colorbar_thickness + 14, cap_top), "<0", font=colorbar_font, fill="black", anchor="lm")
     for index in range(bar_length):
-        color = tuple(round(c * 255) for c in cmap(1 - index / (bar_length - 1))[:3])
+        color = tuple(round(c * 255) for c in cmap(index / (bar_length - 1))[:3])
         draw.line((bar_x, bar_y + index, bar_x + args.colorbar_thickness - 1, bar_y + index), fill=color)
     draw.rectangle((bar_x, bar_y, bar_x + args.colorbar_thickness - 1, bar_y + bar_length - 1), outline="black")
     for i, label in enumerate(tick_labels):
-        tick_y = bar_y + round((bar_length - 1) * (1 - i / 4))
+        tick_y = bar_y + round((bar_length - 1) * i / (tick_count - 1))
         draw.line((bar_x + args.colorbar_thickness, tick_y, bar_x + args.colorbar_thickness + 8, tick_y), fill="black")
         draw.text((bar_x + args.colorbar_thickness + 14, tick_y), label, font=colorbar_font, fill="black", anchor="lm")
     output = args.output.expanduser(); output = output if output.is_absolute() else SCRIPT_DIR / output

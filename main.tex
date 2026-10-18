@@ -448,7 +448,7 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
 %% 4.4.1 Experiment Result
 \subsubsection{Experimental Results}\label{subsubsec4_4_1}
 
-\hspace{2em}We systematically evaluated the proposed model against four baselines: the FDI nearest-neighbor, MADCrowner~\cite{Wei2026MADCrowner}, VBCD~\cite{Wei2025VBCD}, and DCrownFormer+~\cite{Yang2025DCrownFormerPlus}. All methods used identical dataset splits ($n_{\text{test}} = 252$) and preprocessing protocols. Paired comparisons were conducted on the common evaluable subset ($n_{\text{common}} = 241$) using two-tailed Wilcoxon signed-rank tests ($\alpha = 0.05$) for continuous metrics and McNemar's tests for dichotomous metrics, with 95\% CIs and $p$-values reported.
+\hspace{2em}We systematically evaluated the proposed model against four baselines: the FDI nearest-neighbor, MADCrowner~\cite{Wei2026MADCrowner}, VBCD~\cite{Wei2025VBCD}, and DCrownFormer+~\cite{Yang2025DCrownFormerPlus}. All methods were evaluated on the same full test set ($n_{\text{test}}=252$) using identical preprocessing protocols. Completion rates were calculated over all 252 test cases, while generated-crown metrics were calculated on each method's successfully generated cases.
 
 \begin{table*}[htbp]
     \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm}

@@ -1,36 +1,77 @@
 #!/usr/bin/env python3
-"""Render gt.stl as an implicit-distance heatmap with a transparent wire jaw."""
+"""Render crown meshes using the supplied exocad Intersection color scale.
+
+Distances from MIN to MAX: red, orange, yellow, green, cyan, dark blue.
+Below MIN saturates red; above MAX is white. Default range: -1..0 mm.
+Geometry and distance computation are unchanged by this visual mapping.
+The opposing jaw is selected from the FDI prefix of <FDI>-margin.xyz.
+"""
 from __future__ import annotations
 
-import argparse, json
+import argparse, json, re
 from pathlib import Path
 import numpy as np
 import pyvista as pv
-from matplotlib.colors import ListedColormap
-from matplotlib import colormaps
+from occlusion_colormap import (
+    BACKGROUND_COLOR, DEFAULT_LIMITS, PENETRATION_COLOR, occlusion_colormap,
+)
+
+
+def select_opposing_jaw(folder: Path) -> tuple[int, Path]:
+    """Select the antagonist for the single tooth identified by its margin file."""
+    margins = sorted(p for p in folder.glob("*-margin.xyz") if p.is_file())
+    if len(margins) != 1:
+        raise ValueError(
+            f"Expected exactly one <FDI>-margin.xyz in {folder}; "
+            f"found {len(margins)}: {', '.join(p.name for p in margins)}"
+        )
+    match = re.fullmatch(r"(\d{2})-margin\.xyz", margins[0].name)
+    if match is None:
+        raise ValueError(f"Invalid margin filename: {margins[0].name}; expected <FDI>-margin.xyz")
+    tooth_number = int(match.group(1))
+    if 31 <= tooth_number <= 37 or 41 <= tooth_number <= 47:
+        candidates = ("upperjaw.ply",)
+    elif 11 <= tooth_number <= 17 or 21 <= tooth_number <= 27:
+        candidates = ("lowerjaw.ply", "lower.ply")
+    else:
+        raise ValueError(
+            f"Unsupported FDI {tooth_number}; expected 11–17, 21–27, 31–37 or 41–47"
+        )
+    for name in candidates:
+        path = folder / name
+        if path.is_file():
+            return tooth_number, path
+    raise FileNotFoundError(
+        f"Missing opposing jaw for FDI {tooth_number} in {folder}; "
+        f"expected {' or '.join(candidates)}"
+    )
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("folder", type=Path)
-    parser.add_argument("--clim", nargs="+", type=float, default=[0.0, 0.2],
-                        help="color limits: MAX or MIN MAX (minimum may be negative; default: 0 0.2)")
+    parser.add_argument("--clim", nargs="+", type=float, default=DEFAULT_LIMITS,
+                        help="distance range in mm: MIN or MIN MAX (default: -1 0); a single MIN uses MAX=0; any finite MIN < MAX is allowed")
     # 删除多少三角面片，值越大删除越多
     parser.add_argument("--jaw-reduction", type=float, default=0.9,
                         help="∂ 0 keeps all (default: 0.9)")
     parser.add_argument("-o", "--output", type=Path, default=None)
     args = parser.parse_args()
     if len(args.clim) not in (1, 2):
-        parser.error("--clim expects MAX or MIN MAX")
-    vmin, vmax = (0.0, args.clim[0]) if len(args.clim) == 1 else args.clim
-    if (not np.isfinite(vmin) or not np.isfinite(vmax) or vmin >= vmax
-            or vmax <= 0):
-        parser.error("--clim must satisfy finite MIN < MAX and MAX > 0")
+        parser.error("--clim expects MIN or MIN MAX")
+    vmin, vmax = (args.clim[0], 0.0) if len(args.clim) == 1 else args.clim
+    if not np.isfinite(vmin) or not np.isfinite(vmax) or vmin >= vmax:
+        parser.error("--clim requires finite MIN < MAX")
     if not np.isfinite(args.jaw_reduction) or not 0 <= args.jaw_reduction < 1:
         parser.error('--jaw-reduction must be finite and in [0, 1)')
-    folder = args.folder.resolve()
+    folder = args.folder.expanduser().resolve()
+    try:
+        tooth_number, jaw_path = select_opposing_jaw(folder)
+    except (ValueError, FileNotFoundError) as exc:
+        parser.error(str(exc))
+    print(f"FDI {tooth_number}: opposing jaw = {jaw_path.name}")
     view = json.loads((folder / "occlusion_view.json").read_text()).get("camera")
-    jaw = pv.read(folder / "upperjaw.ply").triangulate()
+    jaw = pv.read(jaw_path).triangulate()
     translation = view.get("translation", [0.0, 0.0, 0.0]) if view else [0.0, 0.0, 0.0]
     jaw.points = np.asarray(jaw.points) + np.asarray(translation)
     # Only simplify the displayed wireframe; distances use the full surface.
@@ -41,25 +82,26 @@ def main() -> None:
         try:
             result = crown.compute_implicit_distance(jaw, inplace=False)
             values = np.asarray(result["implicit_distance"])
-        except Exception:
-            from scipy.spatial import cKDTree
-            values = cKDTree(np.asarray(jaw.points)).query(np.asarray(crown.points), k=1)[0]
-        # Any intersection (negative signed distance) is always shown in the
-        # red endpoint. Positive clearance is mapped by magnitude toward blue.
+        except Exception as exc:
+            raise RuntimeError(
+                f"Cannot compute signed distance for {stem}; an unsigned "
+                "nearest-neighbor fallback cannot identify penetration."
+            ) from exc
+        if not np.all(np.isfinite(values)):
+            raise ValueError(f"Non-finite signed distances in {stem}")
+        # Use the signed distance directly: MIN maps to red and MAX to blue.
+        # Positive distances remain visible whenever MAX includes clearance.
         contact_values = values.astype(float, copy=True)
-        contact_values[contact_values < 0] = vmin
         contact_values[contact_values > vmax] = np.nan
         crown["surface_distance"] = contact_values
         plotter = pv.Plotter(off_screen=True, window_size=(900, 700))
         plotter.set_background("white")
         plotter.add_mesh(wire_jaw, color="#a8aaa5", style="wireframe", line_width=2.0,
                          opacity=0.32, show_edges=True)
-        colors = colormaps["jet_r"].resampled(255)(np.linspace(0, 1, 255))
-        colors[0] = (1.0, 0.0, 0.0, 1.0)
-        heatmap_cmap = ListedColormap(colors)
-        plotter.add_mesh(crown, scalars="surface_distance", cmap=heatmap_cmap,
+        plotter.add_mesh(crown, scalars="surface_distance", cmap=occlusion_colormap(),
                          clim=(vmin, vmax), smooth_shading=True,
-                         nan_color="white", nan_opacity=1.0,
+                         below_color=PENETRATION_COLOR,
+                         nan_color=BACKGROUND_COLOR, nan_opacity=1.0,
                          show_scalar_bar=False)
         if view:
             plotter.camera.position = view["position"]

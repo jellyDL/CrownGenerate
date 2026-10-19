@@ -19,6 +19,9 @@ def load_font(size: int, bold: bool = False):
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("folder", nargs="?", type=Path, default=SCRIPT_DIR)
+    selection = parser.add_mutually_exclusive_group()
+    selection.add_argument("--cases", nargs="+", metavar="DIR", help="case folders in top-to-bottom order, relative to folder or absolute")
+    selection.add_argument("--list", dest="case_list", type=Path, help="file listing case folders in top-to-bottom order")
     parser.add_argument("-o", "--output", type=Path, default=Path("merged_heatmaps.png"))
     parser.add_argument("--gap", type=int, default=60, help="tile gap and outer margin (pixels)")
     # 上方文字和图片的距离
@@ -40,8 +43,24 @@ def main() -> None:
     if min(args.gap, args.header_gap, args.colorbar_gap, args.colorbar_unit_gap) < 0 or args.font_size <= 0: parser.error("gaps must be nonnegative and font-size must be positive")
     if args.colorbar_thickness <= 0 or args.colorbar_font_size <= 0: parser.error("colorbar dimensions and font size must be positive")
     root = args.folder.expanduser().resolve()
+    if root.is_file():
+        if args.case_list or args.cases:
+            parser.error("a positional list file cannot be combined with --list or --cases")
+        args.case_list = root
+        root = SCRIPT_DIR
     if not root.is_dir(): parser.error(f"folder does not exist: {root}")
-    sample_dirs = sorted(p for p in root.iterdir() if p.is_dir() and not p.name.startswith(".") and p.name != "__pycache__")
+    entries = args.cases
+    if args.case_list:
+        try:
+            entries = [line.strip() for line in args.case_list.expanduser().read_text(encoding="utf-8-sig").splitlines()
+                       if line.strip() and not line.lstrip().startswith("#")]
+        except (OSError, UnicodeError) as exc:
+            parser.error(f"cannot read case list: {exc}")
+    if entries is not None:
+        sample_dirs = [Path(entry).expanduser() for entry in entries]
+        sample_dirs = [p if p.is_absolute() else root / p for p in sample_dirs]
+    else:
+        sample_dirs = sorted(p for p in root.iterdir() if p.is_dir() and not p.name.startswith(".") and p.name != "__pycache__")
     rows = []
     for sample_dir in sample_dirs:
         paths = tuple(sample_dir / name for name in ROW_FILES)
@@ -52,6 +71,7 @@ def main() -> None:
         for path in paths:
             with Image.open(path) as image: with_images.append(image.convert("RGB"))
         rows.append(with_images)
+        print(f"row {len(rows)}: {sample_dir.name}")
     if not rows: parser.error(f"no complete image rows found in {root}")
     tile_width = max(image.width for row in rows for image in row)
     tile_height = max(image.height for row in rows for image in row)

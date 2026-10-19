@@ -504,23 +504,26 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
 
 \begin{table*}[htbp]
   \centering
-  \scriptsize
+  \footnotesize
   \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm}
-  \caption{\hspace{0.5em}Quantitative results for the tooth-position prompt. Values are reported in the related study~\cite{Wei2025VBCD}; the independent TP Prompt effect is assessed by comparing the ``+PCR'' and ``+PCR+TP Prompt'' rows.}
+  \caption{\hspace{0.5em}Controlled ablation of the tooth-position prompt (TP Prompt). Results are pending independent retraining and paired evaluation.}
   \label{table_tooth_number_ablation}
-  \setlength{\tabcolsep}{5pt}
-  \begin{tabular}{lcccccc}
+  \setlength{\tabcolsep}{4pt}
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.25cm}*{4}{>{\centering\arraybackslash}X}@{}}
     \hline
-    Configuration & PCR & TP Prompt & CMPL & CD-L2 (mm$^2$) $\downarrow$ & Fidelity (mm$^2$) $\downarrow$ & F-score $\uparrow$ \\
+    Configuration / contrast & \shortstack{CD-L2\\(mm$^2$) $\downarrow$} & \shortstack{HD\\(mm) $\downarrow$} & \shortstack{F-score@0.10\,mm\\(\%) $\uparrow$} & \shortstack{Margin P95\\(mm) $\downarrow$} \\
     \hline
-    Baseline & No & No & No & 0.230 & 0.314 & 0.896 \\
-    +PCR & Yes & No & No & 0.198 & 0.231 & 0.929 \\
-    +PCR+CMPL & Yes & No & Yes & 0.154 & 0.216 & 0.934 \\
-    +PCR+TP Prompt & Yes & Yes & No & 0.156 & 0.219 & 0.932 \\
-    Complete (+PCR+TP Prompt+CMPL) & Yes & Yes & Yes & 0.140 & 0.213 & 0.957 \\
+    Without TP Prompt & --- & --- & --- & --- \\
+    With TP Prompt & --- & --- & --- & --- \\
     \hline
-    \multicolumn{7}{l}{\footnotesize \textit{Note:} HD and cervical-margin P95 error were not reported in the source study.} \\
-  \end{tabular}
+    Paired difference [95\% CI] & --- & --- & --- & --- \\
+    \hline
+  \end{tabularx}
+  \par\vspace{3pt}
+  \begin{minipage}{\textwidth}
+    \footnotesize\textit{Note:} Configuration rows will report mean $\pm$ SD on the same evaluable cases. Differences are with minus without TP Prompt; negative distance differences and positive F-score differences indicate improvement. F-score differences are in percentage points. All results, the common-case count, and the number of independent training seeds are pending. Generation counts must also be reported for each configuration on the full test set.
+  \end{minipage}
 \end{table*}
 
 %%%% Ablation Study 2

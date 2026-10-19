@@ -28,7 +28,7 @@ for j, color in enumerate(colors):
     left += values
 ax.set_ylim(2.39,-.39)
 ax.set_xlim(0,100)
-ax.set_yticks(y, ['Dentist '+r[0] for r in rows], color='#283A47')
+ax.set_yticks(y, ['Technician '+r[0] for r in rows], color='#283A47')
 ax.tick_params(axis='y', length=0, pad=8, labelsize=9)
 ax.set_xticks([0,25,50,75,100], ['0','25','50','75','100'])
 ax.tick_params(axis='x', length=3, width=.6, pad=5, labelsize=8, colors='#455563')
@@ -51,4 +51,4 @@ for stem in ['figure5_technician_score_distribution', 'figure5_technician_score_
     for ext in ['png','pdf']:
         fig.savefig(ROOT/f'{stem}.{ext}',facecolor='white')
 plt.close(fig)
-print('Verified 80 ratings per dentist; scores 4–5:', counts[:,3:].sum(1).tolist())
+print('Verified 80 ratings per technician; scores 4–5:', counts[:,3:].sum(1).tolist())

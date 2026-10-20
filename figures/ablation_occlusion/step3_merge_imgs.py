@@ -27,7 +27,7 @@ def main() -> None:
     # 上方文字和图片的距离
     parser.add_argument("--header-gap", type=int, default=80, help="distance from the bottom of column label text to images (pixels)")
     parser.add_argument("--font-size", type=int, default=80, help="column label font size")
-    parser.add_argument("--labels", nargs=3, default=("Reference Crown", "Without Intersection", "With Intersection"), metavar=("GT", "WITHOUT", "WITH"))
+    parser.add_argument("--labels", nargs=3, default=("Reference Crown", "I-Opposing", "Full model"), metavar=("GT", "WITHOUT", "WITH"))
     parser.add_argument("--background", default="white")
     parser.add_argument("--clim", nargs="+", type=float, default=DEFAULT_LIMITS, help="clearance limits in mm: MAX or 0 MAX (default: 0 0.2); use the same limits as step2")
     parser.add_argument("--colorbar-font-size", type=int, default=80)

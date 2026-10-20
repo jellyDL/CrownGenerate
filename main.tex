@@ -492,32 +492,35 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
 \subsubsection{Ablation Study}\label{subsubsec4_4_2}
 
 %%%% Ablation Study 1
-\textbf{Ablation of Oriented Signed--FDG Representation.} This experiment tests whether augmenting the standard FDG with truncated signed distance and oriented surface normals improves crown generation. Standard FDG and oriented signed-FDG are encoded by independently trained VAEs, while the downstream Structure Flow, Feature Flow, dental conditions, data split, optimization budget, and post-processing are matched as closely as the representation-specific parameterization permits. Both configurations are evaluated on their common successful cases using CD-L2, HD, F-score, and cervical-margin P95 error. The primary comparison is the paired difference between the two representations; VAE reconstruction diagnostics and trainable-parameter counts should be reported separately to distinguish representation reconstruction from downstream generation quality. Results remain pending independent retraining and evaluation.
+\textbf{Ablation of Oriented Signed--FDG Representation.} This experiment tests whether augmenting the standard FDG with truncated signed distance and oriented surface normals improves crown generation. Standard FDG and oriented signed-FDG are encoded by independently trained VAEs with the same latent-grid resolution, decoder capacity, data split, and VAE training budget. The downstream Structure Flow, Feature Flow, dental conditions, optimization budget, and post-processing are then held fixed. Generation completion is reported on the full test set, and both configurations are evaluated on their common successful cases using CD-L2, HD, F-score, and cervical-margin P95 error. The primary comparison is the paired difference between the two representations; VAE reconstruction diagnostics and trainable-parameter counts should be reported separately to distinguish representation reconstruction from downstream generation quality. Results remain pending independent retraining and evaluation.
 
 \begin{table*}[htbp]
   \centering
-  \footnotesize
+  \scriptsize
   \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm}
-  \caption{\hspace{0.5em}Controlled ablation of the oriented signed-FDG representation. Results are pending independent VAE and flow retraining.}
+  \caption{\hspace{0.5em}Comparison of standard FDG and oriented signed-FDG representations. Values are pending independent VAE and flow retraining.}
   \label{table_oriented_signed_fdg_ablation}
   \setlength{\tabcolsep}{4pt}
-  \renewcommand{\arraystretch}{1.2}
-  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.45cm}*{4}{>{\centering\arraybackslash}X}@{}}
+  \renewcommand{\arraystretch}{1.15}
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.65cm}*{4}{>{\centering\arraybackslash}X}@{}}
     \hline
-    Configuration / contrast & \shortstack{CD-L2\\(mm$^2$) $\downarrow$} & \shortstack{HD\\(mm) $\downarrow$} & \shortstack{F-score@0.10\,mm\\(\%) $\uparrow$} & \shortstack{Margin P95\\(mm) $\downarrow$} \\
+    Endpoint & Standard FDG & Oriented signed-FDG & Paired difference [95\% CI] & $p$ value \\
     \hline
-    Standard FDG & --- & --- & --- & --- \\
-    Oriented signed-FDG & --- & --- & --- & --- \\
-    Paired difference [95\% CI] & --- & --- & --- & --- \\
+    Full-test completion (\%) $\uparrow$ & --- & --- & --- pp & --- \\
+    Successful outputs (n/252) & --- & --- & --- & --- \\
+    CD-L2 (mm$^2$) $\downarrow$ & --- & --- & --- & --- \\
+    HD (mm) $\downarrow$ & --- & --- & --- & --- \\
+    F-score@0.10\,mm (\%) $\uparrow$ & --- & --- & --- pp & --- \\
+    Cervical-margin P95 (mm) $\downarrow$ & --- & --- & --- & --- \\
     \hline
   \end{tabularx}
   \par\vspace{3pt}
   \begin{minipage}{\textwidth}
-    \footnotesize\textit{Note:} Standard FDG encodes the original geometric attributes, whereas oriented signed-FDG additionally includes truncated signed distance and oriented surface normals. Each representation requires an independently trained VAE; the downstream flow architecture, dental conditions, data split, optimization budget, and post-processing should be matched. Configuration rows will report mean $\pm$ SD on the common evaluable cases. The paired difference is defined as oriented signed-FDG minus standard FDG; negative distance differences and positive F-score differences indicate improvement. Dashes denote pending results, not zero effects.
+    \footnotesize\textit{Note:} Completion is calculated on the full test set ($n_{\mathrm{test}}=252$). CD-L2, HD, F-score, and cervical-margin P95 are reported as mean $\pm$ SD on the common successful cases ($n_{\mathrm{common}}=\text{TBD}$). The paired difference is defined as oriented signed-FDG minus standard FDG; negative distance differences and positive F-score or completion differences indicate improvement. The continuous endpoints use paired tests, whereas completion uses a paired binary comparison. The table must report the number of successful outputs for each configuration, the common-case count, the independent training-seed count, the paired 95\% CI, and the two-sided $p$ value after retraining. Dashes denote pending results, not zero effects.
   \end{minipage}
 \end{table*}
 
-%%%% Ablation Study 2
+%%%% Ablation Study 2-1
 \textbf{Ablation Study of Antagonist Conditioning} To evaluate the contribution of the antagonist conditioning for generating occlusal relationships. The ablated configuration is denoted as I-Opposing. The complete model receives the prepared tooth, adjacent teeth, and antagonist dentition as inputs, providing information about crown morphology, proximal relationships, and interarch spatial correspondence. In I-Opposing, the antagonist-dentition condition is removed while all other inputs, network components, training epochs, random seeds, and inference settings remain unchanged. With the A2 VAE frozen, the two configurations are trained independently and compared in terms of occlusal contact coverage, penetration area ratio, and maximum penetration depth. This ablation specifically examines whether antagonist conditioning guides the model to learn the spatial relationship between the generated crown and the opposing dentition. Removing the antagonist condition is expected to preserve the overall crown morphology but may result in missing, fragmented, or spatially displaced occlusal contact regions, accompanied by localized premature contacts (Fig.~\ref{fig:ablation_occlusion}). This experiment therefore assesses the contribution of antagonist conditioning to the formation of continuous, stable, and anatomically appropriate occlusal contact patterns.
 
 \begin{figure}[H]
@@ -526,6 +529,9 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
   \caption{Representative visualization of the antagonist-conditioning ablation. Ground Truth denotes the reference crown, Without Interaction denotes the model without antagonist-dentition conditioning, and With Interaction denotes the complete model with antagonist conditioning. The color map represents the implicit signed distance between the crown and antagonist surfaces. Removing the antagonist condition results in incomplete occlusal contact regions and localized premature contacts.}
   \label{fig:ablation_occlusion}
 \end{figure}
+
+%%%% Ablation Study 2-2
+\textbf{Ablation Study of Tooth-position Conditioning.}} This experiment tests whether an explicit FDI-based Tooth Position Prompt (TP Prompt) provides tooth-position morphological priors beyond the geometric scan conditions. The FDI designation is encoded and injected into the global conditioning branch. The two configurations differ only in the presence of TP Prompt; data splits, maxillary and mandibular scans, the three-dimensional cervical-margin line, network architecture, A2 VAE, training budget, random-seed schedule, and post-processing are otherwise matched. Structure Flow and Feature Flow are retrained independently and evaluated on the common successful cases using CD-L2, HD, F-score, and cervical-margin P95 error. The paired comparison and its 95\% confidence intervals are summarized in Table~\ref{table_tooth_number_ablation}, which quantifies the incremental contribution of explicit tooth-position conditioning to the generated crown morphology.
 
 \begin{table*}[htbp]
   \centering
@@ -551,8 +557,9 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
   \end{minipage}
 \end{table*}
 
-%%%% Ablation Study 3
-\textbf{Ablation Study of Tooth-position Conditioning.}} This experiment tests whether an explicit FDI-based Tooth Position Prompt (TP Prompt) provides tooth-position morphological priors beyond the geometric scan conditions. The FDI designation is encoded and injected into the global conditioning branch. The two configurations differ only in the presence of TP Prompt; data splits, maxillary and mandibular scans, the three-dimensional cervical-margin line, network architecture, A2 VAE, training budget, random-seed schedule, and post-processing are otherwise matched. Structure Flow and Feature Flow are retrained independently and evaluated on the common successful cases using CD-L2, HD, F-score, and cervical-margin P95 error. The paired comparison and its 95\% confidence intervals are summarized in Table~\ref{table_tooth_number_ablation}, which quantifies the incremental contribution of explicit tooth-position conditioning to the generated crown morphology.
+%%%% Ablation Study 2-3
+\textbf{Ablation Study of Cervical-margin Constraint.} This experiment compares models with and without cervical-margin conditioning to assess its contribution to crown geometric quality. Both configurations retain the maxillary and mandibular scans and the tooth-position prompt, with identical data splits, network architecture, training budget, random seeds, and post-processing. After freezing the same VAE, Structure Flow and Feature Flow are retrained independently. The evaluation focuses on overall surface error and worst local deviation, with results stratified by premolar, molar, and overall cases. The reference results in Table~\ref{table_cervical_margin_ablation} show lower CD-L2, Fidelity Distance, and HD and higher F-score with cervical-margin conditioning. The two tooth groups exhibit the same direction of change, suggesting improved surface geometric consistency and reduced maximum local deviation. Numerical values are presented in the table.
+
 \begin{table*}[htbp]
   \centering
   \scriptsize
@@ -572,15 +579,40 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
   \end{tabular}
 \end{table*}
 
-%%%% Ablation Study 4
-\textbf{Ablation of Hierarchical Structure--Feature Generation.} This experiment evaluates the effect of staged Structure Flow and Feature Flow training on structural support and local-detail modeling. The single-stage baseline uses a conditional flow network to jointly predict crown occupancy and local geometric features, whereas the two-stage configuration first uses Structure Flow to generate the crown-occupancy support and then uses Feature Flow to refine local geometric and anatomical details within that support. Both configurations retain identical input conditions, data split, VAE, optimization budget, random seeds, solver steps, and post-processing, with trainable parameter counts constrained to a predefined matching range. On the common endpoint-evaluable subset, we compare overall geometric error, adjacent-tooth spacing error, adjacency preservation, cervical-margin P95 error, and engineering quality-gate pass rate. This design hypothesizes that explicit support dependency reduces the modeling of inactive locations and allows Feature Flow to concentrate on local regions such as cusps, fissures, proximal surfaces, and cervical transitions, thereby reducing adjacency conflicts and local discontinuities. Fig.~\ref{fig:ablation_adjacent} serves as a qualitative visualization reference for adjacency and contact regions.
+%%%% Ablation Study 3
+\textbf{Ablation of Hierarchical Structure--Feature Generation.} This experiment tests whether separating global support prediction from local feature generation improves the reconstruction of posterior crowns. The proposed configuration uses Structure Flow to predict the active occupancy support and Feature Flow to generate local geometric features within that support. The matched alternative uses a single conditional flow network to jointly generate occupancy and local features. Both configurations use the same oriented signed-FDG VAE, dental inputs, data split, random-seed schedule, total training updates, total solver evaluations, and post-processing; trainable parameters and inference resources are matched within 5\% where applicable and reported with the results. On the common successful cases, we compare CD-L2, HD, cervical-margin P95 error, antagonist penetration area ratio, and topology-quality pass rate. Full-test completion is reported separately. This design directly evaluates the claimed structural-to-detail dependency; it is not interpreted as a comparison of training order alone. The corresponding adjacency diagnostic is shown in Fig.~\ref{fig:ablation_adjacent}.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.6\linewidth]{figures/ablation_adjacent/merged_heatmaps.png}
+  \includegraphics[width=0.72\linewidth]{figures/ablation_adjacent/merged_heatmaps.png}
   \caption{\textbf{Qualitative reference visualization for hierarchical structure--feature generation.} Rows are arranged as Ground Truth, Without Intersection, and With Intersection. Colors indicate the implicit distance between the crown and adjacent or opposing surfaces. The figure is used solely as a reference for the qualitative visualization layout.}
   \label{fig:ablation_adjacent}
 \end{figure}
+
+%%%% Ablation Study 4
+\textbf{Ablation of Decoded-Surface Supervision.} This experiment tests whether supervising decoded geometry provides information beyond latent-space flow and reconstruction losses. The full model uses the decoded-surface term $\lambda_3L_{\mathrm{dec}}$ in the Feature Flow objective, whereas the ablated model sets $\lambda_3=0$ and retains all other loss terms, weights, VAE parameters, dental conditions, architecture, data split, training budget, random-seed schedule, solver settings, and post-processing. The VAE remains frozen during both Feature Flow trainings, so the comparison isolates the effect of decoded-surface supervision. Final meshes are evaluated on the common successful cases using CD-L2, HD, F-score, cervical-margin P95 error, and topology-quality pass rate; full-test completion is reported separately. Results and paired 95\% confidence intervals are summarized in Table~\ref{table_decoded_surface_ablation}.
+
+\begin{table*}[htbp]
+  \centering
+  \footnotesize  \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm}
+  \caption{\hspace{0.5em}Controlled ablation of decoded-surface supervision. Results are pending independent retraining and paired evaluation.}
+  \label{table_decoded_surface_ablation}
+  \setlength{\tabcolsep}{4pt}
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.25cm}*{5}{>{\centering\arraybackslash}X}@{}}
+    \hline
+    Configuration & Completion (\%) $\uparrow$ & CD-L2 (mm$^2$) $\downarrow$ & HD (mm) $\downarrow$ & Margin P95 (mm) $\downarrow$ & Topology pass (\%) $\uparrow$ \\
+    \hline
+    Full supervision ($\lambda_3=3.0$) & --- & --- & --- & --- & --- \\
+    Without decoded-surface supervision ($\lambda_3=0$) & --- & --- & --- & --- & --- \\
+    Paired difference [95\% CI] & --- & --- & --- & --- & --- \\
+    \hline
+  \end{tabularx}
+  \par\vspace{3pt}
+  \begin{minipage}{\textwidth}
+    \footnotesize\textit{Note:} The paired difference is defined as full supervision minus the ablated configuration; negative distance differences and positive rate differences indicate improvement. Completion uses the full test set, whereas geometric and topology endpoints use the common successful cases. The VAE is frozen in both configurations. Dashes denote pending results, not zero effects.
+  \end{minipage}
+\end{table*}
 
 %% 4.4.3 Discussion
 \subsubsection{Discussion}\label{subsubsec4_4_3}

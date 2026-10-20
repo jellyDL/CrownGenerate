@@ -492,7 +492,7 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
 \subsubsection{Ablation Study}\label{subsubsec4_4_2}
 
 %%%% Ablation Study 1
-\textbf{Ablation Study of Antagonist Conditioning} To evaluate the contribution of the antagonist conditioning for generating occlusal relationships,ut antagonist conditioning, denoted as I-Opposing. The complete model receives the prepared tooth, adjacent teeth, and antagonist dentition as inputs, providing information about crown morphology, proximal relationships, and interarch spatial correspondence. In I-Opposing, the antagonist-dentition condition is removed while all other inputs, network components, training epochs, random seeds, and inference settings remain unchanged. With the A2 VAE frozen, the two configurations are trained independently and compared in terms of occlusal contact coverage, penetration area ratio, and maximum penetration depth. This ablation specifically examines whether antagonist conditioning guides the model to learn the spatial relationship between the generated crown and the opposing dentition. Removing the antagonist condition is expected to preserve the overall crown morphology but may result in missing, fragmented, or spatially displaced occlusal contact regions, accompanied by localized premature contacts (Fig.~\ref{fig:ablation_occlusion}). This experiment therefore assesses the contribution of antagonist conditioning to the formation of continuous, stable, and anatomically appropriate occlusal contact patterns.
+\textbf{Ablation Study of Antagonist Conditioning} To evaluate the contribution of the antagonist conditioning for generating occlusal relationships. The ablated configuration is denoted as I-Opposing. The complete model receives the prepared tooth, adjacent teeth, and antagonist dentition as inputs, providing information about crown morphology, proximal relationships, and interarch spatial correspondence. In I-Opposing, the antagonist-dentition condition is removed while all other inputs, network components, training epochs, random seeds, and inference settings remain unchanged. With the A2 VAE frozen, the two configurations are trained independently and compared in terms of occlusal contact coverage, penetration area ratio, and maximum penetration depth. This ablation specifically examines whether antagonist conditioning guides the model to learn the spatial relationship between the generated crown and the opposing dentition. Removing the antagonist condition is expected to preserve the overall crown morphology but may result in missing, fragmented, or spatially displaced occlusal contact regions, accompanied by localized premature contacts (Fig.~\ref{fig:ablation_occlusion}). This experiment therefore assesses the contribution of antagonist conditioning to the formation of continuous, stable, and anatomically appropriate occlusal contact patterns.
 
 \begin{figure}[H]
   \centering
@@ -526,8 +526,7 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
 \end{table*}
 
 %%%% Ablation Study 2
-\textbf{Ablation Study of Tooth-number Constraint.} This experiment examines the effect of the Tooth Position Prompt (TP Prompt) on crown geometric quality. TP Prompt is encoded from the FDI tooth designation and injected into the global conditioning branch. Except for enabling or disabling TP Prompt, the two configurations use identical data splits, maxillary and mandibular scans, three-dimensional cervical-margin line, network parameters, A2 VAE, training budget, random seeds, and post-processing. After freezing the A2 VAE, Structure Flow and Feature Flow are retrained independently and evaluated on the common evaluable subset using CD-L2, Fidelity Distance, HD, F-score, and cervical-margin P95 error. The analysis focuses on whether TP Prompt produces consistent changes in overall geometric error, worst local deviation, and tooth-position-specific shape fidelity. If only a subset of metrics improves, the differences and confidence intervals should be reported separately rather than summarized as an overall performance gain. Numerical values, effect sizes, and statistical tests are provided in Table~\ref{table_tooth_number_ablation}.
-
+\textbf{Ablation Study of Tooth-position Conditioning.} This experiment tests whether an explicit FDI-based Tooth Position Prompt (TP Prompt) provides tooth-position morphological priors beyond the geometric scan conditions. The FDI designation is encoded and injected into the global conditioning branch. The two configurations differ only in the presence of TP Prompt; data splits, maxillary and mandibular scans, the three-dimensional cervical-margin line, network architecture, A2 VAE, training budget, random-seed schedule, and post-processing are otherwise matched. Structure Flow and Feature Flow are retrained independently and evaluated on the common successful cases using CD-L2, HD, F-score, and cervical-margin P95 error. The paired comparison and its 95\% confidence intervals are summarized in Table~\ref{table_tooth_number_ablation}, which quantifies the incremental contribution of explicit tooth-position conditioning to the generated crown morphology.
 \begin{table*}[htbp]
   \centering
   \scriptsize
@@ -548,12 +547,36 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
 \end{table*}
 
 %%%% Ablation Study 3
-\textbf{Ablation Study of Cervical-margin Constraint.} This experiment compares models with and without cervical-margin conditioning to assess its contribution to crown geometric quality. Both configurations retain the maxillary and mandibular scans and the tooth-position prompt, with identical data splits, network architecture, training budget, random seeds, and post-processing. After freezing the same VAE, Structure Flow and Feature Flow are retrained independently. The evaluation focuses on overall surface error and worst local deviation, with results stratified by premolar, molar, and overall cases. The reference results in Table~\ref{table_cervical_margin_ablation} show lower CD-L2, Fidelity Distance, and HD and higher F-score with cervical-margin conditioning. The two tooth groups exhibit the same direction of change, suggesting improved surface geometric consistency and reduced maximum local deviation. Numerical values are presented in the table.
+\textbf{Ablation of Oriented Signed--FDG Representation.} This experiment tests whether augmenting the standard FDG with truncated signed distance and oriented surface normals improves crown generation. Standard FDG and oriented signed-FDG are encoded by independently trained VAEs, while the downstream Structure Flow, Feature Flow, dental conditions, data split, optimization budget, and post-processing are matched as closely as the representation-specific parameterization permits. Both configurations are evaluated on their common successful cases using CD-L2, HD, F-score, and cervical-margin P95 error. The primary comparison is the paired difference between the two representations; VAE reconstruction diagnostics and trainable-parameter counts should be reported separately to distinguish representation reconstruction from downstream generation quality. Results remain pending independent retraining and evaluation.
+
+\begin{table*}[htbp]
+  \centering
+  \footnotesize
+  \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm}
+  \caption{\hspace{0.5em}Controlled ablation of the oriented signed-FDG representation. Results are pending independent VAE and flow retraining.}
+  \label{table_oriented_signed_fdg_ablation}
+  \setlength{\tabcolsep}{4pt}
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.45cm}*{4}{>{\centering\arraybackslash}X}@{}}
+    \hline
+    Configuration / contrast & \shortstack{CD-L2\\(mm$^2$) $\downarrow$} & \shortstack{HD\\(mm) $\downarrow$} & \shortstack{F-score@0.10\,mm\\(\%) $\uparrow$} & \shortstack{Margin P95\\(mm) $\downarrow$} \\
+    \hline
+    Standard FDG & --- & --- & --- & --- \\
+    Oriented signed-FDG & --- & --- & --- & --- \\
+    Paired difference [95\% CI] & --- & --- & --- & --- \\
+    \hline
+  \end{tabularx}
+  \par\vspace{3pt}
+  \begin{minipage}{\textwidth}
+    \footnotesize\textit{Note:} Standard FDG encodes the original geometric attributes, whereas oriented signed-FDG additionally includes truncated signed distance and oriented surface normals. Each representation requires an independently trained VAE; the downstream flow architecture, dental conditions, data split, optimization budget, and post-processing should be matched. Configuration rows will report mean $\pm$ SD on the common evaluable cases. The paired difference is defined as oriented signed-FDG minus standard FDG; negative distance differences and positive F-score differences indicate improvement. Dashes denote pending results, not zero effects.
+  \end{minipage}
+\end{table*}
+
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.6\linewidth]{figures/ablation_adjacent/merged_heatmaps.png}
-  \caption{\textbf{Qualitative reference visualization for adjacency relationships in the two-stage training ablation.} Rows are arranged as Ground Truth, Without Intersection, and With Intersection. Colors indicate the implicit distance between the crown and adjacent or opposing surfaces. The figure is used solely as a reference for the qualitative visualization layout.}
+  \caption{\textbf{Qualitative reference visualization for hierarchical structure--feature generation.} Rows are arranged as Ground Truth, Without Intersection, and With Intersection. Colors indicate the implicit distance between the crown and adjacent or opposing surfaces. The figure is used solely as a reference for the qualitative visualization layout.}
   \label{fig:ablation_adjacent}
 \end{figure}
 

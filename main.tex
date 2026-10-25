@@ -535,30 +535,31 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
 \bigskip
 
 %%%% Ablation Study 3
-\textbf{Ablation of Tooth-Position Conditioning.} This experiment tests whether an explicit FDI-based Tooth Position Prompt (TP Prompt) provides tooth-position morphological priors beyond the geometric scan conditions. The FDI designation is encoded and injected into the global conditioning branch. The two configurations differ only in the presence of TP Prompt; data splits, maxillary and mandibular scans, the three-dimensional cervical-margin line, network architecture, A2 VAE, training budget, random-seed schedule, and post-processing are otherwise matched. Structure Flow and Feature Flow are retrained independently and evaluated on the common successful cases using CD-L2, HD, F-score, and cervical-margin P95 error. The paired comparison and its 95\% confidence intervals are summarized in Table~\ref{table_tooth_number_ablation}, which quantifies the incremental contribution of explicit tooth-position conditioning to the generated crown morphology.
+\textbf{Exploratory Comparison of Tooth-Position Conditioning.} This experiment examined whether the FDI-based Tooth Position Prompt (TP Prompt), injected into the global conditioning branch, complements geometric scan conditions for crown reconstruction. Structure Flow and Feature Flow were trained separately for each configuration, and models with and without TP Prompt were evaluated on the same commonly evaluable cases. Table~\ref{table_tooth_number_ablation2} reports paired differences and case-level bootstrap 95\% confidence intervals. With TP Prompt, CD-L2, sampled HD, and input-margin-to-surface P95 were lower by 0.003 mm², 0.026 mm, and 0.020 mm, respectively, while F-score at 0.10 mm was higher by 1.980 percentage points; all four confidence intervals excluded zero. These findings suggest improved surface reconstruction and input-margin adherence.
 
 \begin{table*}[htbp]
   \centering
   \footnotesize
-  \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm} 
-  \caption{\hspace{0.5em}Controlled ablation of the tooth-position prompt (TP Prompt). Results are pending independent retraining and paired evaluation.}
-  \label{table_tooth_number_ablation}
+  \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm}
+  \caption{\hspace{0.5em}Exploratory comparison of tooth-position conditioning with and without TP Prompt.}
+  \label{table_tooth_number_ablation2}
   \setlength{\tabcolsep}{4pt}
   \renewcommand{\arraystretch}{1.2}
   \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.25cm}*{4}{>{\centering\arraybackslash}X}@{}}
     \hline
-    Configuration / contrast & \shortstack{CD-L2\\(mm$^2$) $\downarrow$} & \shortstack{HD\\(mm) $\downarrow$} & \shortstack{F-score@0.10\,mm\\(\%) $\uparrow$} & \shortstack{Margin P95\\(mm) $\downarrow$} \\
+    Configuration / contrast & \shortstack{CD-L2\\(mm$^2$) $\downarrow$} & \shortstack{Sampled HD\\(mm) $\downarrow$} & \shortstack{F-score@0.10\,mm\\(\%) $\uparrow$} & \shortstack{Margin P95\\(mm) $\downarrow$} \\
     \hline
-    Without TP Prompt & --- & --- & --- & --- \\
-    With TP Prompt & --- & --- & --- & --- \\
+    Without TP Prompt & $0.028 \pm 0.021$ & $0.708 \pm 0.240$ & $59.110 \pm 8.620$ & $0.154 \pm 0.034$ \\
+    With TP Prompt & $0.026 \pm 0.017$ & $0.682 \pm 0.222$ & $61.090 \pm 8.220$ & $0.134 \pm 0.030$ \\
     \hline
-    Paired difference [95\% CI] & --- & --- & --- & --- \\
+    Paired difference [95\% CI] & \shortstack{$-0.003$\\$[-0.004,\,-0.001]$} & \shortstack{$-0.026$\\$[-0.047,\,-0.004]$} & \shortstack{$+1.980$\\$[+1.250,\,+2.690]$} & \shortstack{$-0.020$\\$[-0.024,\,-0.016]$} \\
     \hline
   \end{tabularx}
-  \par\vspace{3pt}
-  \begin{minipage}{\textwidth}
-    \footnotesize\textit{Note:} Configuration rows will report mean $\pm$ SD on the same evaluable cases. Differences are with minus without TP Prompt; negative distance differences and positive F-score differences indicate improvement. F-score differences are in percentage points. All results, the common-case count, and the number of independent training seeds are pending. Generation counts must also be reported for each configuration on the full test set.
-  \end{minipage}
+
+\par\vspace{3pt}
+\begin{minipage}{\textwidth}
+\footnotesize\textit{Note:} Values are mean $\pm$ SD for paired cases. Differences are with minus without TP Prompt, with F-score differences in percentage points. The 95\% CIs are obtained by paired case-level bootstrap resampling without adjustment for within-patient clustering. Sampled HD denotes the maximum bidirectional nearest-neighbor distance between sampled surface points. Margin P95 denotes the 95th-percentile distance from input margin points to the predicted surface, rather than independently annotated margin error.
+\end{minipage}
 \end{table*}
 
 \bigskip

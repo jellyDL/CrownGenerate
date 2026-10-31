@@ -257,7 +257,7 @@ def main():
         for j,label in enumerate(labels):
             label_font_size_pt = a.label_font_size * 72.0 / 300.0
             axs[0,j].set_title(label, fontsize=label_font_size_pt, pad=10)
-        if name == 'comparison_all':
+        if name == 'ablation_toothnum':
             # Match the pixel-based colorbar controls used by
             # ablation_occlusion/step3_merge_imgs.py. Intermediate renders do
             # not need a colorbar and may be shorter than the requested one.
@@ -284,11 +284,13 @@ def main():
             colorbar.set_label('Prediction-to-GT distance (mm)', fontsize=font_size_pt,
                                labelpad=label_gap_pt)
             colorbar.ax.tick_params(labelsize=font_size_pt)
-        # fig.savefig((name+'.png'), dpi=300, bbox_inches='tight')
+        # Keep PNG previews for every case and page; only the final composition
+        # receives a PDF export.
+        # fig.savefig(out / f'{name}.png', dpi=300, bbox_inches='tight')
         # PDF is reserved for the final all-case composition; intermediate
         # single-case and page renders are useful as PNG previews only.
-        if name == 'comparison_all':
-            fig.savefig('comparison_all.pdf', bbox_inches='tight')
+        if name == 'ablation_toothnum':
+            fig.savefig(out / 'ablation_toothnum.pdf', bbox_inches='tight')
         plt.close(fig)
 
     for k,case in enumerate(cases):

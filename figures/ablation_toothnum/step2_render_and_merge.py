@@ -160,6 +160,8 @@ def main():
     p.add_argument('--limit', type=int, default=None, help='Use first N folders in sorted order for a layout preview')
     p.add_argument('--wspace', type=float, default=.005,
                    help='Horizontal spacing between subplots (default: .005)')
+    p.add_argument('--first-column-gap', '--first-col-gap', dest='first_column_gap', type=float, default=.18,
+                   help='Extra gap after the first column, relative to one panel width (default: .03)')
     p.add_argument('--hspace', type=float, default=.035,
                    help='Vertical spacing between rows (default: .035)')
     p.add_argument('--font-size', '--label-font-size', dest='label_font_size', type=int, default=90,
@@ -172,12 +174,13 @@ def main():
                    help='Colorbar length in pixels (default: 1200)')
     p.add_argument('--colorbar-thickness', type=int, default=80,
                    help='Colorbar thickness in pixels (default: 40)')
-    p.add_argument('--colorbar-gap', type=int, default=250,
+    p.add_argument('--colorbar-gap', type=int, default=280,
                    help='Fallback gap from the right edge in pixels (default: 100)')
     p.add_argument('--colorbar-position', nargs=2, type=int, default=(4300,2500), metavar=('X', 'Y'),
                    help='Colorbar top-left position in pixels; default uses the right edge')
     a = p.parse_args()
     if (a.vmax <= 0 or a.samples < 1 or a.page_rows < 1 or a.wspace < 0 or a.hspace < 0
+            or a.first_column_gap < 0
             or a.label_font_size <= 0 or a.colorbar_font_size <= 0 or a.colorbar_label_gap < 0
             or a.colorbar_length <= 0
             or a.colorbar_thickness <= 0 or a.colorbar_gap < 0
@@ -228,7 +231,8 @@ def main():
     cmap = plt.get_cmap('viridis')
     rows, metadata = [], []
 
-    labels = ['GT', 'Without TP', 'With TP', 'Without TP → GT\nDistance map', 'With TP → GT\nDistance map']
+    labels = ['GT', 'Without TP', 'Without TP → GT\nDistance map',
+              'With TP', 'With TP → GT\nDistance map']
 
     def draw(items, name):
         # Reserve a separate colorbar column; attaching it only to the error
@@ -236,12 +240,15 @@ def main():
         fig = plt.figure(figsize=(14.8, 2.7*len(items)+.4), layout=None)
         fig.subplots_adjust(left=.01, right=.995, bottom=.01, top=.93,
                             wspace=a.wspace, hspace=a.hspace)
-        grid = fig.add_gridspec(len(items), 6, width_ratios=[1,1,1,1,1,.055],
+        # Column 1, a dedicated spacer, columns 2-5, then the colorbar cell.
+        grid = fig.add_gridspec(len(items), 7,
+                               width_ratios=[1, max(a.first_column_gap, 1e-6), 1,1,1,1,.055],
                                wspace=a.wspace, hspace=a.hspace)
+        panel_columns = (0, 2, 3, 4, 5)
         axs = np.empty((len(items), len(labels)), dtype=object)
         for i, (case_id, images) in enumerate(items):
             for j, img in enumerate(images):
-                ax = axs[i,j] = fig.add_subplot(grid[i,j])
+                ax = axs[i,j] = fig.add_subplot(grid[i,panel_columns[j]])
                 ax.imshow(img, extent=(-half,half,-half,half), interpolation='nearest')
                 ax.set_aspect('equal', adjustable='box')
                 ax.set_xticks([]); ax.set_yticks([])
@@ -313,7 +320,9 @@ def main():
             if case['camera'] is not None:
                 projected[:, :2] *= half
             images.append(raster(projected,colors,half,size=500).astype(np.float32))
-        images = geometries + images[1:]
+        # Keep each method's geometry next to its prediction-to-GT map.
+        images = [geometries[0], geometries[1], images[1],
+                  geometries[2], images[2]]
         rows.append((case['id'],images))
         metadata.append(dict(case_id=case['id'],files=[str(f.resolve()) for f in case['paths']],
                              frame=case['frame'],camera_file=case['camera_file'],
@@ -324,7 +333,7 @@ def main():
         gc.collect()
     for start in range(0,len(rows),a.page_rows):
         draw(rows[start:start+a.page_rows],f'comparison_page_{start//a.page_rows+1:02d}')
-    draw(rows,'comparison_all')
+    draw(rows,'ablation_toothnum')
     (out/'manifest.json').write_text(json.dumps(dict(cases=metadata,skipped=skipped,half_extent_mm=half,
         color_max_mm=a.vmax,surface_samples=a.samples,view=a.view,
         columns=[label.replace('\n',' ') for label in labels],layout='five_columns',dpi=300),indent=2))

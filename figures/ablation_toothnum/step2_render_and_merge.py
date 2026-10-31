@@ -162,9 +162,27 @@ def main():
                    help='Horizontal spacing between subplots (default: .005)')
     p.add_argument('--hspace', type=float, default=.035,
                    help='Vertical spacing between rows (default: .035)')
+    p.add_argument('--font-size', '--label-font-size', dest='label_font_size', type=int, default=90,
+                   help='Top label font size in pixels (default: 80)')
+    p.add_argument('--colorbar-font-size', '--colorbar-fontsize', dest='colorbar_font_size',
+                   type=int, default=100, help='Colorbar font size in pixels (default: 80)')
+    p.add_argument('--colorbar-label-gap', '--colorbar-unit-gap', dest='colorbar_label_gap',
+                   type=int, default=30, help='Gap between colorbar and its label in pixels (default: 30)')
+    p.add_argument('--colorbar-length', type=int, default=1400,
+                   help='Colorbar length in pixels (default: 1200)')
+    p.add_argument('--colorbar-thickness', type=int, default=80,
+                   help='Colorbar thickness in pixels (default: 40)')
+    p.add_argument('--colorbar-gap', type=int, default=250,
+                   help='Fallback gap from the right edge in pixels (default: 100)')
+    p.add_argument('--colorbar-position', nargs=2, type=int, default=(4300,2500), metavar=('X', 'Y'),
+                   help='Colorbar top-left position in pixels; default uses the right edge')
     a = p.parse_args()
-    if a.vmax <= 0 or a.samples < 1 or a.page_rows < 1 or a.wspace < 0 or a.hspace < 0:
-        p.error('vmax, samples and page-rows must be positive; wspace and hspace must be non-negative')
+    if (a.vmax <= 0 or a.samples < 1 or a.page_rows < 1 or a.wspace < 0 or a.hspace < 0
+            or a.label_font_size <= 0 or a.colorbar_font_size <= 0 or a.colorbar_label_gap < 0
+            or a.colorbar_length <= 0
+            or a.colorbar_thickness <= 0 or a.colorbar_gap < 0
+            or (a.colorbar_position is not None and min(a.colorbar_position) < 0)):
+        p.error('invalid layout or colorbar parameters')
     # Always write generated artifacts beside this script.
     out = Path(__file__).resolve().parent
     cases = []
@@ -230,13 +248,35 @@ def main():
                 for spine in ax.spines.values():
                     spine.set_visible(False)
         for j,label in enumerate(labels):
-            axs[0,j].set_title(label,fontsize=10,pad=10)
-        bar_parent = fig.add_subplot(grid[:,5])
-        bar_parent.set_axis_off()
-        bar_fraction = min(.85, 2.8/(2.7*len(items)))
-        cax = bar_parent.inset_axes([0,(1-bar_fraction)/2,.8,bar_fraction])
-        fig.colorbar(ScalarMappable(norm=norm,cmap=cmap), cax=cax, extend='max',
-                     label='Prediction-to-GT distance (mm)')
+            label_font_size_pt = a.label_font_size * 72.0 / 300.0
+            axs[0,j].set_title(label, fontsize=label_font_size_pt, pad=10)
+        if name == 'comparison_all':
+            # Match the pixel-based colorbar controls used by
+            # ablation_occlusion/step3_merge_imgs.py. Intermediate renders do
+            # not need a colorbar and may be shorter than the requested one.
+            dpi = 300.
+            figure_width_px = fig.get_figwidth() * dpi
+            figure_height_px = fig.get_figheight() * dpi
+            bar_length = min(float(a.colorbar_length), figure_height_px - 2 * a.colorbar_gap)
+            if bar_length <= 1:
+                p.error('colorbar-length is too large for the current figure height')
+            if a.colorbar_position is None:
+                bar_x = figure_width_px - a.colorbar_gap - a.colorbar_thickness
+                bar_top = a.colorbar_gap
+            else:
+                bar_x, bar_top = a.colorbar_position
+            bar_y = figure_height_px - bar_top - bar_length
+            if bar_x < 0 or bar_y < 0 or bar_x + a.colorbar_thickness > figure_width_px:
+                p.error('colorbar-position or colorbar dimensions exceed the figure bounds')
+            cax = fig.add_axes([bar_x / figure_width_px, bar_y / figure_height_px,
+                                a.colorbar_thickness / figure_width_px,
+                                bar_length / figure_height_px])
+            colorbar = fig.colorbar(ScalarMappable(norm=norm,cmap=cmap), cax=cax, extend='max')
+            font_size_pt = a.colorbar_font_size * 72.0 / dpi
+            label_gap_pt = a.colorbar_label_gap * 72.0 / dpi
+            colorbar.set_label('Prediction-to-GT distance (mm)', fontsize=font_size_pt,
+                               labelpad=label_gap_pt)
+            colorbar.ax.tick_params(labelsize=font_size_pt)
         # fig.savefig((name+'.png'), dpi=300, bbox_inches='tight')
         # PDF is reserved for the final all-case composition; intermediate
         # single-case and page renders are useful as PNG previews only.

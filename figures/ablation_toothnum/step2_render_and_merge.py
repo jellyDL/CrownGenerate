@@ -160,23 +160,23 @@ def main():
     p.add_argument('--limit', type=int, default=None, help='Use first N folders in sorted order for a layout preview')
     p.add_argument('--wspace', type=float, default=.005,
                    help='Horizontal spacing between subplots (default: .005)')
-    p.add_argument('--first-column-gap', '--first-col-gap', dest='first_column_gap', type=float, default=.18,
+    p.add_argument('--first-column-gap', '--first-col-gap', dest='first_column_gap', type=float, default=.15,
                    help='Extra gap after the first column, relative to one panel width (default: .03)')
     p.add_argument('--hspace', type=float, default=.035,
                    help='Vertical spacing between rows (default: .035)')
     p.add_argument('--font-size', '--label-font-size', dest='label_font_size', type=int, default=90,
                    help='Top label font size in pixels (default: 80)')
     p.add_argument('--colorbar-font-size', '--colorbar-fontsize', dest='colorbar_font_size',
-                   type=int, default=100, help='Colorbar font size in pixels (default: 80)')
+                   type=int, default=90, help='Colorbar font size in pixels (default: 80)')
     p.add_argument('--colorbar-label-gap', '--colorbar-unit-gap', dest='colorbar_label_gap',
                    type=int, default=30, help='Gap between colorbar and its label in pixels (default: 30)')
-    p.add_argument('--colorbar-length', type=int, default=1400,
+    p.add_argument('--colorbar-length', type=int, default=1450,
                    help='Colorbar length in pixels (default: 1200)')
-    p.add_argument('--colorbar-thickness', type=int, default=80,
+    p.add_argument('--colorbar-thickness', type=int, default=60,
                    help='Colorbar thickness in pixels (default: 40)')
     p.add_argument('--colorbar-gap', type=int, default=280,
                    help='Fallback gap from the right edge in pixels (default: 100)')
-    p.add_argument('--colorbar-position', nargs=2, type=int, default=(4300,2500), metavar=('X', 'Y'),
+    p.add_argument('--colorbar-position', nargs=2, type=int, default=(4300,2550), metavar=('X', 'Y'),
                    help='Colorbar top-left position in pixels; default uses the right edge')
     a = p.parse_args()
     if (a.vmax <= 0 or a.samples < 1 or a.page_rows < 1 or a.wspace < 0 or a.hspace < 0

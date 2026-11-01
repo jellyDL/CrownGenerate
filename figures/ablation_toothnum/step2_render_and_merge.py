@@ -51,6 +51,64 @@ except ModuleNotFoundError:
         image[xy[order, 1], xy[order, 0]] = np.clip(colors[order], 0, 1)
         return image
 
+
+def raster_triangles(vertices, faces, colors, half, size=500):
+    """Rasterize STL triangles with barycentric coverage and a depth buffer."""
+    vertices = np.asarray(vertices, dtype=float)
+    faces = np.asarray(faces, dtype=np.int64)
+    colors = np.asarray(colors, dtype=float)
+    image = np.ones((int(size), int(size), 3), dtype=np.float32)
+    depth_buffer = np.full((int(size), int(size)), -np.inf, dtype=float)
+    if half <= 0 or len(faces) == 0:
+        return image
+    if colors.ndim == 1:
+        colors = np.repeat(colors[:, None], 3, axis=1)
+    if len(colors) != len(faces):
+        raise ValueError('colors must contain one RGB value per triangle')
+
+    xy = (vertices[:, :2] + half) / (2.0 * half) * (size - 1)
+    triangles = xy[faces]
+    depths = vertices[faces, 2]
+    valid = np.isfinite(triangles).all(axis=(1, 2)) & np.isfinite(depths).all(axis=1)
+    valid &= np.abs(
+        (triangles[:, 1, 0] - triangles[:, 0, 0]) *
+        (triangles[:, 2, 1] - triangles[:, 0, 1]) -
+        (triangles[:, 1, 1] - triangles[:, 0, 1]) *
+        (triangles[:, 2, 0] - triangles[:, 0, 0])
+    ) > 1e-8
+
+    for face_index in np.flatnonzero(valid):
+        tri = triangles[face_index]
+        z = depths[face_index]
+        min_x = max(0, int(np.floor(tri[:, 0].min())))
+        max_x = min(size - 1, int(np.ceil(tri[:, 0].max())))
+        min_y = max(0, int(np.floor(tri[:, 1].min())))
+        max_y = min(size - 1, int(np.ceil(tri[:, 1].max())))
+        if min_x > max_x or min_y > max_y:
+            continue
+        grid_x, grid_y = np.meshgrid(
+            np.arange(min_x, max_x + 1, dtype=float),
+            np.arange(min_y, max_y + 1, dtype=float),
+        )
+        x0, y0 = tri[0]
+        x1, y1 = tri[1]
+        x2, y2 = tri[2]
+        denominator = (y1 - y2) * (x0 - x2) + (x2 - x1) * (y0 - y2)
+        w0 = ((y1 - y2) * (grid_x - x2) + (x2 - x1) * (grid_y - y2)) / denominator
+        w1 = ((y2 - y0) * (grid_x - x2) + (x0 - x2) * (grid_y - y2)) / denominator
+        w2 = 1.0 - w0 - w1
+        inside = (w0 >= -1e-6) & (w1 >= -1e-6) & (w2 >= -1e-6)
+        if not inside.any():
+            continue
+        local_depth = w0 * z[0] + w1 * z[1] + w2 * z[2]
+        target_depth = depth_buffer[min_y:max_y + 1, min_x:max_x + 1]
+        update = inside & (local_depth > target_depth)
+        if update.any():
+            target_depth[update] = local_depth[update]
+            target_image = image[min_y:max_y + 1, min_x:max_x + 1]
+            target_image[update] = np.clip(colors[face_index, :3], 0, 1)
+    return image
+
 try:
     from pixal3d.evaluation.metrics import _sample_surface, _closest_point_chunked
 except ModuleNotFoundError:
@@ -286,7 +344,7 @@ def main():
             colorbar.ax.tick_params(labelsize=font_size_pt)
         # Keep PNG previews for every case and page; only the final composition
         # receives a PDF export.
-        # fig.savefig(out / f'{name}.png', dpi=300, bbox_inches='tight')
+        fig.savefig(out / f'{name}.png', dpi=300, bbox_inches='tight')
         # PDF is reserved for the final all-case composition; intermediate
         # single-case and page renders are useful as PNG previews only.
         if name == 'ablation_toothnum':
@@ -301,27 +359,26 @@ def main():
         # by changing this one option for high-throughput runs.
         opts = dict(backend='trimesh', allow_cpu_fallback=True, warp_cache={})
         for j,m in enumerate(meshes):
-            points,normals,_ = _sample_surface(m,a.samples,2026+j)
-            n = normals@case['axes']@rotation
-            lighting = .6+.4*np.abs(n@np.array([.25,-.35,.9027735]))
-            gray = np.clip(lighting[:,None]*[.72,.75,.78],0,1)
-            local = (points-case['origin'])@case['axes']@rotation
-            projected = _project_points(points, case['camera'], local)
+            local_vertices = (m.vertices-case['origin'])@case['axes']@rotation
+            projected_vertices = _project_points(m.vertices, case['camera'], local_vertices)
             if case['camera'] is not None:
-                projected[:, :2] *= half
-            geometries.append(raster(projected,gray,half,size=500).astype(np.float32))
+                projected_vertices[:, :2] *= half
+            face_normals = m.face_normals@case['axes']@rotation
+            lighting = .6+.4*np.abs(face_normals@np.array([.25,-.35,.9027735]))
+            gray_faces = np.clip(lighting[:,None]*[.72,.75,.78],0,1)
+            geometry_image = raster_triangles(
+                projected_vertices, m.faces, gray_faces, half, size=500).astype(np.float32)
+            geometries.append(geometry_image)
             if j == 0:
-                colors = gray
+                images.append(geometry_image)
             else:
-                d = _closest_point_portable(meshes[0], points, **opts)[1]
+                face_centers = np.asarray(m.triangles_center)
+                d = _closest_point_portable(meshes[0], face_centers, **opts)[1]
                 colors = cmap(norm(d))
                 stats.append(dict(mesh=str(case['paths'][j]),mean_distance_mm=float(d.mean()),
                                   fraction_above_color_limit=float((d>a.vmax).mean())))
-            local = (points-case['origin'])@case['axes']@rotation
-            projected = _project_points(points, case['camera'], local)
-            if case['camera'] is not None:
-                projected[:, :2] *= half
-            images.append(raster(projected,colors,half,size=500).astype(np.float32))
+                images.append(raster_triangles(
+                    projected_vertices, m.faces, colors, half, size=500).astype(np.float32))
         # Keep each method's geometry next to its prediction-to-GT map.
         images = [geometries[0], geometries[1], images[1],
                   geometries[2], images[2]]

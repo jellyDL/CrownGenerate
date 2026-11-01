@@ -234,7 +234,7 @@ def main():
                    help='Colorbar thickness in pixels (default: 40)')
     p.add_argument('--colorbar-gap', type=int, default=280,
                    help='Fallback gap from the right edge in pixels (default: 100)')
-    p.add_argument('--colorbar-position', nargs=2, type=int, default=(4300,2550), metavar=('X', 'Y'),
+    p.add_argument('--colorbar-position', nargs=2, type=int, default=(4300,2500), metavar=('X', 'Y'),
                    help='Colorbar top-left position in pixels; default uses the right edge')
     a = p.parse_args()
     if (a.vmax <= 0 or a.samples < 1 or a.page_rows < 1 or a.wspace < 0 or a.hspace < 0
@@ -289,8 +289,8 @@ def main():
     cmap = plt.get_cmap('viridis')
     rows, metadata = [], []
 
-    labels = ['GT', 'Without TP', 'Without TP → GT\nDistance map',
-              'With TP', 'With TP → GT\nDistance map']
+    labels = ['GT', 'w/o TP', 'Dist. to GT\n(w/o TP)',
+              'w/ TP', 'Dist. to GT\n(w/ TP)']
 
     def draw(items, name):
         # Reserve a separate colorbar column; attaching it only to the error
@@ -336,7 +336,7 @@ def main():
             cax = fig.add_axes([bar_x / figure_width_px, bar_y / figure_height_px,
                                 a.colorbar_thickness / figure_width_px,
                                 bar_length / figure_height_px])
-            colorbar = fig.colorbar(ScalarMappable(norm=norm,cmap=cmap), cax=cax, extend='max')
+            colorbar = fig.colorbar(ScalarMappable(norm=norm,cmap=cmap), cax=cax)
             font_size_pt = a.colorbar_font_size * 72.0 / dpi
             label_gap_pt = a.colorbar_label_gap * 72.0 / dpi
             colorbar.set_label('Prediction-to-GT distance (mm)', fontsize=font_size_pt,

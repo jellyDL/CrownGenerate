@@ -535,7 +535,7 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
 \bigskip
 
 %%%% Ablation Study 3
-\textbf{Exploratory Comparison of Tooth-Position Conditioning.} This experiment examined whether the FDI-based Tooth Position Prompt (TP Prompt), injected into the global conditioning branch, complements geometric scan conditions for crown reconstruction. Structure Flow and Feature Flow were trained separately for each configuration, and models with and without TP Prompt were evaluated on the same commonly evaluable cases. Table~\ref{table_tooth_number_ablation2} reports paired differences and case-level bootstrap 95\% confidence intervals. With TP Prompt, CD-L2, sampled HD, and input-margin-to-surface P95 were lower by 0.003 mm², 0.026 mm, and 0.020 mm, respectively, while F-score at 0.10 mm was higher by 1.980 percentage points; all four confidence intervals excluded zero. These findings suggest improved surface reconstruction and input-margin adherence.
+\textbf{Exploratory Comparison of Tooth-Position Conditioning.} This experiment examined whether the FDI-based Tooth Position Prompt (TP Prompt), injected into the global conditioning branch, complements geometric scan conditions for crown reconstruction. Structure Flow and Feature Flow were trained separately for each configuration, and models with and without TP Prompt were evaluated on the same commonly evaluable cases. Table~\ref{table_tooth_number_ablation2} reports paired differences and case-level bootstrap 95\% confidence intervals. With TP Prompt, CD-L2, sampled HD, and input-margin-to-surface P95 were lower by 0.003 mm², 0.026 mm, and 0.020 mm, respectively, while F-score at 0.10 mm was higher by 1.980 percentage points; all four confidence intervals excluded zero. These findings suggest improved surface reconstruction and input-margin adherence. Although the numerical differences are modest, removing the FDI-based TP Prompt does not eliminate all tooth-position information: the cervical margin and antagonist dentition still provide implicit positional cues. Without the explicit tooth-position constraint, however, the occlusal surface loses local detail and appears less organized. As shown in Fig.~\ref{fig:ablation_toothnum}, the yellow regions indicate larger prediction-to-GT surface distances.
 
 \begin{table*}[htbp]
   \centering
@@ -561,6 +561,13 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
 \footnotesize\textit{Note:} Values are mean $\pm$ SD for paired cases. Differences are with minus without TP Prompt, with F-score differences in percentage points. The 95\% CIs are obtained by paired case-level bootstrap resampling without adjustment for within-patient clustering. Sampled HD denotes the maximum bidirectional nearest-neighbor distance between sampled surface points. Margin P95 denotes the 95th-percentile distance from input margin points to the predicted surface, rather than independently annotated margin error.
 \end{minipage}
 \end{table*}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\linewidth]{figures/ablation_toothnum/ablation_toothnum.png}
+  \caption{\textbf{Qualitative comparison of tooth-position conditioning.} Columns show the GT crown, the crown generated without the TP Prompt, its distance to GT, the crown generated with the TP Prompt, and its distance to GT. Yellow regions indicate larger prediction-to-GT surface distances.}
+  \label{fig:ablation_toothnum}
+\end{figure}
 
 \bigskip
 

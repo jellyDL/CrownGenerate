@@ -210,7 +210,12 @@ def _project_points(points, camera, fallback_points):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--root', type=Path, default=Path(__file__).resolve().parent)
-    p.add_argument('--vmax', type=float, default=.5)
+    p.add_argument('--vmin', type=float, default=0.0,
+                   help='Lower bound of the distance color scale in mm (default: 0)')
+    p.add_argument('--vmax', type=float, default=.5,
+                   help='Upper bound of the distance color scale in mm (default: 0.5)')
+    p.add_argument('--clim', nargs=2, type=float, metavar=('MIN', 'MAX'),
+                   help='Set both distance color scale bounds in mm; overrides --vmin/--vmax')
     p.add_argument('--samples', type=int, default=600000)
     p.add_argument('--page-rows', type=int, default=6)
     p.add_argument('--view', choices=['occlusal', 'oblique'], default='occlusal')
@@ -237,7 +242,10 @@ def main():
     p.add_argument('--colorbar-position', nargs=2, type=int, default=(4300,2500), metavar=('X', 'Y'),
                    help='Colorbar top-left position in pixels; default uses the right edge')
     a = p.parse_args()
-    if (a.vmax <= 0 or a.samples < 1 or a.page_rows < 1 or a.wspace < 0 or a.hspace < 0
+    if a.clim is not None:
+        a.vmin, a.vmax = a.clim
+    if (not np.isfinite(a.vmin) or not np.isfinite(a.vmax) or a.vmin < 0 or a.vmin >= a.vmax
+            or a.samples < 1 or a.page_rows < 1 or a.wspace < 0 or a.hspace < 0
             or a.first_column_gap < 0
             or a.label_font_size <= 0 or a.colorbar_font_size <= 0 or a.colorbar_label_gap < 0
             or a.colorbar_length <= 0
@@ -285,7 +293,7 @@ def main():
             local = (m.vertices-case['origin'])@case['axes']@rotation
             half = max(half, float(np.abs(local[:,:2]).max()))
     half *= 1.12
-    norm = Normalize(0, a.vmax, clip=True)
+    norm = Normalize(a.vmin, a.vmax, clip=True)
     cmap = plt.get_cmap('viridis')
     rows, metadata = [], []
 
@@ -394,7 +402,7 @@ def main():
         draw(rows[start:start+a.page_rows],f'comparison_page_{start//a.page_rows+1:02d}')
     draw(rows,'ablation_toothnum')
     (out/'manifest.json').write_text(json.dumps(dict(cases=metadata,skipped=skipped,half_extent_mm=half,
-        color_max_mm=a.vmax,surface_samples=a.samples,view=a.view,
+        color_min_mm=a.vmin,color_max_mm=a.vmax,surface_samples=a.samples,view=a.view,
         columns=[label.replace('\n',' ') for label in labels],layout='five_columns',dpi=300),indent=2))
     print('Saved:',out,flush=True)
 

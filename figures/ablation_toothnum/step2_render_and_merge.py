@@ -17,6 +17,16 @@ ROOT = Path(__file__).resolve().parents[2]
 for candidate in (ROOT, Path('/Users/jelly/Desktop/crown_generate_codex')):
     if candidate.is_dir() and str(candidate) not in sys.path:
         sys.path.insert(0, str(candidate))
+
+# Edit rows here as: (case folder name, color minimum in mm, maximum).
+# Only these configured cases are rendered, in this order.
+ROW_CONFIG = [
+    ('00a2ecc9-4ae7-593a-9751-6247fcab4438', 0.0, 0.48),
+    # ('020293a4-cf3d-54e2-8dc3-c581226e32f0', 0.0, 0.6),
+    ('00bac203-b5f6-57ef-af2b-d7a0675ce1ef', 0.0, 0.5),
+    ('00f91d4b-b911-5c65-9e33-51735ba0b4cd', 0.0, 0.35),
+    ('017a7aea-8548-5593-b6e9-abe8e4cdaa03', 0.0, 0.7),
+]
 import numpy as np
 import trimesh
 from matplotlib.colors import Normalize
@@ -217,6 +227,8 @@ def main():
     p.add_argument('--clim', nargs=2, type=float, metavar=('MIN', 'MAX'),
                    help='Set both distance color scale bounds in mm; overrides --vmin/--vmax')
     p.add_argument('--samples', type=int, default=600000)
+    p.add_argument('--fast', action='store_true',
+                   help='Fast preview: rasterize triangle centers and use at most 30000 faces per distance map')
     p.add_argument('--page-rows', type=int, default=6)
     p.add_argument('--view', choices=['occlusal', 'oblique'], default='occlusal')
     p.add_argument('--combined', action='store_true', help='Compatibility flag; five-column output is now the default')
@@ -283,6 +295,24 @@ def main():
         if a.limit < 1:
             p.error('limit must be positive')
         cases = cases[:a.limit]
+    case_ids = {case['id'] for case in cases}
+    config_ids = [entry[0] for entry in ROW_CONFIG]
+    if len(set(config_ids)) != len(config_ids):
+        p.error('ROW_CONFIG must contain unique existing case names')
+    if a.limit is None and not set(config_ids) <= case_ids:
+        p.error('ROW_CONFIG must contain unique existing case names')
+    active_config = [entry for entry in ROW_CONFIG if entry[0] in case_ids]
+    config_ids = [entry[0] for entry in active_config]
+    ordered = {case['id']: case for case in cases}
+    cases = [ordered[case_id] for case_id in config_ids]
+    row_clims = {case_id: (float(vmin), float(vmax))
+                 for case_id, vmin, vmax in active_config}
+    default_clim = (a.vmin, a.vmax)
+    for case in cases:
+        case['clim'] = row_clims.get(case['id'], default_clim)
+        if (not all(np.isfinite(value) for value in case['clim'])
+                or case['clim'][0] < 0 or case['clim'][0] >= case['clim'][1]):
+            p.error(f'invalid color scale for case {case["id"]}: expected 0 <= MIN < MAX')
     if not cases:
         p.error('No folders contain all three required STL files')
     rotation = np.eye(3) if a.view == 'occlusal' else np.array([[1,0,0],[0,2**-.5,-2**-.5],[0,2**-.5,2**-.5]])
@@ -293,8 +323,8 @@ def main():
             local = (m.vertices-case['origin'])@case['axes']@rotation
             half = max(half, float(np.abs(local[:,:2]).max()))
     half *= 1.12
-    norm = Normalize(a.vmin, a.vmax, clip=True)
     cmap = plt.get_cmap('viridis')
+    norms = {case['id']: Normalize(*case['clim'], clip=True) for case in cases}
     rows, metadata = [], []
 
     labels = ['GT', 'w/o TP', 'Dist. to GT\n(w/o TP)',
@@ -324,32 +354,43 @@ def main():
             label_font_size_pt = a.label_font_size * 72.0 / 300.0
             axs[0,j].set_title(label, fontsize=label_font_size_pt, pad=10)
         if name == 'ablation_toothnum':
+            clim_values = [tuple(norms[case_id].vmin for _ in (0,)) + (norms[case_id].vmax,)
+                           for case_id, _ in items]
+            if len(set(clim_values)) > 1:
+                # With per-row ranges, each row gets its own scale in the
+                # reserved final grid column.
+                for row_index, (case_id, _) in enumerate(items):
+                    cax = fig.add_subplot(grid[row_index, 6])
+                    colorbar = fig.colorbar(ScalarMappable(norm=norms[case_id], cmap=cmap), cax=cax)
+                    font_size_pt = a.colorbar_font_size * 72.0 / 300.0
+                    colorbar.ax.tick_params(labelsize=font_size_pt)
+            else:
             # Match the pixel-based colorbar controls used by
             # ablation_occlusion/step3_merge_imgs.py. Intermediate renders do
             # not need a colorbar and may be shorter than the requested one.
-            dpi = 300.
-            figure_width_px = fig.get_figwidth() * dpi
-            figure_height_px = fig.get_figheight() * dpi
-            bar_length = min(float(a.colorbar_length), figure_height_px - 2 * a.colorbar_gap)
-            if bar_length <= 1:
-                p.error('colorbar-length is too large for the current figure height')
-            if a.colorbar_position is None:
-                bar_x = figure_width_px - a.colorbar_gap - a.colorbar_thickness
-                bar_top = a.colorbar_gap
-            else:
-                bar_x, bar_top = a.colorbar_position
-            bar_y = figure_height_px - bar_top - bar_length
-            if bar_x < 0 or bar_y < 0 or bar_x + a.colorbar_thickness > figure_width_px:
-                p.error('colorbar-position or colorbar dimensions exceed the figure bounds')
-            cax = fig.add_axes([bar_x / figure_width_px, bar_y / figure_height_px,
-                                a.colorbar_thickness / figure_width_px,
-                                bar_length / figure_height_px])
-            colorbar = fig.colorbar(ScalarMappable(norm=norm,cmap=cmap), cax=cax)
-            font_size_pt = a.colorbar_font_size * 72.0 / dpi
-            label_gap_pt = a.colorbar_label_gap * 72.0 / dpi
-            colorbar.set_label('Prediction-to-GT distance (mm)', fontsize=font_size_pt,
-                               labelpad=label_gap_pt)
-            colorbar.ax.tick_params(labelsize=font_size_pt)
+                dpi = 300.
+                figure_width_px = fig.get_figwidth() * dpi
+                figure_height_px = fig.get_figheight() * dpi
+                bar_length = min(float(a.colorbar_length), figure_height_px - 2 * a.colorbar_gap)
+                if bar_length <= 1:
+                    p.error('colorbar-length is too large for the current figure height')
+                if a.colorbar_position is None:
+                    bar_x = figure_width_px - a.colorbar_gap - a.colorbar_thickness
+                    bar_top = a.colorbar_gap
+                else:
+                    bar_x, bar_top = a.colorbar_position
+                bar_y = figure_height_px - bar_top - bar_length
+                if bar_x < 0 or bar_y < 0 or bar_x + a.colorbar_thickness > figure_width_px:
+                    p.error('colorbar-position or colorbar dimensions exceed the figure bounds')
+                cax = fig.add_axes([bar_x / figure_width_px, bar_y / figure_height_px,
+                                    a.colorbar_thickness / figure_width_px,
+                                    bar_length / figure_height_px])
+                colorbar = fig.colorbar(ScalarMappable(norm=norms[items[0][0]], cmap=cmap), cax=cax)
+                font_size_pt = a.colorbar_font_size * 72.0 / dpi
+                label_gap_pt = a.colorbar_label_gap * 72.0 / dpi
+                colorbar.set_label('Prediction-to-GT distance (mm)', fontsize=font_size_pt,
+                                   labelpad=label_gap_pt)
+                colorbar.ax.tick_params(labelsize=font_size_pt)
         # Keep PNG previews for every case and page; only the final composition
         # receives a PDF export.
         fig.savefig(out / f'{name}.png', dpi=300, bbox_inches='tight')
@@ -374,24 +415,37 @@ def main():
             face_normals = m.face_normals@case['axes']@rotation
             lighting = .6+.4*np.abs(face_normals@np.array([.25,-.35,.9027735]))
             gray_faces = np.clip(lighting[:,None]*[.72,.75,.78],0,1)
-            geometry_image = raster_triangles(
-                projected_vertices, m.faces, gray_faces, half, size=500).astype(np.float32)
+            if a.fast:
+                centers = projected_vertices[m.faces].mean(axis=1)
+                geometry_image = raster(centers, gray_faces, half, size=500).astype(np.float32)
+            else:
+                geometry_image = raster_triangles(
+                    projected_vertices, m.faces, gray_faces, half, size=500).astype(np.float32)
             geometries.append(geometry_image)
             if j == 0:
                 images.append(geometry_image)
             else:
                 face_centers = np.asarray(m.triangles_center)
+                face_indices = np.arange(len(face_centers), dtype=np.int64)
+                if a.fast and len(face_centers) > 500000:
+                    face_indices = np.linspace(0, len(face_centers) - 1, 500000, dtype=np.int64)
+                    face_centers = face_centers[face_indices]
                 d = _closest_point_portable(meshes[0], face_centers, **opts)[1]
-                colors = cmap(norm(d))
+                colors = cmap(norms[case['id']](d))
                 stats.append(dict(mesh=str(case['paths'][j]),mean_distance_mm=float(d.mean()),
-                                  fraction_above_color_limit=float((d>a.vmax).mean())))
-                images.append(raster_triangles(
-                    projected_vertices, m.faces, colors, half, size=500).astype(np.float32))
+                                  fraction_above_color_limit=float((d > case['clim'][1]).mean())))
+                if a.fast:
+                    images.append(raster(projected_vertices[m.faces].mean(axis=1)[face_indices], colors,
+                                         half, size=500).astype(np.float32))
+                else:
+                    images.append(raster_triangles(
+                        projected_vertices, m.faces, colors, half, size=500).astype(np.float32))
         # Keep each method's geometry next to its prediction-to-GT map.
         images = [geometries[0], geometries[1], images[1],
                   geometries[2], images[2]]
         rows.append((case['id'],images))
-        metadata.append(dict(case_id=case['id'],files=[str(f.resolve()) for f in case['paths']],
+        metadata.append(dict(case_id=case['id'], color_min_mm=case['clim'][0],
+                             color_max_mm=case['clim'][1], files=[str(f.resolve()) for f in case['paths']],
                              frame=case['frame'],camera_file=case['camera_file'],
                              distances=stats))
         draw([rows[-1]],case['id'])

@@ -25,7 +25,7 @@ ROW_CONFIG = [
     # ('020293a4-cf3d-54e2-8dc3-c581226e32f0', 0.0, 0.6),
     ('00bac203-b5f6-57ef-af2b-d7a0675ce1ef', 0.0, 0.5),
     ('00f91d4b-b911-5c65-9e33-51735ba0b4cd', 0.0, 0.35),
-    ('017a7aea-8548-5593-b6e9-abe8e4cdaa03', 0.0, 0.7),
+    ('017a7aea-8548-5593-b6e9-abe8e4cdaa03', 0.0, 0.68),
 ]
 import numpy as np
 import trimesh

@@ -245,13 +245,13 @@ def main():
                    type=int, default=90, help='Colorbar font size in pixels (default: 80)')
     p.add_argument('--colorbar-label-gap', '--colorbar-unit-gap', dest='colorbar_label_gap',
                    type=int, default=30, help='Gap between colorbar and its label in pixels (default: 30)')
-    p.add_argument('--colorbar-length', type=int, default=1450,
+    p.add_argument('--colorbar-length', type=int, default=1350,
                    help='Colorbar length in pixels (default: 1200)')
     p.add_argument('--colorbar-thickness', type=int, default=60,
                    help='Colorbar thickness in pixels (default: 40)')
     p.add_argument('--colorbar-gap', type=int, default=280,
                    help='Fallback gap from the right edge in pixels (default: 100)')
-    p.add_argument('--colorbar-position', nargs=2, type=int, default=(4300,2500), metavar=('X', 'Y'),
+    p.add_argument('--colorbar-position', nargs=2, type=int, default=(4350,1860), metavar=('X', 'Y'),
                    help='Colorbar top-left position in pixels; default uses the right edge')
     a = p.parse_args()
     if a.clim is not None:
@@ -354,17 +354,6 @@ def main():
             label_font_size_pt = a.label_font_size * 72.0 / 300.0
             axs[0,j].set_title(label, fontsize=label_font_size_pt, pad=10)
         if name == 'ablation_toothnum':
-            clim_values = [tuple(norms[case_id].vmin for _ in (0,)) + (norms[case_id].vmax,)
-                           for case_id, _ in items]
-            if len(set(clim_values)) > 1:
-                # With per-row ranges, each row gets its own scale in the
-                # reserved final grid column.
-                for row_index, (case_id, _) in enumerate(items):
-                    cax = fig.add_subplot(grid[row_index, 6])
-                    colorbar = fig.colorbar(ScalarMappable(norm=norms[case_id], cmap=cmap), cax=cax)
-                    font_size_pt = a.colorbar_font_size * 72.0 / 300.0
-                    colorbar.ax.tick_params(labelsize=font_size_pt)
-            else:
             # Match the pixel-based colorbar controls used by
             # ablation_occlusion/step3_merge_imgs.py. Intermediate renders do
             # not need a colorbar and may be shorter than the requested one.
@@ -385,10 +374,16 @@ def main():
                 cax = fig.add_axes([bar_x / figure_width_px, bar_y / figure_height_px,
                                     a.colorbar_thickness / figure_width_px,
                                     bar_length / figure_height_px])
-                colorbar = fig.colorbar(ScalarMappable(norm=norms[items[0][0]], cmap=cmap), cax=cax)
+                display_norm = Normalize(
+                    norms[items[0][0]].vmin,
+                    max(float(norms[items[0][0]].vmax), 0.5),
+                    clip=True,
+                )
+                colorbar = fig.colorbar(ScalarMappable(norm=display_norm, cmap=cmap), cax=cax)
+                colorbar.set_ticks(np.linspace(display_norm.vmin, display_norm.vmax, 6))
                 font_size_pt = a.colorbar_font_size * 72.0 / dpi
                 label_gap_pt = a.colorbar_label_gap * 72.0 / dpi
-                colorbar.set_label('Prediction-to-GT distance (mm)', fontsize=font_size_pt,
+                colorbar.set_label('Prediction-to-GT (mm)', fontsize=font_size_pt,
                                    labelpad=label_gap_pt)
                 colorbar.ax.tick_params(labelsize=font_size_pt)
         # Keep PNG previews for every case and page; only the final composition

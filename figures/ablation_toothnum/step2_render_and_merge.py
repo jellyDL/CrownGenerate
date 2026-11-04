@@ -4,7 +4,7 @@
 Run with the project's trellis2 Python; no graphical desktop is required.
 Distances use original coordinates (assumed mm), with no ICP alignment.
 Five columns: GT, Without TP geometry, With TP geometry, then their two
-prediction-to-GT point/triangle distance maps. Geometry panels share shading;
+prediction-to-RC point/triangle distance maps. Geometry panels share shading;
 all five panels share the same camera and physical scale.
 """
 from pathlib import Path
@@ -327,8 +327,8 @@ def main():
     norms = {case['id']: Normalize(*case['clim'], clip=True) for case in cases}
     rows, metadata = [], []
 
-    labels = ['GT', 'w/o TP', 'Dist. to GT\n(w/o TP)',
-              'w/ TP', 'Dist. to GT\n(w/ TP)']
+    labels = ['Reference Crown', 'w/o TP', 'Dist. to RC\n(w/o TP)',
+              'w/ TP', 'Dist. to RC\n(w/ TP)']
 
     def draw(items, name):
         # Reserve a separate colorbar column; attaching it only to the error
@@ -383,7 +383,7 @@ def main():
                 colorbar.set_ticks(np.linspace(display_norm.vmin, display_norm.vmax, 6))
                 font_size_pt = a.colorbar_font_size * 72.0 / dpi
                 label_gap_pt = a.colorbar_label_gap * 72.0 / dpi
-                colorbar.set_label('Prediction-to-GT (mm)', fontsize=font_size_pt,
+                colorbar.set_label('Prediction-to-RC (mm)', fontsize=font_size_pt,
                                    labelpad=label_gap_pt)
                 colorbar.ax.tick_params(labelsize=font_size_pt)
         # Keep PNG previews for every case and page; only the final composition
@@ -435,7 +435,7 @@ def main():
                 else:
                     images.append(raster_triangles(
                         projected_vertices, m.faces, colors, half, size=500).astype(np.float32))
-        # Keep each method's geometry next to its prediction-to-GT map.
+        # Keep each method's geometry next to its prediction-to-RC map.
         images = [geometries[0], geometries[1], images[1],
                   geometries[2], images[2]]
         rows.append((case['id'],images))

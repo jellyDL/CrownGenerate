@@ -66,7 +66,7 @@ def main() -> None:
     parser.add_argument("--colorbar-font-size", type=int, default=100,
                         help="colorbar tick font size (default: 80)")
     # 色带图宽度
-    parser.add_argument("--colorbar-length", "--colorbar-width", "--colorbar_width", dest="colorbar_width", type=int, default=1800,
+    parser.add_argument("--colorbar-length", "--colorbar-width", "--colorbar_width", dest="colorbar_width", type=int, default=1400,
                         help="vertical colorbar length in pixels (default: automatic)")
     # 色带图带宽
     parser.add_argument("--colorbar-thickness", type=int, default=50,
@@ -75,7 +75,7 @@ def main() -> None:
                         help="horizontal gap between images and colorbar (default: 80)")
     # 色带图位置
     parser.add_argument("--colorbar-position", "--colorbar_position", nargs=2, type=int,
-                        default=(3600, 1300), metavar=("X", "Y"),
+                        default=(3600, 1800), metavar=("X", "Y"),
                         help="colorbar top-left pixel coordinates; origin is image top-left (default: 3500 1500)")
     args = parser.parse_args()
     if len(args.clim) not in (1, 2):

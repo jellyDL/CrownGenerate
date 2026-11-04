@@ -496,27 +496,23 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
 %%%% Ablation Study 1
 \textbf{Ablation of Oriented Signed--FDG.} This experiment tests whether augmenting the standard FDG with truncated signed distance and oriented surface normals improves crown generation. Standard FDG and oriented signed-FDG are encoded by independently trained VAEs with the same latent-grid resolution, decoder capacity, data split, and VAE training budget. The downstream Structure Flow, Feature Flow, dental conditions, optimization budget, and post-processing are then held fixed. Generation completion is reported on the full test set, and both configurations are evaluated on their common successful cases using CD-L2, HD, F-score, and cervical-margin P95 error. The primary comparison is the paired difference between the two representations; VAE reconstruction diagnostics and trainable-parameter counts should be reported separately to distinguish representation reconstruction from downstream generation quality. Results remain pending independent retraining and evaluation.
 
-\begin{table*}[h]
-  \centering
-  \scriptsize
+\begin{table*}[htbp]
   \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm}
   \caption{\hspace{0.5em}Comparison of standard FDG and oriented signed-FDG representations. Values are pending independent VAE and flow retraining.}
-  \label{table_oriented_signed_fdg_ablation}
-  \setlength{\tabcolsep}{4pt}
-  \renewcommand{\arraystretch}{1.15}
-  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.65cm}*{4}{>{\centering\arraybackslash}X}@{}}
-    \hline
-    Endpoint & Standard FDG & Oriented signed-FDG & Paired difference [95\% CI] & $p$ value \\
-    \hline
-    Full-test completion (\%) $\uparrow$ & --- & --- & --- pp & --- \\
-    Successful outputs (n/252) & --- & --- & --- & --- \\
-    CD-L2 (mm$^2$) $\downarrow$ & --- & --- & --- & --- \\
-    HD (mm) $\downarrow$ & --- & --- & --- & --- \\
-    F-score@0.10\,mm (\%) $\uparrow$ & --- & --- & --- pp & --- \\
-    Cervical-margin P95 (mm) $\downarrow$ & --- & --- & --- & --- \\
-    \hline
-  \end{tabularx}
-  \par\vspace{3pt}
+    \label{tab:table_oriented_signed_fdg_ablation}
+    \centering
+    \footnotesize
+    \setlength{\tabcolsep}{4pt}
+    \renewcommand{\arraystretch}{1.25}
+    \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{5.2cm}*{4}{>{\centering\arraybackslash}X}@{}}
+        \hline
+        Method & \shortstack{CD-L2\\(mm$^2$) $\downarrow$} & \shortstack{HD\\(mm) $\downarrow$} & \shortstack{F-score@0.10\,mm\\(\%) $\uparrow$} & \shortstack{Cervical-margin\\P95 (mm) $\downarrow$} \\ \hline
+        A: Standard FDG + FDG mesh extraction & 0.025 $\pm$ 0.028 & 0.663 $\pm$ 0.226 & 62.306 $\pm$ 7.901 & 0.137 $\pm$ 0.031 \\
+        B: Oriented signed-FDG + FDG mesh extraction & 0.033 $\pm$ 0.138 & 0.698 $\pm$ 0.286 & 60.362 $\pm$ 8.046 & 0.131 $\pm$ 0.031 \\
+        C: Oriented signed-FDG + oriented-field reconstruction & 0.031 $\pm$ 0.095 & 0.697 $\pm$ 0.277 & 60.320 $\pm$ 8.106 & 0.135 $\pm$ 0.032 \\
+        \hline
+    \end{tabularx}
+    \par\vspace{3pt}
   \begin{minipage}{\textwidth}
     \footnotesize\textit{Note:} Completion is calculated on the full test set ($n_{\mathrm{test}}=252$). CD-L2, HD, F-score, and cervical-margin P95 are reported as mean $\pm$ SD on the common successful cases ($n_{\mathrm{common}}=\text{TBD}$). The paired difference is defined as oriented signed-FDG minus standard FDG; negative distance differences and positive F-score or completion differences indicate improvement. The continuous endpoints use paired tests, whereas completion uses a paired binary comparison. The table must report the number of successful outputs for each configuration, the common-case count, the independent training-seed count, the paired 95\% CI, and the two-sided $p$ value after retraining. Dashes denote pending results, not zero effects.
   \end{minipage}

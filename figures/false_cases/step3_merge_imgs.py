@@ -16,6 +16,14 @@ from matplotlib import colormaps
 SCRIPT_DIR = Path(__file__).resolve().parent
 ROW_FILES = (("our_jaw.png", "our_only.png", "gt_jaw.png", "gt_only.png"),)
 COLUMN_LABELS = ("Ours + Jaw", "Ours", "GT + Jaw", "GT")
+# Optional fixed display order. Use folder names in the desired order.
+# An empty list keeps the existing alphabetical order.
+FOLDER_ORDER = [
+    "001df821-f058-5d37-9fe6-6790bd1b936e",
+    "00b00867-31c9-5483-98ec-cc653869f58f",
+    "00228275-7a0f-5781-bd72-5ebb81526ea3",
+    "00173708-0f7b-5ffb-be79-7e070d5f8ace",
+]
 
 
 def load_font(size: int, bold: bool = False) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
@@ -97,10 +105,17 @@ def main() -> None:
         parser.error(f"folder does not exist: {root}")
     if args.folders:
         sample_dirs = [root / name.strip() for name in args.folders]
+    elif FOLDER_ORDER:
+        sample_dirs = [root / name for name in FOLDER_ORDER]
     else:
         sample_dirs = sorted(path for path in root.iterdir()
                              if path.is_dir() and not path.name.startswith(".")
                              and path.name != "__pycache__")
+    ordered_requested = bool(args.folders or FOLDER_ORDER)
+    if ordered_requested:
+        folder_names = args.folders if args.folders else FOLDER_ORDER
+        if len(set(folder_names)) != len(folder_names):
+            parser.error("folder order contains duplicates")
     blocks = []
     for sample_dir in sample_dirs:
         if not sample_dir.is_dir():
@@ -108,7 +123,7 @@ def main() -> None:
         rows = [[sample_dir / name for name in names] for names in ROW_FILES]
         missing = [str(path) for row in rows for path in row if not path.is_file()]
         if missing:
-            if args.folders:
+            if ordered_requested:
                 parser.error("missing images: " + ", ".join(missing))
             print(f"skip {sample_dir.name}: missing images")
             continue

@@ -15,7 +15,7 @@ from matplotlib import colormaps
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 ROW_FILES = (("our_jaw.png", "our_only.png", "gt_jaw.png", "gt_only.png"),)
-COLUMN_LABELS = ("Ours + Jaw", "Ours", "GT + Jaw", "GT")
+COLUMN_LABELS = ("Ours + Jaw", "Ours", "Reference Crown + Jaw", "Reference Crown")
 # Optional fixed display order. Use folder names in the desired order.
 # An empty list keeps the existing alphabetical order.
 FOLDER_ORDER = [

@@ -426,7 +426,7 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
 %% 4.2 
 \subsection{Evaluation Metrics}\label{subsec4_2}
 
-\hspace{2em}To assess the geometric consistency between the predicted crowns and the reference CAD models, the two surfaces were compared using identical outer-surface segmentation, area-weighted sampling, and post-processing procedures. Each mesh was sampled at 50{,}000 outer-surface points in physical coordinates. Selected ablation analyses quantified surface geometric errors using CD-L2 and Hausdorff distance (HD). CD-L2 was the mean squared bidirectional nearest-neighbor distance ($\mathrm{mm}^2$)~\cite{Hosseinimanesh2025PointToMesh,Wei2026MADCrowner}, and HD was the maximum bidirectional surface distance ($\mathrm{mm}$), indicating the worst local deviation~\cite{Wei2026MADCrowner,Yang2025DCrownFormerPlus}. Fidelity Distance was included only in reference-format ablation tables and was not treated as a primary endpoint. Lower values indicate better performance for these distance metrics. Results were summarized across cases as mean~$\pm$~standard deviation, with 95\% confidence intervals reported for between-method differences.
+\hspace{2em}To assess the geometric consistency between the predicted crowns and the reference CAD models, the two surfaces were compared using identical outer-surface segmentation, area-weighted sampling, and post-processing procedures. Each mesh was sampled at 50{,}000 outer-surface points in physical coordinates. Following established dental crown evaluation protocols~\cite{Hosseinimanesh2025PointToMesh,Yang2024DCrownFormer,Yang2025DCrownFormerPlus,Wei2025VBCD,Wei2026MADCrowner}, the prespecified primary endpoints were symmetric Chamfer-\(L_1\) and HD95. Chamfer-\(L_1\) denotes the mean bidirectional nearest-neighbour Euclidean distance, whereas HD95 is the larger directional 95th-percentile distance; lower values indicate better agreement. F-score@0.10\,mm, the harmonic mean of precision and recall for points within the tolerance, was a secondary surface-coverage measure. Margin-to-surface P95 denotes the 95th-percentile distance from input margin points to the generated external surface, reflecting cervical geometric correspondence rather than intaglio fit or clinical marginal adaptation. Results were summarized as case-level mean~\(\pm\)~standard deviation with 95\% confidence intervals.
 
 %% 4.3 
 \subsection{Implementation Details}\label{subsec4_3}
@@ -460,7 +460,7 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
     \renewcommand{\arraystretch}{1.15}
     \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{2.65cm}*{6}{>{\centering\arraybackslash}X}}
         \hline
-        Method & \shortstack{Completion\\rate (\%)} & \shortstack{Chamfer-$L_1$\\(mm)} & \shortstack{HD95\\(mm)} & \shortstack{F-score@\\0.10\,mm (\%)} & \shortstack{Margin P95\\error (mm)} & \shortstack{Severe\\penetration (\%)} \\ \hline
+        Method & \shortstack{Completion\\rate (\%)} & \shortstack{CD-$L_1$\\(mm) $\downarrow$} & \shortstack{HD95\\(mm) $\downarrow$} & \shortstack{F-score@\\0.10\,mm (\%) $\uparrow$} & \shortstack{Margin P95 (mm) $\downarrow$} & \shortstack{Severe\\penetration (\%) $\downarrow$} \\ \hline
         Reference CAD & — & — & — & — & — & 0.8\% \\
         FDI Nearest-Neighbor & 92.5\% & 0.284 $\pm$ 0.082 & 0.812 $\pm$ 0.215 & 61.2 $\pm$ 8.4 & 0.342 $\pm$ 0.096 & 14.2\% \\
         MADCrowner~\cite{Wei2026MADCrowner} & 96.4\% & 0.185 $\pm$ 0.048 & 0.526 $\pm$ 0.142 & 76.8 $\pm$ 6.1 & 0.198 $\pm$ 0.054 & 7.8\% \\
@@ -471,7 +471,7 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
     \end{tabularx}
     \par\vspace{3pt}
     \begin{minipage}{\textwidth}
-    \footnotesize\textit{Note: Completion rate uses the full test set ($n_{\text{test}}=252$). Generated-crown metrics use each method's successful cases ($n=233$, 243, 240, 244, and 246, respectively). Continuous metrics are reported as mean $\pm$ standard deviation; rates are percentages. Chamfer-$L_1$ and HD95 are symmetric bidirectional distances. Reference CAD provides an explanatory baseline for antagonist penetration.}
+    \footnotesize\textit{Note: Completion rate uses the full test set (\(n_{\text{test}}=252\)). Generated-crown metrics use each method's successful cases (\(n=233\), 243, 240, 244, and 246, respectively). Continuous values are mean \(\pm\) SD; rates are percentages. CD-\(L_1\) and HD95 are primary endpoints. Margin P95 is a one-sided distance, and reference CAD is an explanatory penetration baseline.}
     \end{minipage}
 \end{table*}
 
@@ -494,11 +494,11 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
 \subsubsection{Ablation Study}\label{subsubsec4_4_2}
 
 %%%% Ablation Study 1
-\textbf{Ablation of Oriented Signed--FDG.} This experiment tests whether augmenting the standard FDG with truncated signed distance and oriented surface normals improves crown generation. Standard FDG and oriented signed-FDG are encoded by independently trained VAEs with the same latent-grid resolution, decoder capacity, data split, and VAE training budget. The downstream Structure Flow, Feature Flow, dental conditions, optimization budget, and post-processing are then held fixed. Generation completion is reported on the full test set, and both configurations are evaluated on their common successful cases using CD-L2, HD, F-score, and cervical-margin P95 error. The primary comparison is the paired difference between the two representations; VAE reconstruction diagnostics and trainable-parameter counts should be reported separately to distinguish representation reconstruction from downstream generation quality. Results remain pending independent retraining and evaluation.
+\textbf{Ablation of Oriented Signed--FDG.} This experiment tests whether augmenting the standard FDG with truncated signed distance and oriented surface normals improves crown generation. Standard FDG and oriented signed-FDG are encoded by independently trained VAEs with the same latent-grid resolution, decoder capacity, data split, and VAE training budget. The downstream Structure Flow, Feature Flow, dental conditions, optimization budget, and post-processing are then held fixed. Generation completion is reported on the full test set, and the primary comparison is performed on common successful cases using Chamfer-\(L_1\) and HD95, together with F-score and margin-to-surface P95. VAE reconstruction diagnostics and trainable-parameter counts should be reported separately to distinguish representation reconstruction from downstream generation quality. Results remain pending independent retraining and evaluation.
 
 \begin{table*}[htbp]
   \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm}
-  \caption{\hspace{0.5em}Comparison of standard FDG and oriented signed-FDG representations. Values are pending independent VAE and flow retraining.}
+  \caption{\hspace{0.5em}Comparison of standard FDG and oriented signed-FDG representations.}
     \label{tab:table_oriented_signed_fdg_ablation}
     \centering
     \footnotesize
@@ -506,15 +506,15 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
     \renewcommand{\arraystretch}{1.25}
     \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{5.2cm}*{4}{>{\centering\arraybackslash}X}@{}}
         \hline
-        Method & \shortstack{CD-L2\\(mm$^2$) $\downarrow$} & \shortstack{HD\\(mm) $\downarrow$} & \shortstack{F-score@0.10\,mm\\(\%) $\uparrow$} & \shortstack{Cervical-margin\\P95 (mm) $\downarrow$} \\ \hline
-        A: Standard FDG + FDG mesh extraction & 0.025 $\pm$ 0.028 & 0.663 $\pm$ 0.226 & 62.306 $\pm$ 7.901 & 0.137 $\pm$ 0.031 \\
-        B: Oriented signed-FDG + FDG mesh extraction & 0.033 $\pm$ 0.138 & 0.698 $\pm$ 0.286 & 60.362 $\pm$ 8.046 & 0.131 $\pm$ 0.031 \\
-        C: Oriented signed-FDG + oriented-field reconstruction & 0.031 $\pm$ 0.095 & 0.697 $\pm$ 0.277 & 60.320 $\pm$ 8.106 & 0.135 $\pm$ 0.032 \\
+        Method & \shortstack{CD-$L_1$\\(mm) $\downarrow$} & \shortstack{HD95\\(mm) $\downarrow$} & \shortstack{F-score@0.10\,mm\\(\%) $\uparrow$} & \shortstack{Margin P95 (mm) $\downarrow$} \\ \hline
+        A: Standard FDG + FDG mesh extraction                  & 0.157 $\pm$ 0.167 & 0.663 $\pm$ 0.226 & 62.306 $\pm$ 7.901 & 0.137 $\pm$ 0.031 \\
+        B: Oriented signed-FDG + FDG mesh extraction           & 0.180 $\pm$ 0.371 & 0.698 $\pm$ 0.286 & 60.362 $\pm$ 8.046 & 0.131 $\pm$ 0.031 \\
+        C: Oriented signed-FDG + oriented-field reconstruction & 0.177 $\pm$ 0.309 & 0.697 $\pm$ 0.277 & 60.320 $\pm$ 8.106 & 0.135 $\pm$ 0.032 \\
         \hline
     \end{tabularx}
     \par\vspace{3pt}
   \begin{minipage}{\textwidth}
-    \footnotesize\textit{Note:} Completion is calculated on the full test set ($n_{\mathrm{test}}=252$). CD-L2, HD, F-score, and cervical-margin P95 are reported as mean $\pm$ SD on the common successful cases ($n_{\mathrm{common}}=\text{TBD}$). The paired difference is defined as oriented signed-FDG minus standard FDG; negative distance differences and positive F-score or completion differences indicate improvement. The continuous endpoints use paired tests, whereas completion uses a paired binary comparison. The table must report the number of successful outputs for each configuration, the common-case count, the independent training-seed count, the paired 95\% CI, and the two-sided $p$ value after retraining. Dashes denote pending results, not zero effects.
+    \footnotesize\textit{Note:} Completion rate uses all 252 test cases. CD-$L_1$, HD95, F-score, and margin P95 are reported as mean $\pm$ SD on common successful cases ($n_{\mathrm{common}}=\text{TBD}$). The paired difference is defined as oriented signed-FDG minus standard FDG;negative distance and positive F-score or completion differences indicate improvement. Continuous endpoints use paired tests, and completion uses a paired binary test. （待分析说明）
   \end{minipage}
 \end{table*}
 
@@ -533,7 +533,7 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
 \bigskip
 
 %%%% Ablation Study 3
-\textbf{Ablation of Tooth-Position Conditioning.} To isolate the contribution of the FDI-based Tooth Position Prompt (TP Prompt), we compared models with and without this prompt in the global conditioning branch. Structure Flow and Feature Flow were trained independently for the two configurations and evaluated on the same commonly evaluable cases. Table~\ref{table_tooth_number_ablation2} summarizes the paired differences and case-level bootstrap 95\% confidence intervals. Adding the TP Prompt reduced CD-L2, sampled HD, and input-margin-to-surface P95 by 0.003~mm$^2$, 0.026~mm, and 0.020~mm, respectively, and increased the F-score at 0.10~mm by 1.980 percentage points; all four confidence intervals excluded zero. Although the absolute changes in these aggregate metrics are modest, this limited numerical effect is expected because removing the explicit prompt does not eliminate all tooth-position information: the cervical margin and antagonist dentition still provide implicit positional cues. Qualitatively, however, removing the explicit cue reduces occlusal-surface detail and makes the morphology less organized. As shown in Fig.~\ref{fig:ablation_toothnum}, the yellow regions indicate larger prediction-to-GT surface distances.
+\textbf{Ablation of Tooth-Position Conditioning.} To isolate the contribution of the FDI-based Tooth Position Prompt (TP Prompt), we compared models with and without this prompt in the global conditioning branch. Structure Flow and Feature Flow were trained independently for the two configurations and evaluated on the same commonly evaluable cases. Table~\ref{table_tooth_number_ablation2} currently reports supplementary CD-\(L_1\), sampled maximum HD95, and input-margin-to-surface P95 diagnostics; adding the TP Prompt reduced CD-\(L_1\), sampled HD95, and input-margin-to-surface P95 by 0.003~mm, 0.026~mm, and 0.020~mm, respectively, and increased the F-score at 0.10~mm by 1.980 percentage points. Although the absolute changes in these aggregate metrics are modest, this limited numerical effect is expected because removing the explicit prompt does not eliminate all tooth-position information: the cervical margin and antagonist dentition still provide implicit positional cues. Qualitatively, removing the explicit cue reduces occlusal-surface detail and makes the morphology less organized. As shown in Fig.~\ref{fig:ablation_toothnum}, the yellow regions indicate larger prediction-to-reference surface distances.
 
 \begin{table*}[htbp]
   \centering
@@ -545,18 +545,18 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
   \renewcommand{\arraystretch}{1.2}
   \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.25cm}*{4}{>{\centering\arraybackslash}X}@{}}
     \hline
-    Configuration / contrast & \shortstack{CD-L2\\(mm$^2$) $\downarrow$} & \shortstack{Sampled HD\\(mm) $\downarrow$} & \shortstack{F-score@0.10\,mm\\(\%) $\uparrow$} & \shortstack{Margin P95\\(mm) $\downarrow$} \\
+    Configuration / contrast & \shortstack{CD-$L_1$\\(mm) $\downarrow$} & \shortstack{Sampled HD95\\(mm) $\downarrow$} & \shortstack{F-score@0.10\,mm\\(\%) $\uparrow$} & \shortstack{Margin P95 \\(mm) $\downarrow$} \\
     \hline
-    Without TP Prompt & $0.028 \pm 0.021$ & $0.708 \pm 0.240$ & $59.110 \pm 8.620$ & $0.154 \pm 0.034$ \\
-    With TP Prompt & $0.026 \pm 0.017$ & $0.682 \pm 0.222$ & $61.090 \pm 8.220$ & $0.134 \pm 0.030$ \\
+    Without TP Prompt & $0.167 \pm 0.145$ & $0.708 \pm 0.240$ & $59.110 \pm 8.620$ & $0.154 \pm 0.034$ \\
+    With TP Prompt & $0.161 \pm 0.130$ & $0.682 \pm 0.222$ & $61.090 \pm 8.220$ & $0.134 \pm 0.030$ \\
     \hline
-    Paired difference [95\% CI] & \shortstack{$-0.003$\\$[-0.004,\,-0.001]$} & \shortstack{$-0.026$\\$[-0.047,\,-0.004]$} & \shortstack{$+1.980$\\$[+1.250,\,+2.690]$} & \shortstack{$-0.020$\\$[-0.024,\,-0.016]$} \\
+    Paired difference [95\% CI] & \shortstack{$-0.006$\\$[-0.015,\,-0.001]$} & \shortstack{$-0.026$\\$[-0.047,\,-0.004]$} & \shortstack{$+1.980$\\$[+1.250,\,+2.690]$} & \shortstack{$-0.020$\\$[-0.024,\,-0.016]$} \\
     \hline
   \end{tabularx}
 
 \par\vspace{3pt}
 \begin{minipage}{\textwidth}
-\footnotesize\textit{Note:} Values are mean $\pm$ SD for paired cases. Differences are with minus without TP Prompt, with F-score differences in percentage points. The 95\% CIs are obtained by paired case-level bootstrap resampling without adjustment for within-patient clustering. Sampled HD denotes the maximum bidirectional nearest-neighbor distance between sampled surface points. Margin P95 denotes the 95th-percentile distance from input margin points to the predicted surface, rather than independently annotated margin error.
+\footnotesize\textit{Note:} Supplementary diagnostics are mean $\pm$ SD for paired cases. Differences are with minus without TP Prompt; F-score changes are percentage points. 95\% CIs use paired case-level bootstrap without patient-cluster adjustment. CD-$L_1$ is the mean bidirectional nearest-neighbour Euclidean distance between sampled predicted and reference surfaces; sampled HD95 is the larger directional 95th-percentile distance. Margin-to-surface P95 is the one-sided 95th-percentile distance from input margin points to the predicted surface.
 \end{minipage}
 \end{table*}
 

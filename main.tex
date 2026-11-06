@@ -569,27 +569,27 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
 
 \bigskip
 
-%%%% Ablation Study 4
-\textbf{Ablation of Cervical-Margin Conditioning.} This experiment compares models with and without cervical-margin conditioning to assess its contribution to crown geometric quality. Both configurations retain the maxillary and mandibular scans and the tooth-position prompt, with identical data splits, network architecture, training budget, random seeds, and post-processing. After freezing the same VAE, Structure Flow and Feature Flow are retrained independently. The evaluation focuses on overall surface error and worst local deviation, with results stratified by premolar, molar, and overall cases. The reference results in Table~\ref{table_cervical_margin_ablation} show lower CD-L2, Fidelity Distance, and HD and higher F-score with cervical-margin conditioning. The two tooth groups exhibit the same direction of change, suggesting improved surface geometric consistency and reduced maximum local deviation. Numerical values are presented in the table.
+% %%%% Ablation Study 4
+% \textbf{Ablation of Cervical-Margin Conditioning.} This experiment compares models with and without cervical-margin conditioning to assess its contribution to crown geometric quality. Both configurations retain the maxillary and mandibular scans and the tooth-position prompt, with identical data splits, network architecture, training budget, random seeds, and post-processing. After freezing the same VAE, Structure Flow and Feature Flow are retrained independently. The evaluation focuses on overall surface error and worst local deviation, with results stratified by premolar, molar, and overall cases. The reference results in Table~\ref{table_cervical_margin_ablation} show lower CD-L2, Fidelity Distance, and HD and higher F-score with cervical-margin conditioning. The two tooth groups exhibit the same direction of change, suggesting improved surface geometric consistency and reduced maximum local deviation. Numerical values are presented in the table.
 
-\begin{table*}[htbp]
-  \centering
-  \scriptsize
-  \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm}
-  \caption{\hspace{0.5em}Quantitative ablation of the cervical-margin constraint. Values are reported in the related study~\cite{Wei2026MADCrowner} and are not measurements from the present test set.}
-  \label{table_cervical_margin_ablation}
-  \setlength{\tabcolsep}{3.1pt}
-  \begin{tabular}{lccc|ccc|ccc|ccc}
-    \hline
-    Configuration & \multicolumn{3}{c|}{CD-L2 (mm$^2$) $\downarrow$} & \multicolumn{3}{c|}{Fidelity (mm$^2$) $\downarrow$} & \multicolumn{3}{c|}{HD (mm) $\downarrow$} & \multicolumn{3}{c}{F-score $\uparrow$} \\
-    & Premolar & Molar & Overall & Premolar & Molar & Overall & Premolar & Molar & Overall & Premolar & Molar & Overall \\
-    \hline
-    Without cervical-margin constraint & 0.188 & 0.195 & 0.193 & 0.099 & 0.102 & 0.101 & 1.182 & 1.152 & 1.160 & 0.886 & 0.921 & 0.911 \\
-    With cervical-margin constraint & \textbf{0.176} & \textbf{0.174} & \textbf{0.175} & \textbf{0.098} & \textbf{0.092} & \textbf{0.094} & \textbf{1.093} & \textbf{0.996} & \textbf{1.027} & \textbf{0.903} & \textbf{0.932} & \textbf{0.924} \\
-    \hline
-    \multicolumn{13}{l}{\footnotesize \textit{Note:} Lower CD-L2, Fidelity Distance, and HD and higher F-score indicate better performance.} \\
-  \end{tabular}
-\end{table*}
+% \begin{table*}[htbp]
+%   \centering
+%   \scriptsize
+%   \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm}
+%   \caption{\hspace{0.5em}Quantitative ablation of the cervical-margin constraint. Values are reported in the related study~\cite{Wei2026MADCrowner} and are not measurements from the present test set.}
+%   \label{table_cervical_margin_ablation}
+%   \setlength{\tabcolsep}{3.1pt}
+%   \begin{tabular}{lccc|ccc|ccc|ccc}
+%     \hline
+%     Configuration & \multicolumn{3}{c|}{CD-L2 (mm$^2$) $\downarrow$} & \multicolumn{3}{c|}{Fidelity (mm$^2$) $\downarrow$} & \multicolumn{3}{c|}{HD (mm) $\downarrow$} & \multicolumn{3}{c}{F-score $\uparrow$} \\
+%     & Premolar & Molar & Overall & Premolar & Molar & Overall & Premolar & Molar & Overall & Premolar & Molar & Overall \\
+%     \hline
+%     Without cervical-margin constraint & 0.188 & 0.195 & 0.193 & 0.099 & 0.102 & 0.101 & 1.182 & 1.152 & 1.160 & 0.886 & 0.921 & 0.911 \\
+%     With cervical-margin constraint & \textbf{0.176} & \textbf{0.174} & \textbf{0.175} & \textbf{0.098} & \textbf{0.092} & \textbf{0.094} & \textbf{1.093} & \textbf{0.996} & \textbf{1.027} & \textbf{0.903} & \textbf{0.932} & \textbf{0.924} \\
+%     \hline
+%     \multicolumn{13}{l}{\footnotesize \textit{Note:} Lower CD-L2, Fidelity Distance, and HD and higher F-score indicate better performance.} \\
+%   \end{tabular}
+% \end{table*}
 
 %%%% Ablation Study 5
 \textbf{Ablation of Hierarchical Generation.} This experiment tests whether separating global support prediction from local feature generation improves the reconstruction of posterior crowns. The proposed configuration uses Structure Flow to predict the active occupancy support and Feature Flow to generate local geometric features within that support. The matched alternative uses a single conditional flow network to jointly generate occupancy and local features. A single-stage training scheme must learn spatial occupancy and fine geometric detail simultaneously, making these two objectives difficult to balance. When the Structure Flow occupancy stage is removed, the model can still generate a plausible overall crown morphology, but it lacks an explicit spatial-occupancy support; consequently, empty regions may remain in the neighborhood of adjacent teeth, as illustrated in Fig.~\ref{fig:ablation_adjacent}. Both configurations share identical settings.

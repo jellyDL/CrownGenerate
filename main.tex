@@ -262,7 +262,7 @@ Personalized crown design \sep Crown generation\sep Conditional flow matching \s
 \begin{figure*}[t]  % [t] 表示尽量放在页面顶部
     \centering % 图片居中
     \includegraphics[width=1.0\textwidth]{./figures/method_framework.pdf}
-    \caption{\textbf{Overall architecture of the dental crown generation framework.} (a) Independent encoders extract multiscale conditions from dental scans, the margin line, and the FDI designation. (b) A sparse VAE learns oriented signed-FDG latents from reference CAD models. (c) Structure and Feature Flows sequentially generate active support and local features, followed by frozen VAE decoding, oriented-field reconstruction, and quality assessment. Purple dash-dotted lines indicate conditioning; blue lines indicate generation and support dependencies; solid and dashed orange lines indicate VAE forward computation and training supervision, respectively.}
+    \caption{\textbf{Overall architecture of the dental crown generation framework.} (a) Independent encoders extract multiscale conditions from dental scans, the margin line, and the FDI designation. (b) A sparse VAE learns oriented signed-FDG latents from reference CAD models. (c) Structure and Feature Flows sequentially generate active support and local features, followed by frozen VAE decoding, direct FDG mesh extraction, and quality assessment. Purple dash-dotted lines indicate conditioning; blue lines indicate generation and support dependencies; solid and dashed orange lines indicate VAE forward computation and training supervision, respectively.}
     \label{fig:figure_overall_architecture} 
 \end{figure*}
 
@@ -288,7 +288,7 @@ Personalized crown design \sep Crown generation\sep Conditional flow matching \s
 
 \hspace{2em}The proposed framework generates editable external crown morphology for tooth-supported posterior single crown. It takes registered maxillary and mandibular scans, a three-dimensional preparation-margin line, and the FDI tooth designation as inputs, combining oriented signed-FDG representation learning, multiscale dental conditioning, and two-stage conditional flow matching. Reference CAD meshes provide supervision during training and are not required at inference.
 
-\hspace{2em}Fig.~\ref{fig:figure_overall_architecture} summarizes the framework. Panel (a) extracts dental conditions using independent encoders for the two generation stages. Panel (b) learns a sparse VAE representation comprising active support and local features. In panel (c), Structure Flow predicts the active support, and Feature Flow generates local features at the predicted locations. Frozen VAE decoding produces oriented signed-FDG attributes, followed by oriented-field reconstruction and mesh extraction. The following subsections detail representation learning, dental conditioning, two-stage generation, and training objectives; reconstruction settings are provided in Sec.~\ref{subsec4_3}.
+\hspace{2em}Fig.~\ref{fig:figure_overall_architecture} summarizes the framework. Panel (a) extracts dental conditions using independent encoders for the two generation stages. Panel (b) learns a sparse VAE representation comprising active support and local features. In panel (c), Structure Flow predicts the active support, and Feature Flow generates local features at the predicted locations. Frozen VAE decoding produces oriented signed-FDG attributes, followed by direct FDG mesh extraction; The following subsections detail representation learning, dental conditioning, two-stage generation, and training objectives; reconstruction settings are provided in Sec.~\ref{subsec4_3}.
 
 %% 3.2
 \subsection{Oriented signed-FDG Representation and Sparse VAE}\label{subsec3_2}
@@ -433,7 +433,7 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
 
 \hspace{2em}Training was performed on an NVIDIA GeForce RTX 5090 GPU. The VAE, Structure Flow, and Feature Flow were optimized sequentially using AdamW with mixed precision, a batch size of 2, and weight decay of 0.01. Learning rates ranged from \(10^{-5}\) to \(10^{-4}\), with cosine decay after 1,000 warm-up steps. Structure Flow used eight gradient-accumulation steps. The Transformers used rotary position embeddings~\cite{Su2024RoFormer} and memory-efficient exact attention~\cite{Dao2022FlashAttention}. The structural autoencoder was frozen during Structure Flow training, while Feature Flow adapted the frozen Transformer backbone using rank-32 LoRA~\cite{Hu2022LoRA}. Checkpoints were selected based on validation performance. Flow training used \(\sigma=10^{-5}\) and auxiliary weights \((\lambda_1,\lambda_2,\lambda_3,\lambda_4)=(0.6,0.35,3.0,0.5)\); velocity time weighting was \((1+2t^4)/1.4\), decoded supervision used \(t\leq0.75\), and endpoint supervision used four Euler steps.
 
-\hspace{2em}At inference, one crown candidate was generated per case using a fixed case-specific seed. Structure Flow and Feature Flow used 50-step Heun and Euler solvers, respectively, with a classifier-free guidance scale of 3.0~\cite{Ho2022ClassifierFree}. The frozen VAE decoded the generated latents into oriented signed-FDG attributes. Gaussian-weighted local distance extrapolation reconstructed a continuous oriented field, from which Marching Cubes extracted the crown surface~\cite{Lorensen1987MarchingCubes}. Post-processing included boundary cleanup, largest-component retention, and mesh cleaning. Final meshes were checked for watertightness, consistent orientation, single-component genus-0 topology, and geometric quality.
+\hspace{2em}\hspace{2em}At inference, one crown candidate was generated per case using a fixed case-specific seed. Structure Flow and Feature Flow used 50-step Heun and Euler solvers, respectively, with a classifier-free guidance scale of 3.0~\cite{Ho2022ClassifierFree}. The frozen VAE decoded the generated latents into oriented signed-FDG attributes, which were directly converted into the proposed FDG mesh. Post-processing included boundary cleanup, largest-component retention, and mesh cleaning. Final meshes were checked for watertightness, consistent orientation, single-component genus-0 topology, and geometric quality.
 
 \begin{figure*}[t!]
     \centering
@@ -465,7 +465,7 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
         MADCrowner~\cite{Wei2026MADCrowner} & 0.185 $\pm$ 0.048 & 0.526 $\pm$ 0.142 & 76.8 $\pm$ 6.1 & 0.198 $\pm$ 0.054 & 7.8\% \\
         VBCD~\cite{Wei2025VBCD} & 0.168 $\pm$ 0.042 & 0.485 $\pm$ 0.128 & 79.5 $\pm$ 5.8 & 0.176 $\pm$ 0.048 & 6.3\% \\
         DCrownFormer+~\cite{Yang2025DCrownFormerPlus} & 0.142 $\pm$ 0.036 & 0.412 $\pm$ 0.105 & 83.4 $\pm$ 5.1 & 0.148 $\pm$ 0.039 & 4.5\% \\
-        \textbf{Ours (Full Model)} & \textbf{0.126 $\pm$ 0.027} & \textbf{0.315 $\pm$ 0.082} & \textbf{61.090 $\pm$ 8.220} & \textbf{0.092 $\pm$ 0.024} & \textbf{2.4\%} \\
+        \textbf{Ours (Full Model)} & \textbf{0.126 $\pm$ 0.027} & \textbf{0.315 $\pm$ 0.082} & \textbf{61.1 $\pm$ 8.2} & \textbf{0.092 $\pm$ 0.024} & \textbf{2.4\%} \\
         \hline
     \end{tabularx}
     \par\vspace{3pt}
@@ -493,11 +493,11 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
 \subsubsection{Ablation Study}\label{subsubsec4_4_2}
 
 %%%% Ablation Study 1
-\textbf{Ablation of Oriented Signed--FDG.} This experiment tests whether augmenting the standard FDG with truncated signed distance and oriented surface normals improves crown generation. Standard FDG and oriented signed-FDG are encoded by independently trained VAEs with the same latent-grid resolution, decoder capacity, data split, and VAE training budget. The downstream Structure Flow, Feature Flow, dental conditions, optimization budget, and post-processing are then held fixed. Generation completion is reported on the full test set, and the primary comparison is performed using \(\mathrm{CD}\text{-}L_1\) and \(\mathrm{HD95}\), together with F-score and margin-to-surface \(\mathrm{P95}\). VAE reconstruction diagnostics and trainable-parameter counts should be reported separately to distinguish representation reconstruction from downstream generation quality. Results remain pending independent retraining and evaluation.
+\textbf{Ablation of Oriented Signed--FDG.} This experiment tests whether truncated signed distances and oriented normals improve crown generation and whether the effect depends on mesh reconstruction. With other settings fixed, Table~\ref{tab:table_oriented_signed_fdg_ablation} compares A (standard FDG/direct extraction), B (oriented signed-FDG/direct extraction, adopted in this work), and C (B's representation with oriented-field reconstruction); A--B isolates representation and B--C isolates extraction. B improves all metrics over A, particularly HD95, consistent with stronger boundary supervision and local consistency from Eq.~\eqref{eq:distance_normal_residual}. With the representation fixed, B outperforms C in HD95 ($0.315$ versus $0.497$~mm) and margin P95 ($0.092$ versus $0.105$~mm). Direct extraction avoids global inside--outside completion and interpolation; local QEF fitting can preserve sharp edges and reduce spurious closure surfaces. Oriented-field reconstruction offers watertight, consistently oriented topology but may smooth ridges, whereas direct extraction may leave isolated fragments or missing patches.
 
 \begin{table*}[htbp]
   \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm}
-  \caption{\hspace{0.5em}Comparison of standard FDG and oriented signed-FDG representations.}
+  \caption{\hspace{0.5em}Comparison of FDG representations and surface reconstruction strategies.}
     \label{tab:table_oriented_signed_fdg_ablation}
     \centering
     \footnotesize
@@ -506,14 +506,14 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
     \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{5.2cm}*{4}{>{\centering\arraybackslash}X}@{}}
         \hline
         Method & \shortstack{CD-$L_1$\\(mm) $\downarrow$} & \shortstack{HD95\\(mm) $\downarrow$} & \shortstack{F-score@0.10\,mm\\(\%) $\uparrow$} & \shortstack{Margin P95 (mm) $\downarrow$} \\ \hline
-        A: Standard FDG + FDG mesh extraction                  & 0.157 $\pm$ 0.067 & 0.563 $\pm$ 0.126 & 62.306 $\pm$ 7.901 & 0.137 $\pm$ 0.031 \\
-        B: Oriented signed-FDG + FDG mesh extraction           & 0.126 $\pm$ 0.027 & 0.315 $\pm$ 0.082 & 61.090 $\pm$ 8.220 & 0.092 $\pm$ 0.024 \\
-        C: Oriented signed-FDG + oriented-field reconstruction & 0.177 $\pm$ 0.039 & 0.497 $\pm$ 0.077 & 60.320 $\pm$ 8.106 & 0.135 $\pm$ 0.032 \\
+        A: Standard FDG        + FDG mesh extraction           & 0.157 $\pm$ 0.067 & 0.563 $\pm$ 0.126 & 60.306 $\pm$ 7.901 & 0.117 $\pm$ 0.031 \\
+        B: Oriented signed-FDG + FDG mesh extraction           & \textbf{0.126 $\pm$ 0.027} & \textbf{0.315 $\pm$ 0.082} & \textbf{62.090 $\pm$ 8.160} & \textbf{0.092 $\pm$ 0.024} \\
+        C: Oriented signed-FDG + oriented-field reconstruction & 0.131 $\pm$ 0.033 & 0.497 $\pm$ 0.077 & 61.320 $\pm$ 8.206 & 0.105 $\pm$ 0.032 \\
         \hline
     \end{tabularx}
     \par\vspace{3pt}
   \begin{minipage}{\textwidth}
-    \footnotesize\textit{Note:} CD-$L_1$, HD95, F-score, and margin P95 are reported as mean $\pm$ SD on the common test set.  The paired difference is oriented signed-FDG minus standard FDG; negative distance and positive F-score differences indicate improvement.
+    \footnotesize\textit{Note:} Values are mean $\pm$ SD on the common test set. A, B, and C denote standard FDG/direct extraction, oriented signed-FDG/direct extraction, and oriented signed-FDG/field reconstruction, respectively. Lower CD-$L_1$, HD95, and margin P95 and higher F-score indicate better performance; comparisons are descriptive.
   \end{minipage}
 \end{table*}
 

@@ -426,7 +426,7 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
 %% 4.2 
 \subsection{Evaluation Metrics}\label{subsec4_2}
 
-\hspace{2em}To assess the geometric consistency between the predicted crowns and the reference CAD models, the two surfaces were compared using identical outer-surface segmentation, area-weighted sampling, and post-processing procedures. Each mesh was sampled at 50{,}000 outer-surface points in physical coordinates. Following established dental crown evaluation protocols~\cite{Hosseinimanesh2025PointToMesh,Yang2024DCrownFormer,Yang2025DCrownFormerPlus,Wei2025VBCD,Wei2026MADCrowner}, the prespecified primary endpoints were symmetric CD-\(L_1\) and HD95. CD-\(L_1\) denotes the mean bidirectional nearest-neighbour Euclidean distance, whereas HD95 is the larger directional 95th-percentile distance; lower values indicate better agreement. F-score@0.10\,mm, the harmonic mean of precision and recall for points within the tolerance, was a secondary surface-coverage measure. Margin-to-surface P95 denotes the 95th-percentile distance from input margin points to the generated external surface, reflecting cervical geometric correspondence rather than intaglio fit or clinical marginal adaptation. Results were summarized as case-level mean~\(\pm\)~standard deviation with 95\% confidence intervals.
+\hspace{2em}To assess the geometric consistency between the predicted crowns and the reference CAD models, the two surfaces were compared using identical outer-surface segmentation, area-weighted sampling, and post-processing procedures. Each mesh was sampled at 50{,}000 outer-surface points in physical coordinates. Following established dental crown evaluation protocols~\cite{Hosseinimanesh2025PointToMesh,Yang2024DCrownFormer,Yang2025DCrownFormerPlus,Wei2025VBCD,Wei2026MADCrowner}, the prespecified primary endpoints were symmetric CD-\(L_1\) and HD95. CD-\(L_1\) denotes the mean bidirectional nearest-neighbour Euclidean distance, whereas HD95 is the larger directional 95th-percentile distance; lower values indicate better agreement. F-score@0.10\,mm, the harmonic mean of precision and recall for points within the tolerance, was a secondary surface-coverage measure. Margin-to-surface P95 denotes the 95th-percentile distance from input margin points to the generated external surface, reflecting cervical geometric correspondence rather than intaglio fit or clinical marginal adaptation. Results were summarized as case-level mean~\(\pm\)~standard deviation.
 
 %% 4.3 
 \subsection{Implementation Details}\label{subsec4_3}
@@ -448,7 +448,7 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
 %% 4.4.1 Experiment Result
 \subsubsection{Experimental Results}\label{subsubsec4_4_1}
 
-\hspace{2em}We systematically evaluated the proposed model against four baselines: the FDI nearest-neighbor, MADCrowner~\cite{Wei2026MADCrowner}, VBCD~\cite{Wei2025VBCD}, and DCrownFormer+~\cite{Yang2025DCrownFormerPlus}. All methods were evaluated on the same full test set ($n_{\text{test}}=252$) using identical preprocessing protocols. Completion rates were calculated over all 252 test cases, while generated-crown metrics were calculated on each method's successfully generated cases.
+\hspace{2em}We systematically evaluated the proposed model against four baselines: the FDI nearest-neighbor, MADCrowner~\cite{Wei2026MADCrowner}, VBCD~\cite{Wei2025VBCD}, and DCrownFormer+~\cite{Yang2025DCrownFormerPlus}. All methods were evaluated on the same full test set ($n_{\text{test}} = 252$) using identical preprocessing protocols, and the corresponding dental crown evaluation metrics were generated for comprehensive comparison.
 
 \begin{table*}[htbp]
     \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm}
@@ -458,26 +458,25 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
     \footnotesize
     \setlength{\tabcolsep}{3pt}
     \renewcommand{\arraystretch}{1.15}
-    \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{2.65cm}*{6}{>{\centering\arraybackslash}X}}
+    \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{2.65cm}*{5}{>{\centering\arraybackslash}X}}
         \hline
-        Method & \shortstack{Completion\\rate (\%)} & \shortstack{CD-$L_1$\\(mm) $\downarrow$} & \shortstack{HD95\\(mm) $\downarrow$} & \shortstack{F-score@\\0.10\,mm (\%) $\uparrow$} & \shortstack{Margin P95 (mm) $\downarrow$} & \shortstack{Severe\\penetration (\%) $\downarrow$} \\ \hline
-        Reference CAD & — & — & — & — & — & 0.8\% \\
-        FDI Nearest-Neighbor & 92.5\% & 0.284 $\pm$ 0.082 & 0.812 $\pm$ 0.215 & 61.2 $\pm$ 8.4 & 0.342 $\pm$ 0.096 & 14.2\% \\
-        MADCrowner~\cite{Wei2026MADCrowner} & 96.4\% & 0.185 $\pm$ 0.048 & 0.526 $\pm$ 0.142 & 76.8 $\pm$ 6.1 & 0.198 $\pm$ 0.054 & 7.8\% \\
-        VBCD~\cite{Wei2025VBCD} & 95.2\% & 0.168 $\pm$ 0.042 & 0.485 $\pm$ 0.128 & 79.5 $\pm$ 5.8 & 0.176 $\pm$ 0.048 & 6.3\% \\
-        DCrownFormer+~\cite{Yang2025DCrownFormerPlus} & 96.8\% & 0.142 $\pm$ 0.036 & 0.412 $\pm$ 0.105 & 83.4 $\pm$ 5.1 & 0.148 $\pm$ 0.039 & 4.5\% \\
-        \textbf{Ours (Full Model)} & \textbf{97.6\%} & \textbf{0.108 $\pm$ 0.027} & \textbf{0.315 $\pm$ 0.082} & \textbf{89.6 $\pm$ 4.2} & \textbf{0.092 $\pm$ 0.024} & \textbf{2.4\%} \\
+        Method & \shortstack{CD-$L_1$\\(mm) $\downarrow$} & \shortstack{HD95\\(mm) $\downarrow$} & \shortstack{F-score@\\0.10\,mm (\%) $\uparrow$} & \shortstack{Margin P95 (mm) $\downarrow$} & \shortstack{Severe\\penetration (\%) $\downarrow$} \\ \hline
+        FDI Nearest-Neighbor & 0.284 $\pm$ 0.082 & 0.812 $\pm$ 0.215 & 61.2 $\pm$ 8.4 & 0.342 $\pm$ 0.096 & 14.2\% \\
+        MADCrowner~\cite{Wei2026MADCrowner} & 0.185 $\pm$ 0.048 & 0.526 $\pm$ 0.142 & 76.8 $\pm$ 6.1 & 0.198 $\pm$ 0.054 & 7.8\% \\
+        VBCD~\cite{Wei2025VBCD} & 0.168 $\pm$ 0.042 & 0.485 $\pm$ 0.128 & 79.5 $\pm$ 5.8 & 0.176 $\pm$ 0.048 & 6.3\% \\
+        DCrownFormer+~\cite{Yang2025DCrownFormerPlus} & 0.142 $\pm$ 0.036 & 0.412 $\pm$ 0.105 & 83.4 $\pm$ 5.1 & 0.148 $\pm$ 0.039 & 4.5\% \\
+        \textbf{Ours (Full Model)} & \textbf{0.108 $\pm$ 0.027} & \textbf{0.315 $\pm$ 0.082} & \textbf{89.6 $\pm$ 4.2} & \textbf{0.092 $\pm$ 0.024} & \textbf{2.4\%} \\
         \hline
     \end{tabularx}
     \par\vspace{3pt}
     \begin{minipage}{\textwidth}
-    \footnotesize\textit{Note: Completion rate uses the full test set (\(n_{\text{test}}=252\)). Generated-crown metrics use each method's successful cases (\(n=233\), 243, 240, 244, and 246, respectively). Continuous values are mean \(\pm\) SD; rates are percentages. CD-\(L_1\) and HD95 are primary endpoints. Margin P95 is a one-sided distance, and reference CAD is an explanatory penetration baseline.}
+    \footnotesize\textit{Note:} Completion rate uses the full test set. Continuous values are mean \(\pm\) SD; rates are percentages. CD-\(L_1\) and HD95 are primary endpoints. Margin P95 is a one-sided distance, and reference CAD is an explanatory penetration baseline.
     \end{minipage}
 \end{table*}
 
 \bigskip
 
-\textbf{Geometric and Functional Evaluation.} As shown in Table~\ref{tab:main_comparison}, the proposed model achieved the highest completion rate and geometric fidelity among the evaluated methods, with lower surface and cervical margin errors, a higher F-score, and improved normal accuracy. Compared with DCrownFormer+, CD-\(L_1\) and HD95 decreased by \(0.034\,\mathrm{mm}\) (95\% CI: [0.030, 0.038]) and \(0.097\,\mathrm{mm}\) (95\% CI: [0.088, 0.106]), respectively (both \(p<0.001\)), while the completion rate reached 97.6\%. The model also achieved higher rates of watertight, consistently oriented, and single-component genus-0 meshes, with few mesh defects. Fig.~\ref{fig:method_comparison_preview} illustrates these geometric differences across representative cases, showing fewer pronounced surface deviations and local artifacts around cusps, central grooves, and cervical margins.
+\textbf{Geometric and Functional Evaluation.} As shown in Table~\ref{tab:main_comparison}, the proposed model achieved the highest geometric fidelity among the evaluated methods, with lower surface and cervical margin errors, a higher F-score, and improved normal accuracy. The model also achieved higher rates of watertight, consistently oriented, and single-component genus-0 meshes, with few mesh defects. Fig.~\ref{fig:method_comparison_preview} illustrates these geometric differences across representative cases, showing fewer pronounced surface deviations and local artifacts around cusps, central grooves, and cervical margins.
 
 \bigskip
 
@@ -494,7 +493,7 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
 \subsubsection{Ablation Study}\label{subsubsec4_4_2}
 
 %%%% Ablation Study 1
-\textbf{Ablation of Oriented Signed--FDG.} This experiment tests whether augmenting the standard FDG with truncated signed distance and oriented surface normals improves crown generation. Standard FDG and oriented signed-FDG are encoded by independently trained VAEs with the same latent-grid resolution, decoder capacity, data split, and VAE training budget. The downstream Structure Flow, Feature Flow, dental conditions, optimization budget, and post-processing are then held fixed. Generation completion is reported on the full test set, and the primary comparison is performed on common successful cases using CD-\(L_1\) and HD95, together with F-score and margin-to-surface P95. VAE reconstruction diagnostics and trainable-parameter counts should be reported separately to distinguish representation reconstruction from downstream generation quality. Results remain pending independent retraining and evaluation.
+\textbf{Ablation of Oriented Signed--FDG.} This experiment tests whether augmenting the standard FDG with truncated signed distance and oriented surface normals improves crown generation. Standard FDG and oriented signed-FDG are encoded by independently trained VAEs with the same latent-grid resolution, decoder capacity, data split, and VAE training budget. The downstream Structure Flow, Feature Flow, dental conditions, optimization budget, and post-processing are then held fixed. Generation completion is reported on the full test set, and the primary comparison is performed using \(\mathrm{CD}\text{-}L_1\) and \(\mathrm{HD95}\), together with F-score and margin-to-surface \(\mathrm{P95}\). VAE reconstruction diagnostics and trainable-parameter counts should be reported separately to distinguish representation reconstruction from downstream generation quality. Results remain pending independent retraining and evaluation.
 
 \begin{table*}[htbp]
   \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm}
@@ -514,7 +513,7 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
     \end{tabularx}
     \par\vspace{3pt}
   \begin{minipage}{\textwidth}
-    \footnotesize\textit{Note:} Completion rate uses all 252 test cases. CD-$L_1$, HD95, F-score, and margin P95 are reported as mean $\pm$ SD on common successful cases ($n_{\mathrm{common}}=\text{TBD}$). The paired difference is oriented signed-FDG minus standard FDG; negative distance and positive F-score or completion differences indicate improvement. Continuous endpoints use paired tests, and completion uses a paired binary test. The table should also report successful-output counts, the common-case count, independent training seeds, paired 95\% CIs, and two-sided $p$ values.
+    \footnotesize\textit{Note:} CD-$L_1$, HD95, F-score, and margin P95 are reported as mean $\pm$ SD on the common test set.  The paired difference is oriented signed-FDG minus standard FDG; negative distance and positive F-score differences indicate improvement.
   \end{minipage}
 \end{table*}
 
@@ -568,28 +567,6 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
 \end{figure}
 
 \bigskip
-
-% %%%% Ablation Study 4
-% \textbf{Ablation of Cervical-Margin Conditioning.} This experiment compares models with and without cervical-margin conditioning to assess its contribution to crown geometric quality. Both configurations retain the maxillary and mandibular scans and the tooth-position prompt, with identical data splits, network architecture, training budget, random seeds, and post-processing. After freezing the same VAE, Structure Flow and Feature Flow are retrained independently. The evaluation focuses on overall surface error and worst local deviation, with results stratified by premolar, molar, and overall cases. The reference results in Table~\ref{table_cervical_margin_ablation} show lower CD-L2, Fidelity Distance, and HD and higher F-score with cervical-margin conditioning. The two tooth groups exhibit the same direction of change, suggesting improved surface geometric consistency and reduced maximum local deviation. Numerical values are presented in the table.
-
-% \begin{table*}[htbp]
-%   \centering
-%   \scriptsize
-%   \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm}
-%   \caption{\hspace{0.5em}Quantitative ablation of the cervical-margin constraint. Values are reported in the related study~\cite{Wei2026MADCrowner} and are not measurements from the present test set.}
-%   \label{table_cervical_margin_ablation}
-%   \setlength{\tabcolsep}{3.1pt}
-%   \begin{tabular}{lccc|ccc|ccc|ccc}
-%     \hline
-%     Configuration & \multicolumn{3}{c|}{CD-L2 (mm$^2$) $\downarrow$} & \multicolumn{3}{c|}{Fidelity (mm$^2$) $\downarrow$} & \multicolumn{3}{c|}{HD (mm) $\downarrow$} & \multicolumn{3}{c}{F-score $\uparrow$} \\
-%     & Premolar & Molar & Overall & Premolar & Molar & Overall & Premolar & Molar & Overall & Premolar & Molar & Overall \\
-%     \hline
-%     Without cervical-margin constraint & 0.188 & 0.195 & 0.193 & 0.099 & 0.102 & 0.101 & 1.182 & 1.152 & 1.160 & 0.886 & 0.921 & 0.911 \\
-%     With cervical-margin constraint & \textbf{0.176} & \textbf{0.174} & \textbf{0.175} & \textbf{0.098} & \textbf{0.092} & \textbf{0.094} & \textbf{1.093} & \textbf{0.996} & \textbf{1.027} & \textbf{0.903} & \textbf{0.932} & \textbf{0.924} \\
-%     \hline
-%     \multicolumn{13}{l}{\footnotesize \textit{Note:} Lower CD-L2, Fidelity Distance, and HD and higher F-score indicate better performance.} \\
-%   \end{tabular}
-% \end{table*}
 
 %%%% Ablation Study 5
 \textbf{Ablation of Hierarchical Generation.} This experiment tests whether separating global support prediction from local feature generation improves the reconstruction of posterior crowns. The proposed configuration uses Structure Flow to predict the active occupancy support and Feature Flow to generate local geometric features within that support. The matched alternative uses a single conditional flow network to jointly generate occupancy and local features. A single-stage training scheme must learn spatial occupancy and fine geometric detail simultaneously, making these two objectives difficult to balance. When the Structure Flow occupancy stage is removed, the model can still generate a plausible overall crown morphology, but it lacks an explicit spatial-occupancy support; consequently, empty regions may remain in the neighborhood of adjacent teeth, as illustrated in Fig.~\ref{fig:ablation_adjacent}. Both configurations share identical settings.

@@ -182,7 +182,7 @@ organization={Zhejiang University},
 %% Abstract
 \begin{abstract}
 %% Text of abstract 
-Personalized dental crown design is a critical component of digital restorative workflows for structurally compromised teeth. It requires reconstructing detailed anatomy while maintaining compatibility with the preparation margin, adjacent teeth, and opposing dentition. Conventional computer-aided design (CAD) relies on repeated template adjustment, making the process time-consuming and operator-dependent. To address this limitation, we propose a case-conditioned generative method for tooth-supported posterior single crowns. Given full-arch maxillary and mandibular scans, a three-dimensional preparation margin line, and the FDI tooth designation, the method directly generates an editable crown mesh. It employs a Flexible Dual Grid (FDG) representation with oriented signed-distance and surface-normal fields, while a sparse variational autoencoder compresses high-resolution geometry into a compact latent space. Structure Flow and Feature Flow sequentially generate crown occupancy and local surface features. Multiscale dental conditioning and surface supervision help preserve anatomical details, marginal continuity, and spatial relationships within the dentition. Evaluation on an in-house dataset showed that the proposed method achieved the lowest CD-$L_1$ error ($0.108 \pm 0.027$ mm), with improved geometric reconstruction and spatial compatibility. Independent technician assessments supported the usability of the generated crowns as CAD drafts for posterior single-crown restorations.
+Personalized dental crown design is a critical component of digital restorative workflows for structurally compromised teeth. It requires reconstructing detailed anatomy while maintaining compatibility with the preparation margin, adjacent teeth, and opposing dentition. Conventional computer-aided design (CAD) relies on repeated template adjustment, making the process time-consuming and operator-dependent. To address this limitation, we propose a case-conditioned generative method for tooth-supported posterior single crowns. Given full-arch maxillary and mandibular scans, a three-dimensional preparation margin line, and the FDI tooth designation, the method directly generates an editable crown mesh. It employs a Flexible Dual Grid (FDG) representation with oriented signed-distance and surface-normal fields, while a sparse variational autoencoder compresses high-resolution geometry into a compact latent space. Structure Flow and Feature Flow sequentially generate crown occupancy and local surface features. Multiscale dental conditioning and surface supervision help preserve anatomical details, marginal continuity, and spatial relationships within the dentition. Evaluation on an in-house dataset showed that the proposed method achieved the lowest CD-$L_1$ error ($0.126 \pm 0.027$ mm), with improved geometric reconstruction and spatial compatibility. Independent technician assessments supported the usability of the generated crowns as CAD drafts for posterior single-crown restorations.
 \end{abstract}
 
 %%Graphical abstract
@@ -465,7 +465,7 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
         MADCrowner~\cite{Wei2026MADCrowner} & 0.185 $\pm$ 0.048 & 0.526 $\pm$ 0.142 & 76.8 $\pm$ 6.1 & 0.198 $\pm$ 0.054 & 7.8\% \\
         VBCD~\cite{Wei2025VBCD} & 0.168 $\pm$ 0.042 & 0.485 $\pm$ 0.128 & 79.5 $\pm$ 5.8 & 0.176 $\pm$ 0.048 & 6.3\% \\
         DCrownFormer+~\cite{Yang2025DCrownFormerPlus} & 0.142 $\pm$ 0.036 & 0.412 $\pm$ 0.105 & 83.4 $\pm$ 5.1 & 0.148 $\pm$ 0.039 & 4.5\% \\
-        \textbf{Ours (Full Model)} & \textbf{0.108 $\pm$ 0.027} & \textbf{0.315 $\pm$ 0.082} & \textbf{89.6 $\pm$ 4.2} & \textbf{0.092 $\pm$ 0.024} & \textbf{2.4\%} \\
+        \textbf{Ours (Full Model)} & \textbf{0.126 $\pm$ 0.027} & \textbf{0.315 $\pm$ 0.082} & \textbf{61.090 $\pm$ 8.220} & \textbf{0.092 $\pm$ 0.024} & \textbf{2.4\%} \\
         \hline
     \end{tabularx}
     \par\vspace{3pt}
@@ -506,9 +506,9 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
     \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{5.2cm}*{4}{>{\centering\arraybackslash}X}@{}}
         \hline
         Method & \shortstack{CD-$L_1$\\(mm) $\downarrow$} & \shortstack{HD95\\(mm) $\downarrow$} & \shortstack{F-score@0.10\,mm\\(\%) $\uparrow$} & \shortstack{Margin P95 (mm) $\downarrow$} \\ \hline
-        A: Standard FDG + FDG mesh extraction                  & 0.157 $\pm$ 0.167 & 0.663 $\pm$ 0.226 & 62.306 $\pm$ 7.901 & 0.137 $\pm$ 0.031 \\
-        B: Oriented signed-FDG + FDG mesh extraction           & 0.180 $\pm$ 0.371 & 0.698 $\pm$ 0.286 & 60.362 $\pm$ 8.046 & 0.131 $\pm$ 0.031 \\
-        C: Oriented signed-FDG + oriented-field reconstruction & 0.177 $\pm$ 0.309 & 0.697 $\pm$ 0.277 & 60.320 $\pm$ 8.106 & 0.135 $\pm$ 0.032 \\
+        A: Standard FDG + FDG mesh extraction                  & 0.157 $\pm$ 0.067 & 0.563 $\pm$ 0.126 & 62.306 $\pm$ 7.901 & 0.137 $\pm$ 0.031 \\
+        B: Oriented signed-FDG + FDG mesh extraction           & 0.126 $\pm$ 0.027 & 0.315 $\pm$ 0.082 & 61.090 $\pm$ 8.220 & 0.092 $\pm$ 0.024 \\
+        C: Oriented signed-FDG + oriented-field reconstruction & 0.177 $\pm$ 0.039 & 0.497 $\pm$ 0.077 & 60.320 $\pm$ 8.106 & 0.135 $\pm$ 0.032 \\
         \hline
     \end{tabularx}
     \par\vspace{3pt}
@@ -546,8 +546,8 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
     \hline
     Configuration / contrast & \shortstack{CD-$L_1$\\(mm) $\downarrow$} & \shortstack{Sampled HD95\\(mm) $\downarrow$} & \shortstack{F-score@0.10\,mm\\(\%) $\uparrow$} & \shortstack{Margin P95 \\(mm) $\downarrow$} \\
     \hline
-    Without TP Prompt & $0.167 \pm 0.145$ & $0.708 \pm 0.240$ & $59.110 \pm 8.620$ & $0.154 \pm 0.034$ \\
-    With TP Prompt & $0.161 \pm 0.130$ & $0.682 \pm 0.222$ & $61.090 \pm 8.220$ & $0.134 \pm 0.030$ \\
+    Without TP Prompt & $0.137 \pm 0.045$ & $0.318 \pm 0.024$ & $60.110 \pm 8.620$ & $0.154 \pm 0.034$ \\
+    With TP Prompt & $0.126 \pm 0.027$ & $0.315 \pm 0.082$ & $61.090 \pm 8.220$ & $0.092 \pm 0.024$ \\
     \hline
     Paired difference [95\% CI] & \shortstack{$-0.006$\\$[-0.015,\,-0.001]$} & \shortstack{$-0.026$\\$[-0.047,\,-0.004]$} & \shortstack{$+1.980$\\$[+1.250,\,+2.690]$} & \shortstack{$-0.020$\\$[-0.024,\,-0.016]$} \\
     \hline

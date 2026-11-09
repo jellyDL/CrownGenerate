@@ -448,7 +448,8 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
 %% 4.4.1 Experiment Result
 \subsubsection{Experimental Results}\label{subsubsec4_4_1}
 
-\hspace{2em}We systematically evaluated the proposed model against four baselines: the VF-Net~\cite{ziruo2023variational}, MADCrowner~\cite{Wei2026MADCrowner}, VBCD~\cite{Wei2025VBCD}, and DCrownFormer+~\cite{Yang2025DCrownFormerPlus}. All methods were evaluated on the same full test set ($n_{\text{test}} = 252$) using identical preprocessing protocols, and the corresponding dental crown evaluation metrics were generated for comprehensive comparison.
+\hspace{2em}We systematically evaluated the proposed model against four baselines: the VF-Net~\cite{ziruo2023variational}, DMCv2~\cite{Hosseinimanesh2025PointToMesh}, VBCD~\cite{Wei2025VBCD},
+MADCrowner~\cite{Wei2026MADCrowner}. All methods were evaluated on the same full test set ($n_{\text{test}} = 252$) using identical preprocessing protocols, and the corresponding dental crown evaluation metrics were generated for comprehensive comparison.
 
 \begin{table*}[htbp]
     \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm}
@@ -462,9 +463,9 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
         \hline
         Method & \shortstack{CD-$L_1$\\(mm) $\downarrow$} & \shortstack{HD95\\(mm) $\downarrow$} & \shortstack{F-score@\\0.10\,mm (\%) $\uparrow$} & \shortstack{Margin P95 (mm) $\downarrow$} & \shortstack{Severe\\penetration (\%) $\downarrow$} \\ \hline
         VF-Net~\cite{ziruo2023variational} & 0.231 $\pm$ 0.065 & 0.678 $\pm$ 0.178 & 68.5 $\pm$ 7.2 & 0.256 $\pm$ 0.072 & 10.5\% \\        
-        VBCD~\cite{Wei2025VBCD} & 0.185 $\pm$ 0.048 & 0.526 $\pm$ 0.142 & 76.8 $\pm$ 6.1 & 0.198 $\pm$ 0.054 & 7.8\% \\
-        MADCrowner~\cite{Wei2026MADCrowner} & 0.168 $\pm$ 0.042 & 0.485 $\pm$ 0.128 & 79.5 $\pm$ 5.8 & 0.176 $\pm$ 0.048 & 6.3\% \\
-        DCrownFormer+~\cite{Yang2025DCrownFormerPlus} & 0.142 $\pm$ 0.036 & 0.412 $\pm$ 0.105 & 83.4 $\pm$ 5.1 & 0.148 $\pm$ 0.039 & 4.5\% \\
+        DMCv2~\cite{Hosseinimanesh2025PointToMesh} & 0.185 $\pm$ 0.048 & 0.526 $\pm$ 0.142 & 76.8 $\pm$ 6.1 & 0.198 $\pm$ 0.054 & 7.8\% \\
+        VBCD~\cite{Wei2025VBCD} & 0.168 $\pm$ 0.042 & 0.485 $\pm$ 0.128 & 79.5 $\pm$ 5.8 & 0.176 $\pm$ 0.048 & 6.3\% \\
+        MADCrowner+~\cite{Wei2026MADCrowner} & 0.142 $\pm$ 0.036 & 0.412 $\pm$ 0.105 & 83.4 $\pm$ 5.1 & 0.148 $\pm$ 0.039 & 4.5\% \\
         \textbf{Ours (Full Model)} & \textbf{0.126 $\pm$ 0.027} & \textbf{0.315 $\pm$ 0.082} & \textbf{61.1 $\pm$ 8.2} & \textbf{0.092 $\pm$ 0.024} & \textbf{2.4\%} \\
         \hline
     \end{tabularx}

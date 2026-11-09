@@ -31,12 +31,20 @@ COLORBAR_GAP = 60 #色带与最后一张图片之间间距
 COLORBAR_MIN = -0.3
 COLORBAR_MAX = 0.3
 
+# Desired row order by sample-folder name; set to () for the default alphabetical order.
+ROW_ORDER = (
+    "001fa0b0-53d6-5e37-b93b-74570e867a02",
+    "021a7b93-011f-5b10-818f-7b70e5b6037a",
+    "000b8258-0e4a-5d78-8187-e1c5621492be",
+    "00e13b2d-5753-51fa-98ff-2a0b3d2854b0",
+)
+
 
 def make_colorbar(height: int, bar_width: int = 60, font_size: int = 60,
                   unit: str = "(mm)") -> Image.Image:
     """Create a vertical turbo colorbar for the fixed [-0.3, 0.3] scale."""
     top_pad = 50  # extra clear space above the unit label
-    margin_y = 80 # 色带本体上下留白
+    margin_y = 100 # 色带本体上下留白
     bar_height = max(1, height - 2 * margin_y)
     # Render from +0.3 at the top to -0.3 at the bottom, matching the
     # vertical orientation and normalization used by PyVista in step2.
@@ -84,7 +92,7 @@ def main() -> None:
                         help="gap between tiles and rows in pixels (default: 24)")
     parser.add_argument("--background", default="white",
                         help="background colour (default: white)")
-    parser.add_argument("--font-size", type=int, default=80,
+    parser.add_argument("--font-size", type=int, default=100,
                         help="column heading font size")
     # 上方文字和图片的距离
     parser.add_argument("--header-gap", type=int, default=60,
@@ -117,6 +125,14 @@ def main() -> None:
     )
     if not sample_dirs:
         parser.error(f"no subfolders found in {root}")
+    if ROW_ORDER:
+        by_name = {path.name: path for path in sample_dirs}
+        missing = [name for name in ROW_ORDER if name not in by_name]
+        if missing:
+            parser.error("row-order folders not found: " + ", ".join(missing))
+        sample_dirs = ([by_name[name] for name in ROW_ORDER]
+                       + [path for path in sample_dirs if path.name not in ROW_ORDER])
+        print("row order: " + ", ".join(path.name for path in sample_dirs))
 
     rows: list[tuple[Path, ...]] = []
     for sample_dir in sample_dirs:

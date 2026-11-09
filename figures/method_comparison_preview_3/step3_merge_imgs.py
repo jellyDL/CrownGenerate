@@ -21,23 +21,28 @@ ROW_FILES = ((
     "sample1_match_singlejaw.png",
     "sample2_match_singlejaw.png",
     "sample3_match_singlejaw.png",
-    "sample3_match_singlejaw.png",    
+    "sample4_match_singlejaw.png",    
     "our_singlejaw.png",
     "gt_singlejaw.png",
 ),)
 COLUMN_LABELS = ("Prep Tooth", "VF-Net", "DMCv2", "VBCD", "MADCrowner", "Ours", "Reference Crown")
 COLORBAR_WIDTH = 260
 COLORBAR_GAP = 60 #色带与最后一张图片之间间距
+COLORBAR_MIN = -0.3
+COLORBAR_MAX = 0.3
 
 
 def make_colorbar(height: int, bar_width: int = 60, font_size: int = 60,
                   unit: str = "(mm)") -> Image.Image:
-    """Create a vertical turbo colorbar matching method_comparison_preview2."""
+    """Create a vertical turbo colorbar for the fixed [-0.3, 0.3] scale."""
     top_pad = 50  # extra clear space above the unit label
     margin_y = 80 # 色带本体上下留白
     bar_height = max(1, height - 2 * margin_y)
-    values = np.linspace(1.0, 0.0, bar_height)
-    rgb = (colormaps["turbo"](values)[:, :3] * 255).astype(np.uint8)
+    # Render from +0.3 at the top to -0.3 at the bottom, matching the
+    # vertical orientation and normalization used by PyVista in step2.
+    values = np.linspace(COLORBAR_MAX, COLORBAR_MIN, bar_height)
+    normalized = (values - COLORBAR_MIN) / (COLORBAR_MAX - COLORBAR_MIN)
+    rgb = (colormaps["turbo"](normalized)[:, :3] * 255).astype(np.uint8)
     bar = Image.fromarray(np.repeat(rgb[:, None, :], bar_width, axis=1), "RGB")
     canvas = Image.new("RGB", (COLORBAR_WIDTH, height + top_pad), "white")
     canvas.paste(bar, (0, margin_y + top_pad))
@@ -86,9 +91,9 @@ def main() -> None:
                         help="distance from heading text to images in pixels")
     parser.add_argument("--colorbar-x", type=int, default=5200,
                         help="colorbar left position in pixels (default: right of images)")
-    parser.add_argument("--colorbar-y", type=int, default=2440,
+    parser.add_argument("--colorbar-y", type=int, default=2540,
                         help="colorbar top position in pixels (default: bottom aligned)")
-    parser.add_argument("--colorbar-length", type=int, default=1400,
+    parser.add_argument("--colorbar-length", type=int, default=1300,
                         help="colorbar length in pixels (default: 70%% of image height)")
     parser.add_argument("--colorbar-thickness", type=int, default=60,
                         help="colorbar strip thickness in pixels")

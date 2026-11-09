@@ -18,6 +18,10 @@ import pyvista as pv
 # GT_COLOR = '#9a9a9a'
 GT_COLOR = '#d4d4d4'
 WINDOW_SIZE = (600, 800)
+# Keep every comparison render on the same scale as the shared colorbar in
+# step3_merge_imgs.py.  The symmetric range is intentional even though the
+# nearest-point error currently contains non-negative distances only.
+ERROR_CLIM = (-0.3, 0.3)
 
 def _load_transform(path: Path) -> np.ndarray:
     data = json.loads(path.read_text())
@@ -29,7 +33,7 @@ def _load_transform(path: Path) -> np.ndarray:
 
 def _render(stl: Path, T: np.ndarray, output: Path, jaw_paths=(), camera_data=None,
             primary_color=(199, 146, 88), primary_is_jaw=False,
-            reference_stl=None, clim=5.0) -> None:
+            reference_stl=None, clim=ERROR_CLIM[1]) -> None:
     primary = pv.read(stl)
     pts = np.c_[np.asarray(primary.points), np.ones(primary.n_points)]
     primary.points = (pts @ T.T)[:, :3]
@@ -66,8 +70,9 @@ def _render(stl: Path, T: np.ndarray, output: Path, jaw_paths=(), camera_data=No
         for jaw in parts[:-1]:
             pl.add_mesh(jaw, scalars='display_rgb', rgb=True,
                         smooth_shading=True, show_edges=False)
+        half_range = abs(clim)
         pl.add_mesh(primary, scalars='error_mm', cmap='turbo',
-                    clim=(-abs(clim), abs(clim)), smooth_shading=True,
+                    clim=(-half_range, half_range), smooth_shading=True,
                     show_scalar_bar=False)
     if camera_data:
         pl.camera.position = camera_data['position']
@@ -91,8 +96,8 @@ def main():
     p.add_argument(
         '--clim',
         type=float,
-        default=1.0,
-        help='symmetric heatmap range in mm (default: -2 to 2)',
+        default=ERROR_CLIM[1],
+        help='symmetric heatmap range in mm (default: -0.3 to 0.3)',
     )
     args=p.parse_args();
     if args.clim == 0:
@@ -105,6 +110,7 @@ def main():
         sample1_stl = folder / 'sample1_match.stl'
         sample2_stl = folder / 'sample2_match.stl'
         sample3_stl = folder / 'sample3_match.stl'
+        sample4_stl = folder / 'sample4_match.stl'
         rt_for_folder = folder / 'gt_singlejaw_rt.json'
         if not rt_for_folder.is_file():
             raise FileNotFoundError(f'missing required pose JSON: {rt_for_folder}')
@@ -142,6 +148,8 @@ def main():
         _render(sample2_stl, T, folder / 'sample2_match_singlejaw.png', jaw_paths, camera_data,
                 reference_stl=gt_stl, clim=abs(args.clim))
         _render(sample3_stl, T, folder / 'sample3_match_singlejaw.png', jaw_paths, camera_data,
+                reference_stl=gt_stl, clim=abs(args.clim))
+        _render(sample4_stl, T, folder / 'sample4_match_singlejaw.png', jaw_paths, camera_data,
                 reference_stl=gt_stl, clim=abs(args.clim))
         return
         json_files=[]

@@ -48,8 +48,8 @@ ELLIPSES: list[dict[str, Any]] = [
         "name": "row1-1",
         "enabled": True,
         "units": "percent", # 按图像宽高的百分比定位
-        "center": (39, 11), # 椭圆中心
-        "radii": (4, 3.2), # 椭圆横、纵半径 
+        "center": (39, 10.5), # 椭圆中心
+        "radii": (4, 3.8), # 椭圆横、纵半径 
         "rotation_deg": 0, # 旋转角度 
         "color": (225, 35, 35), # 
         "alpha": 1.0, # 透明度
@@ -62,8 +62,8 @@ ELLIPSES: list[dict[str, Any]] = [
         "name": "row1-2",
         "enabled": True,
         "units": "percent", # 按图像宽高的百分比定位
-        "center": (40, 18.5), # 椭圆中心
-        "radii": (5, 2.5), # 椭圆横、纵半径 
+        "center": (40, 19), # 椭圆中心
+        "radii": (5, 3.2), # 椭圆横、纵半径 
         "rotation_deg": 0, # 旋转角度 
         "color": (225, 35, 35), # 
         "alpha": 1.0, # 透明度
@@ -91,7 +91,7 @@ ELLIPSES: list[dict[str, Any]] = [
         "enabled": True,
         "units": "percent", # 按图像宽高的百分比定位
         "center": (37, 59), # 椭圆中心
-        "radii": (4, 3.5), # 椭圆横、纵半径 
+        "radii": (4.5, 4.2), # 椭圆横、纵半径 
         "rotation_deg": 0, # 旋转角度 
         "color": (225, 35, 35), # 
         "alpha": 1.0, # 透明度
@@ -105,7 +105,7 @@ ELLIPSES: list[dict[str, Any]] = [
         "enabled": True,
         "units": "percent", # 按图像宽高的百分比定位
         "center": (36.5, 82.8), # 椭圆中心
-        "radii": (4, 3), # 椭圆横、纵半径 
+        "radii": (4.2, 3.5), # 椭圆横、纵半径 
         "rotation_deg": 0, # 旋转角度 
         "color": (225, 35, 35), # 
         "alpha": 1.0, # 透明度
@@ -118,8 +118,8 @@ ELLIPSES: list[dict[str, Any]] = [
         "name": "row4-2",
         "enabled": True,
         "units": "percent", # 按图像宽高的百分比定位
-        "center": (37.2, 93), # 椭圆中心
-        "radii": (4.2, 3.3), # 椭圆横、纵半径 
+        "center": (37.2, 93.2), # 椭圆中心
+        "radii": (4.7, 3.8), # 椭圆横、纵半径 
         "rotation_deg": 0, # 旋转角度 
         "color": (225, 35, 35), # 
         "alpha": 1.0, # 透明度

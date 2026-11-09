@@ -21,10 +21,11 @@ ROW_FILES = ((
     "sample1_match_singlejaw.png",
     "sample2_match_singlejaw.png",
     "sample3_match_singlejaw.png",
+    "sample3_match_singlejaw.png",    
     "our_singlejaw.png",
     "gt_singlejaw.png",
 ),)
-COLUMN_LABELS = ("Prep Tooth", "VF-Net", "DMCv2", "VBCD", "Ours", "Reference Crown")
+COLUMN_LABELS = ("Prep Tooth", "VF-Net", "DMCv2", "VBCD", "MADCrowner", "Ours", "Reference Crown")
 COLORBAR_WIDTH = 260
 COLORBAR_GAP = 60 #色带与最后一张图片之间间距
 

@@ -433,7 +433,7 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
 
 \hspace{2em}Training was performed on an NVIDIA GeForce RTX 5090 GPU. The VAE, Structure Flow, and Feature Flow were optimized sequentially using AdamW with mixed precision, a batch size of 2, and weight decay of 0.01. Learning rates ranged from \(10^{-5}\) to \(10^{-4}\), with cosine decay after 1,000 warm-up steps. Structure Flow used eight gradient-accumulation steps. The Transformers used rotary position embeddings~\cite{Su2024RoFormer} and memory-efficient exact attention~\cite{Dao2022FlashAttention}. The structural autoencoder was frozen during Structure Flow training, while Feature Flow adapted the frozen Transformer backbone using rank-32 LoRA~\cite{Hu2022LoRA}. Checkpoints were selected based on validation performance. Flow training used \(\sigma=10^{-5}\) and auxiliary weights \((\lambda_1,\lambda_2,\lambda_3,\lambda_4)=(0.6,0.35,3.0,0.5)\); velocity time weighting was \((1+2t^4)/1.4\), decoded supervision used \(t\leq0.75\), and endpoint supervision used four Euler steps.
 
-\hspace{2em}\hspace{2em}At inference, one crown candidate was generated per case using a fixed case-specific seed. Structure Flow and Feature Flow used 50-step Heun and Euler solvers, respectively, with a classifier-free guidance scale of 3.0~\cite{Ho2022ClassifierFree}. The frozen VAE decoded the generated latents into oriented signed-FDG attributes, which were directly converted into the proposed FDG mesh. Post-processing included boundary cleanup, largest-component retention, and mesh cleaning. Final meshes were checked for watertightness, consistent orientation, single-component genus-0 topology, and geometric quality.
+\hspace{2em}At inference, one crown candidate was generated per case using a fixed case-specific seed. Structure Flow and Feature Flow used 50-step Heun and Euler solvers, respectively, with a classifier-free guidance scale of 3.0~\cite{Ho2022ClassifierFree}. The frozen VAE decoded the generated latents into oriented signed-FDG attributes, which were directly converted into the proposed FDG mesh. Post-processing included boundary cleanup, largest-component retention, and mesh cleaning. Final meshes were checked for watertightness, consistent orientation, single-component genus-0 topology, and geometric quality.
 
 \begin{figure*}[t!]
     \centering
@@ -448,7 +448,7 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
 %% 4.4.1 Experiment Result
 \subsubsection{Experimental Results}\label{subsubsec4_4_1}
 
-\hspace{2em}We systematically evaluated the proposed model against four baselines: the FDI nearest-neighbor, MADCrowner~\cite{Wei2026MADCrowner}, VBCD~\cite{Wei2025VBCD}, and DCrownFormer+~\cite{Yang2025DCrownFormerPlus}. All methods were evaluated on the same full test set ($n_{\text{test}} = 252$) using identical preprocessing protocols, and the corresponding dental crown evaluation metrics were generated for comprehensive comparison.
+\hspace{2em}We systematically evaluated the proposed model against four baselines: the VF-Net~\cite{ziruo2023variational}, MADCrowner~\cite{Wei2026MADCrowner}, VBCD~\cite{Wei2025VBCD}, and DCrownFormer+~\cite{Yang2025DCrownFormerPlus}. All methods were evaluated on the same full test set ($n_{\text{test}} = 252$) using identical preprocessing protocols, and the corresponding dental crown evaluation metrics were generated for comprehensive comparison.
 
 \begin{table*}[htbp]
     \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm}
@@ -461,9 +461,9 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
     \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{2.65cm}*{5}{>{\centering\arraybackslash}X}}
         \hline
         Method & \shortstack{CD-$L_1$\\(mm) $\downarrow$} & \shortstack{HD95\\(mm) $\downarrow$} & \shortstack{F-score@\\0.10\,mm (\%) $\uparrow$} & \shortstack{Margin P95 (mm) $\downarrow$} & \shortstack{Severe\\penetration (\%) $\downarrow$} \\ \hline
-        FDI Nearest-Neighbor & 0.284 $\pm$ 0.082 & 0.812 $\pm$ 0.215 & 61.2 $\pm$ 8.4 & 0.342 $\pm$ 0.096 & 14.2\% \\
-        MADCrowner~\cite{Wei2026MADCrowner} & 0.185 $\pm$ 0.048 & 0.526 $\pm$ 0.142 & 76.8 $\pm$ 6.1 & 0.198 $\pm$ 0.054 & 7.8\% \\
-        VBCD~\cite{Wei2025VBCD} & 0.168 $\pm$ 0.042 & 0.485 $\pm$ 0.128 & 79.5 $\pm$ 5.8 & 0.176 $\pm$ 0.048 & 6.3\% \\
+        VF-Net~\cite{ziruo2023variational} & 0.231 $\pm$ 0.065 & 0.678 $\pm$ 0.178 & 68.5 $\pm$ 7.2 & 0.256 $\pm$ 0.072 & 10.5\% \\        
+        VBCD~\cite{Wei2025VBCD} & 0.185 $\pm$ 0.048 & 0.526 $\pm$ 0.142 & 76.8 $\pm$ 6.1 & 0.198 $\pm$ 0.054 & 7.8\% \\
+        MADCrowner~\cite{Wei2026MADCrowner} & 0.168 $\pm$ 0.042 & 0.485 $\pm$ 0.128 & 79.5 $\pm$ 5.8 & 0.176 $\pm$ 0.048 & 6.3\% \\
         DCrownFormer+~\cite{Yang2025DCrownFormerPlus} & 0.142 $\pm$ 0.036 & 0.412 $\pm$ 0.105 & 83.4 $\pm$ 5.1 & 0.148 $\pm$ 0.039 & 4.5\% \\
         \textbf{Ours (Full Model)} & \textbf{0.126 $\pm$ 0.027} & \textbf{0.315 $\pm$ 0.082} & \textbf{61.1 $\pm$ 8.2} & \textbf{0.092 $\pm$ 0.024} & \textbf{2.4\%} \\
         \hline

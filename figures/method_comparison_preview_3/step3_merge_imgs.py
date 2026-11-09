@@ -99,7 +99,7 @@ def main() -> None:
                         help="distance from heading text to images in pixels")
     parser.add_argument("--colorbar-x", type=int, default=5200,
                         help="colorbar left position in pixels (default: right of images)")
-    parser.add_argument("--colorbar-y", type=int, default=2540,
+    parser.add_argument("--colorbar-y", type=int, default=2580,
                         help="colorbar top position in pixels (default: bottom aligned)")
     parser.add_argument("--colorbar-length", type=int, default=1300,
                         help="colorbar length in pixels (default: 70%% of image height)")

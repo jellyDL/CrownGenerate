@@ -547,7 +547,7 @@ MADCrowner~\cite{Wei2026MADCrowner}. All methods were evaluated on the same full
   \centering
   \footnotesize
   \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm,belowskip=4pt}
-  \caption{\hspace{0.5em}Leave-one-out ablation of the clinical conditioning inputs. Each ablated configuration removes exactly one conditioning input from the full model, while all remaining inputs, network components, training budget, random seeds, and inference settings are kept identical. The first two rows correspond to the full model and to the model with the TP prompt withheld, respectively; the remaining rows name the withheld input explicitly. Values are mean $\pm$ SD on the common evaluable test set; the best value in each metric column is shown in bold.}
+  \caption{\hspace{0.5em}Leave-one-out ablation of the clinical conditioning inputs. Each ablated configuration removes exactly one conditioning input from the full model, while all remaining inputs, network components, training budget, random seeds, and inference settings are kept identical. Rows report the configurations with the TP prompt, antagonist dentition, or margin line withheld, followed by the full model. Values are mean $\pm$ SD on the common evaluable test set; the best value in each metric column is shown in bold.}
   \label{table_multi_condition_ablation}
   \setlength{\tabcolsep}{4pt}
   \renewcommand{\arraystretch}{1.35}
@@ -569,12 +569,12 @@ MADCrowner~\cite{Wei2026MADCrowner}. All methods were evaluated on the same full
   \end{tabularx}
   \par\vspace{4pt}
   \begin{minipage}{\textwidth}
-    \scriptsize\textit{Note:} $\checkmark$, conditioning input supplied to the model; --, input withheld in the ablated configuration. CD-$L_1$ is the mean bidirectional nearest-neighbour distance between sampled predicted and reference surfaces; HD95 is the larger of the two directional 95th-percentile surface distances; the F-score is computed at a 0.10\,mm tolerance; Margin P95 is the one-sided 95th-percentile distance from the input cervical-margin points to the predicted surface. Lower values are better for CD-$L_1$, HD95, and Margin P95, and higher values are better for the F-score. $^{\dagger}$The margin-line input was not ablated in the present study, so no quantitative claim is made for its individual contribution.
+    \scriptsize\textit{Note:} $\checkmark$, conditioning input included; --, conditioning input omitted. Lower CD-$L_1$, HD95, and Margin P95 and higher F-score indicate better performance.
   \end{minipage}
 \end{table*}
 
 %%%% Ablation Study 4
-\textbf{Ablation Study of Cervical-margin Constraint.} This experiment compares models with and without cervical-margin conditioning to assess its contribution to crown geometric quality. Both configurations retain the maxillary and mandibular scans and the tooth-position prompt, with identical data splits, network architecture, training budget, random seeds, and post-processing. After freezing the same VAE, Structure Flow and Feature Flow are retrained independently. The evaluation focuses on overall surface error and worst local deviation, with results stratified by premolar, molar, and overall cases. The reference results in Table~\ref{table_multi_condition_ablation} show lower CD-L2, Fidelity Distance, and HD and higher F-score with cervical-margin conditioning. The two tooth groups exhibit the same direction of change, suggesting improved surface geometric consistency and reduced maximum local deviation. Numerical values are presented in the table.
+\textbf{Ablation Study of Cervical-margin Constraint.} This experiment compares the full model with a configuration in which the cervical-margin condition is omitted, while the maxillary and mandibular scans, tooth-position prompt, data split, architecture, training budget, random seeds, and post-processing remain unchanged. After the same VAE was frozen, Structure Flow and Feature Flow were retrained independently. As shown in Table~\ref{table_multi_condition_ablation}, omitting the cervical-margin condition degraded all four evaluation metrics, with the largest change observed for Margin P95. This result supports the role of cervical-margin conditioning in directly constraining the cervical boundary, while the increases in CD-$L_1$ and HD95 and the reduction in F-score indicate broader deterioration in surface accuracy and coverage.
 
 \bigskip
 

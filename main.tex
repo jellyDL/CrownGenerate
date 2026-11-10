@@ -534,7 +534,7 @@ MADCrowner~\cite{Wei2026MADCrowner}. All methods were evaluated on the same full
 \bigskip
 
 %%%% Ablation Study 3
-\textbf{Ablation of Antagonist Conditioning.} This experiment evaluates the contribution of antagonist conditioning to the generation of occlusal relationships.  The ablated configuration is denoted as I-Opposing. The complete model receives the prepared tooth, adjacent teeth, and antagonist dentition as inputs, providing information about crown morphology, proximal relationships, and interarch spatial correspondence. In I-Opposing, the antagonist-dentition condition is removed while all other inputs, network components, training epochs, random seeds, and inference settings remain unchanged. With the A2 VAE frozen, the two configurations are trained independently and compared in terms of occlusal contact coverage, penetration area ratio, and maximum penetration depth. The qualitative comparison in Fig.~\ref{fig:ablation_occlusion} shows that removing the antagonist condition preserves the overall crown morphology but can produce local penetration into the opposing dentition, together with missing, fragmented, or spatially displaced occlusal contact regions and localized premature contacts. These observations support the role of antagonist conditioning in forming continuous, stable, and anatomically appropriate occlusal contact patterns.
+\textbf{Ablation of Antagonist Conditioning.} This experiment evaluates the contribution of antagonist conditioning to the generation of occlusal relationships.  The ablated configuration is denoted as I-Opposing. The complete model receives the prepared tooth, adjacent teeth, and antagonist dentition as inputs, providing information about crown morphology, proximal relationships, and interarch spatial correspondence. In I-Opposing, the antagonist-dentition condition is removed while all other inputs, network components, training epochs, random seeds, and inference settings remain unchanged. With the A2 VAE frozen, the two configurations are trained independently and compared in terms of occlusal contact coverage, penetration area ratio, and maximum penetration depth. The qualitative comparison in Fig.~\ref{fig:ablation_occlusion} shows that removing the antagonist condition preserves the overall crown morphology but can produce local penetration into the opposing dentition, together with missing, fragmented, or spatially displaced occlusal contact regions and localized premature contacts. These observations support the role of antagonist conditioning in forming continuous, stable, and anatomically appropriate occlusal contact patterns. 
 
 \begin{figure}[H]
   \centering
@@ -562,8 +562,8 @@ MADCrowner~\cite{Wei2026MADCrowner}. All methods were evaluated on the same full
     \makecell[t]{Margin P95\\(mm) $\downarrow$} \\
     \midrule
     --           & $\checkmark$ & $\checkmark$ & $0.137 \pm 0.045$ & $0.318 \pm 0.024$ & $60.110 \pm 8.620$ & $0.154 \pm 0.034$ \\
-    $\checkmark$ & --           & $\checkmark$ & $0.137 \pm 0.045$ & $0.318 \pm 0.024$ & $60.110 \pm 8.620$ & $0.154 \pm 0.034$ \\
-    $\checkmark$ & $\checkmark$ & --           & $0.137 \pm 0.045$ & $0.318 \pm 0.024$ & $60.110 \pm 8.620$ & $0.154 \pm 0.034$ \\
+    $\checkmark$ & --           & $\checkmark$ & $0.132 \pm 0.030$ & $0.352 \pm 0.090$ & $59.752 \pm 8.351$ & $0.107 \pm 0.028$ \\
+    $\checkmark$ & $\checkmark$ & --           & $0.142 \pm 0.043$ & $0.365 \pm 0.096$ & $60.520 \pm 8.503$ & $0.234 \pm 0.057$  \\
     $\checkmark$ & $\checkmark$ & $\checkmark$ & $\bm{0.126 \pm 0.027}$ & $\bm{0.315 \pm 0.082}$ & $\bm{61.090 \pm 8.220}$ & $\bm{0.092 \pm 0.024}$ \\
     \bottomrule
   \end{tabularx}

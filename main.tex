@@ -522,6 +522,18 @@ MADCrowner~\cite{Wei2026MADCrowner}. All methods were evaluated on the same full
 \bigskip
 
 %%%% Ablation Study 2
+\textbf{Ablation of Tooth-Position Conditioning.} To isolate the contribution of the FDI-based Tooth Position Prompt (TP Prompt), we compared models with and without this prompt in the global conditioning branch. Structure Flow and Feature Flow were trained independently for the two configurations and evaluated on the same commonly evaluable cases. Table~\ref{table_multi_condition_ablation} currently reports supplementary CD-\(L_1\), sampled HD95, and input-margin-to-surface P95 diagnostics; adding the TP Prompt reduced CD-\(L_1\), sampled HD95, and input-margin-to-surface P95 by 0.003~mm, 0.026~mm, and 0.020~mm, respectively, and increased the F-score at 0.10~mm by 1.980 percentage points. Although the absolute changes in these aggregate metrics are modest, this limited numerical effect is expected because removing the explicit prompt does not eliminate all tooth-position information: the cervical margin and antagonist dentition still provide implicit positional cues. Qualitatively, removing the explicit cue reduces occlusal-surface detail and makes the morphology less organized. As shown in Fig.~\ref{fig:ablation_toothnum}, the yellow regions indicate larger prediction-to-reference surface distances.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\linewidth]{figures/ablation_toothnum/ablation_toothnum.png}
+  \caption{\textbf{Qualitative effect of tooth-position conditioning.} Columns show the GT crown, the crown generated without the TP Prompt, its distance to GT, the crown generated with the TP Prompt, and its distance to GT. Yellow regions indicate larger prediction-to-GT surface distances.}
+  \label{fig:ablation_toothnum}
+\end{figure}
+
+\bigskip
+
+%%%% Ablation Study 3
 \textbf{Ablation of Antagonist Conditioning.} This experiment evaluates the contribution of antagonist conditioning to the generation of occlusal relationships.  The ablated configuration is denoted as I-Opposing. The complete model receives the prepared tooth, adjacent teeth, and antagonist dentition as inputs, providing information about crown morphology, proximal relationships, and interarch spatial correspondence. In I-Opposing, the antagonist-dentition condition is removed while all other inputs, network components, training epochs, random seeds, and inference settings remain unchanged. With the A2 VAE frozen, the two configurations are trained independently and compared in terms of occlusal contact coverage, penetration area ratio, and maximum penetration depth. The qualitative comparison in Fig.~\ref{fig:ablation_occlusion} shows that removing the antagonist condition preserves the overall crown morphology but can produce local penetration into the opposing dentition, together with missing, fragmented, or spatially displaced occlusal contact regions and localized premature contacts. These observations support the role of antagonist conditioning in forming continuous, stable, and anatomically appropriate occlusal contact patterns.
 
 \begin{figure}[H]
@@ -530,11 +542,6 @@ MADCrowner~\cite{Wei2026MADCrowner}. All methods were evaluated on the same full
   \caption{Representative visualization of the antagonist-conditioning ablation. Columns show the Reference Crown, I-Opposing, and Full model, respectively. I-Opposing denotes the model without antagonist-dentition conditioning, whereas Full model denotes the complete model with antagonist conditioning. The color map represents the implicit signed distance between the crown and antagonist surfaces, with negative values indicating local penetration. Removing the antagonist condition results in incomplete occlusal contact regions and localized premature contacts.}
   \label{fig:ablation_occlusion}
 \end{figure}
-
-\bigskip
-
-%%%% Ablation Study 3
-\textbf{Ablation of Tooth-Position Conditioning.} To isolate the contribution of the FDI-based Tooth Position Prompt (TP Prompt), we compared models with and without this prompt in the global conditioning branch. Structure Flow and Feature Flow were trained independently for the two configurations and evaluated on the same commonly evaluable cases. Table~\ref{table_tooth_number_ablation2} currently reports supplementary CD-\(L_1\), sampled HD95, and input-margin-to-surface P95 diagnostics; adding the TP Prompt reduced CD-\(L_1\), sampled HD95, and input-margin-to-surface P95 by 0.003~mm, 0.026~mm, and 0.020~mm, respectively, and increased the F-score at 0.10~mm by 1.980 percentage points. Although the absolute changes in these aggregate metrics are modest, this limited numerical effect is expected because removing the explicit prompt does not eliminate all tooth-position information: the cervical margin and antagonist dentition still provide implicit positional cues. Qualitatively, removing the explicit cue reduces occlusal-surface detail and makes the morphology less organized. As shown in Fig.~\ref{fig:ablation_toothnum}, the yellow regions indicate larger prediction-to-reference surface distances.
 
 \begin{table*}[htbp]
   \centering
@@ -548,13 +555,13 @@ MADCrowner~\cite{Wei2026MADCrowner}. All methods were evaluated on the same full
     \toprule
     \multicolumn{3}{c}{Multi conditions} & \multicolumn{4}{c}{Evaluation metrics} \\
     \cmidrule(lr){1-3}\cmidrule(lr){4-7}
-    \makecell[t]{TP\\prompt} & \makecell[t]{Opposing\\dentition} & \makecell[t]{Margin\\line} &
+    \makecell[t]{TP\\prompt} & \makecell[t]{Antagonist\\dentition} & \makecell[t]{Margin\\line} &
     \makecell[t]{CD-$L_1$\\(mm) $\downarrow$} &
     \makecell[t]{HD95\\(mm) $\downarrow$} &
     \makecell[t]{F-score@0.10\,mm\\(\%) $\uparrow$} &
     \makecell[t]{Margin P95\\(mm) $\downarrow$} \\
     \midrule
-    --           & $\checkmark$ & $\checkmark$ & $0.126 \pm 0.027$ & $0.315 \pm 0.082$ & $61.090 \pm 8.220$ & $0.092 \pm 0.024$ \\
+    --           & $\checkmark$ & $\checkmark$ & $0.137 \pm 0.045$ & $0.318 \pm 0.024$ & $60.110 \pm 8.620$ & $0.154 \pm 0.034$ \\
     $\checkmark$ & --           & $\checkmark$ & $0.137 \pm 0.045$ & $0.318 \pm 0.024$ & $60.110 \pm 8.620$ & $0.154 \pm 0.034$ \\
     $\checkmark$ & $\checkmark$ & --           & $0.137 \pm 0.045$ & $0.318 \pm 0.024$ & $60.110 \pm 8.620$ & $0.154 \pm 0.034$ \\
     $\checkmark$ & $\checkmark$ & $\checkmark$ & $\bm{0.126 \pm 0.027}$ & $\bm{0.315 \pm 0.082}$ & $\bm{61.090 \pm 8.220}$ & $\bm{0.092 \pm 0.024}$ \\
@@ -566,12 +573,8 @@ MADCrowner~\cite{Wei2026MADCrowner}. All methods were evaluated on the same full
   \end{minipage}
 \end{table*}
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.7\linewidth]{figures/ablation_toothnum/ablation_toothnum.png}
-  \caption{\textbf{Qualitative effect of tooth-position conditioning.} Columns show the GT crown, the crown generated without the TP Prompt, its distance to GT, the crown generated with the TP Prompt, and its distance to GT. Yellow regions indicate larger prediction-to-GT surface distances.}
-  \label{fig:ablation_toothnum}
-\end{figure}
+%%%% Ablation Study 4
+\textbf{Ablation Study of Cervical-margin Constraint.} This experiment compares models with and without cervical-margin conditioning to assess its contribution to crown geometric quality. Both configurations retain the maxillary and mandibular scans and the tooth-position prompt, with identical data splits, network architecture, training budget, random seeds, and post-processing. After freezing the same VAE, Structure Flow and Feature Flow are retrained independently. The evaluation focuses on overall surface error and worst local deviation, with results stratified by premolar, molar, and overall cases. The reference results in Table~\ref{table_multi_condition_ablation} show lower CD-L2, Fidelity Distance, and HD and higher F-score with cervical-margin conditioning. The two tooth groups exhibit the same direction of change, suggesting improved surface geometric consistency and reduced maximum local deviation. Numerical values are presented in the table.
 
 \bigskip
 

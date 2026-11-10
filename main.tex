@@ -450,7 +450,7 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
 \subsubsection{Experimental Results}\label{subsubsec4_4_1}
 
 \hspace{2em}We systematically evaluated the proposed model against four baselines: the VF-Net~\cite{ziruo2023variational}, DMCv2~\cite{Hosseinimanesh2025PointToMesh}, VBCD~\cite{Wei2025VBCD},
-MADCrowner~\cite{Wei2026MADCrowner}. All methods were evaluated on the same full test set ($n_{\text{test}} = 252$) using identical preprocessing protocols, and the corresponding dental crown evaluation metrics were generated for comprehensive comparison.
+MADCrowner~\cite{Wei2026MADCrowner}. These baselines were reimplemented and retrained on the same training set using publication-specified inputs; implementation and training differences may cause deviations from the original reports. All methods were evaluated on the same test set (\(n_{\text{test}} = 252\)) with identical preprocessing, and the same dental crown metrics were computed for comparison.
 
 \begin{table*}[htbp]
     \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm}

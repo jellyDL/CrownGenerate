@@ -1,0 +1,1 @@
+The dataset was obtained from multiple dental factorys and included technician-designed crown data and incomplete plaster models. No identifiable patient information, clinical records, or interventions were involved. Institutional data-governance review determined that formal ethics approval was not required.

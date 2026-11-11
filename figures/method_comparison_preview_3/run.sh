@@ -1,5 +1,17 @@
+#!/bin/sh
+# One shared colour scale for the entire figure. step2 maps the turbo LUT over
+# [-CLIM, CLIM] and step3 draws the matching colorbar, so both MUST use the
+# same CLIM. Change it here once and the whole pipeline stays consistent.
+set -e
+PYTHON=${PYTHON:-python}
+CLIM=0.5
+DATA=../method_comparison_preview_1
+
 python step2_render_stl_rt.py ../method_comparison_preview_1/00e13b2d-5753-51fa-98ff-2a0b3d2854b0 --clim 1.2
 python step2_render_stl_rt.py ../method_comparison_preview_1/001fa0b0-53d6-5e37-b93b-74570e867a02 --clim 0.8
 python step2_render_stl_rt.py ../method_comparison_preview_1/000b8258-0e4a-5d78-8187-e1c5621492be --clim 0.8
 python step2_render_stl_rt.py ../method_comparison_preview_1/021a7b93-011f-5b10-818f-7b70e5b6037a --clim 0.7
-python step3_merge_imgs.py
+
+# The heatmap uses non-negative nearest-point distances, so draw only the
+# 0..CLIM (green -> dark red) part of the turbo scale in the legend.
+"$PYTHON" step3_merge_imgs.py "$DATA" --clim "$CLIM" --one-sided

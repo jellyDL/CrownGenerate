@@ -28,7 +28,8 @@ ROW_FILES = ((
 COLUMN_LABELS = ("Prep Tooth", "VF-Net", "DMCv2", "VBCD", "MADCrowner", "Ours", "Reference Crown")
 COLORBAR_WIDTH = 260
 COLORBAR_GAP = 60 #色带与最后一张图片之间间距
-COLORBAR_MIN = -0.3
+# Default colour-scale limit (mm). step2_render_stl_rt.py must be run with the
+# same --clim value; run.sh keeps both in sync.
 COLORBAR_MAX = 0.3
 
 # Desired row order by sample-folder name; set to () for the default alphabetical order.
@@ -41,16 +42,27 @@ ROW_ORDER = (
 
 
 def make_colorbar(height: int, bar_width: int = 60, font_size: int = 60,
-                  unit: str = "(mm)") -> Image.Image:
-    """Create a vertical turbo colorbar for the fixed [-0.3, 0.3] scale."""
+                  unit: str = "(mm)", clim: float = COLORBAR_MAX,
+                  one_sided: bool = False) -> Image.Image:
+    """Create a vertical turbo colorbar matching step2's colour mapping.
+
+    step2 uses ``clim=(-clim, clim)``, so a distance ``d`` (mm) lands at LUT
+    position ``t = 0.5 + d / (2*clim)`` and, conversely, ``d = (2*t-1)*clim``.
+    ``clim`` must equal the ``--clim`` value used when rendering.
+
+    By default the full signed range [-clim, clim] is drawn. With
+    ``one_sided=True`` only ``t in [0.5, 1]`` (green -> dark red) is drawn,
+    matching the non-negative nearest-point distances actually rendered.
+    """
+    vmax = abs(clim)
+    t_top, t_bottom = 1.0, (0.5 if one_sided else 0.0)
     top_pad = 50  # extra clear space above the unit label
-    margin_y = 100 # 色带本体上下留白
+    margin_y = 110 # 色带本体上下留白
     bar_height = max(1, height - 2 * margin_y)
-    # Render from +0.3 at the top to -0.3 at the bottom, matching the
-    # vertical orientation and normalization used by PyVista in step2.
-    values = np.linspace(COLORBAR_MAX, COLORBAR_MIN, bar_height)
-    normalized = (values - COLORBAR_MIN) / (COLORBAR_MAX - COLORBAR_MIN)
-    rgb = (colormaps["turbo"](normalized)[:, :3] * 255).astype(np.uint8)
+    # Top = largest distance (dark red); bottom = zero distance (green) in
+    # one-sided mode, or -clim (dark blue) in the default signed mode.
+    t_values = np.linspace(t_top, t_bottom, bar_height)
+    rgb = (colormaps["turbo"](t_values)[:, :3] * 255).astype(np.uint8)
     bar = Image.fromarray(np.repeat(rgb[:, None, :], bar_width, axis=1), "RGB")
     canvas = Image.new("RGB", (COLORBAR_WIDTH, height + top_pad), "white")
     canvas.paste(bar, (0, margin_y + top_pad))
@@ -63,8 +75,16 @@ def make_colorbar(height: int, bar_width: int = 60, font_size: int = 60,
         font = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial.ttf", font_size)
     except OSError:
         font = ImageFont.load_default()
-    # Six evenly spaced ticks, with the largest positive value at the top.
-    labels = ["0.3", "0.2", "0.1", "0.0", "-0.1", "-0.2", "-0.3"]
+    # Seven evenly spaced ticks, with the largest positive value at the top.
+    # Derive the labels from the LUT position so they always describe the
+    # colour-to-millimetre mapping actually used by the renderer.
+    d_step = (t_top - t_bottom) * 2 * vmax / 6
+    decimals = max(1, min(3, int(np.ceil(-np.log10(d_step))))) if d_step > 0 else 1
+    labels = []
+    for index in range(7):
+        t = t_top - index * (t_top - t_bottom) / 6
+        value = round((2 * t - 1) * vmax, decimals)
+        labels.append(f"{0.0 if value == 0 else value:.{decimals}f}")
     for index, label in enumerate(labels):
         y = margin_y + round(index * (bar_height - 1) / (len(labels) - 1))
         draw.line((bar_width - 4, y, bar_width + 8, y), fill="black", width=2)
@@ -107,7 +127,15 @@ def main() -> None:
                         help="colorbar strip thickness in pixels")
     parser.add_argument("--colorbar-font-size", type=int, default=90,
                         help="colorbar tick and unit font size in pixels")
+    parser.add_argument("--clim", type=float, default=COLORBAR_MAX,
+                        help="symmetric render limit in mm; must match step2 --clim "
+                             f"(default: {COLORBAR_MAX})")
+    parser.add_argument("--one-sided", action="store_true",
+                        help="draw only the 0..clim part of the scale (green to dark "
+                             "red), for non-negative distance heatmaps")
     args = parser.parse_args()
+    if args.clim <= 0:
+        parser.error("--clim must be positive")
     if args.colorbar_length is not None and args.colorbar_length < 2:
         parser.error("colorbar-length must be at least 2 pixels")
     if args.colorbar_thickness <= 0:
@@ -186,7 +214,8 @@ def main() -> None:
     # Draw one shared colorbar, defaulting to the lower-right corner.
     # Overlay one shared colorbar only after the complete image grid is drawn.
     colorbar = make_colorbar(bar_length, args.colorbar_thickness,
-                             args.colorbar_font_size, "(mm)")
+                             args.colorbar_font_size, "(mm)", args.clim,
+                             args.one_sided)
     canvas.paste(colorbar, (colorbar_x, colorbar_y))
 
     output.parent.mkdir(parents=True, exist_ok=True)

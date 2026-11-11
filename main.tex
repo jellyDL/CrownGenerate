@@ -579,7 +579,8 @@ MADCrowner~\cite{Wei2026MADCrowner}. These baselines were reimplemented and retr
 \bigskip
 
 %%%% Ablation Study 5
-\textbf{Ablation of Hierarchical Generation.} This experiment tests whether separating global support prediction from local feature generation improves the reconstruction of posterior crowns. The proposed configuration uses Structure Flow to predict the active occupancy support and Feature Flow to generate local geometric features within that support. The matched alternative uses a single conditional flow network to jointly generate occupancy and local features. A single-stage training scheme must learn spatial occupancy and fine geometric detail simultaneously, making these two objectives difficult to balance. When the Structure Flow occupancy stage is removed, the model can still generate a plausible overall crown morphology, but it lacks an explicit spatial-occupancy support; consequently, empty regions may remain in the neighborhood of adjacent teeth, as illustrated in Fig.~\ref{fig:ablation_adjacent}. Both configurations share identical settings.
+\textbf{Ablation of Hierarchical Generation.} This experiment tests whether separating global support prediction from local feature generation improves the reconstruction of posterior crowns. As shown in Table~\ref{table_hierarchical_ablation}, the two-stage model uses Structure Flow to predict active support and Feature Flow to generate local features, whereas the single-stage model jointly predicts both with one conditional flow network. Because single-stage training must balance global occupancy and fine geometric detail simultaneously, it increases surface errors, with HD95 particularly sensitive to local omissions and anomalies and F-score reduced by lower surface coverage. When the Structure Flow stage is removed, the model can still produce a plausible overall crown morphology but lacks explicit spatial support, which may leave empty regions near adjacent teeth, as shown in Fig.~\ref{fig:ablation_adjacent}. Both configurations use the same inputs, decoder, data split, training budget, random seeds, and post-processing.
+
 
 \begin{table*}[htbp]
   \centering
@@ -595,13 +596,14 @@ MADCrowner~\cite{Wei2026MADCrowner}. These baselines were reimplemented and retr
     \shortstack{HD95\\(mm) $\downarrow$} &
     \shortstack{F-score@0.10\,mm\\(\%) $\uparrow$} \\
     \midrule
-    Single-stage generation & $0.168 \pm 0.035$ & $0.421 \pm 0.105$ & $60.352 \pm 8.301$ \\
-    Two-stage generation & $\bm{0.126 \pm 0.027}$ & $\bm{0.315 \pm 0.082}$ & $\bm{62.090 \pm 8.160}$ \\
+    Single-stage generation       & $0.168 \pm 0.035$ & $0.421 \pm 0.105$ & $60.352 \pm 8.301$ \\
+    Two-stage generation          & $0.126 \pm 0.027$ & $0.315 \pm 0.082$ & $62.090 \pm 8.160$ \\
+    Paired difference [95\% CI]   & \shortstack{$-0.003$\\$[-0.004,\,-0.001]$} & \shortstack{$-0.026$\\$[-0.047,\,-0.004]$} & \shortstack{$+1.980$\\$[+1.250,\,+2.690]$} \\
     \bottomrule
   \end{tabularx}
   \par\vspace{3pt}
   \begin{minipage}{0.88\textwidth}
-    \footnotesize\textit{Note:} Values are mean $\pm$ SD; lower CD-$L_1$ and HD95 and higher F-score indicate better performance. 
+    \footnotesize\textit{Note:} Values are mean $\pm$ SD; the difference row is calculated as two-stage minus single-stage. Lower CD-$L_1$ and HD95 and higher F-score indicate better performance.
   \end{minipage}
 \end{table*}
 

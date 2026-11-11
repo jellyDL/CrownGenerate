@@ -576,12 +576,6 @@ MADCrowner~\cite{Wei2026MADCrowner}. These baselines were reimplemented and retr
 %%%% Ablation Study 4
 \textbf{Ablation of Cervical-Margin Conditioning.} This experiment compares the full model with a configuration in which the cervical-margin condition is omitted, while the maxillary and mandibular scans, tooth-position prompt, data split, architecture, training budget, random seeds, and post-processing remain unchanged. After the same VAE was frozen, Structure Flow and Feature Flow were retrained independently. As shown in Table~\ref{table_multi_condition_ablation}, omitting the cervical-margin condition degraded all four evaluation metrics, with the largest change observed for Margin P95. This result supports the role of cervical-margin conditioning in directly constraining the cervical boundary, while the increases in CD-$L_1$ and HD95 and the reduction in F-score indicate broader deterioration in surface accuracy and coverage.
 
-\bigskip
-
-%%%% Ablation Study 5
-\textbf{Ablation of Hierarchical Generation.} This experiment tests whether separating global support prediction from local feature generation improves the reconstruction of posterior crowns. As shown in Table~\ref{table_hierarchical_ablation}, the two-stage model uses Structure Flow to predict active support and Feature Flow to generate local features, whereas the single-stage model jointly predicts both with one conditional flow network. Because single-stage training must balance global occupancy and fine geometric detail simultaneously, it increases surface errors, with HD95 particularly sensitive to local omissions and anomalies and F-score reduced by lower surface coverage. When the Structure Flow stage is removed, the model can still produce a plausible overall crown morphology but lacks explicit spatial support, which may leave empty regions near adjacent teeth, as shown in Fig.~\ref{fig:ablation_adjacent}. Both configurations use the same inputs, decoder, data split, training budget, random seeds, and post-processing.
-
-
 \begin{table*}[htbp]
   \centering
   \footnotesize
@@ -613,6 +607,9 @@ MADCrowner~\cite{Wei2026MADCrowner}. These baselines were reimplemented and retr
   \caption{\textbf{Qualitative visualization of hierarchical structure–feature generation.} Rows are arranged as Reference-crown, Single-stage, and Two-stage. Colors indicate the implicit distance between the crown and adjacent or opposing surfaces. Without the Structure Flow occupancy stage, the model can preserve the overall crown morphology but may leave empty regions near adjacent teeth.}
   \label{fig:ablation_adjacent}
 \end{figure}
+
+%%%% Ablation Study 5
+\textbf{Ablation of Hierarchical Generation.} This experiment tests whether separating global support prediction from local feature generation improves the reconstruction of posterior crowns. As shown in Table~\ref{table_hierarchical_ablation}, the two-stage model uses Structure Flow to predict active support and Feature Flow to generate local features, whereas the single-stage model jointly predicts both with one conditional flow network. Because single-stage training must balance global occupancy and fine geometric detail simultaneously, it increases surface errors, with HD95 particularly sensitive to local omissions and anomalies and F-score reduced by lower surface coverage. When the Structure Flow stage is removed, the model can still produce a plausible overall crown morphology but lacks explicit spatial support, which may leave empty regions near adjacent teeth, as shown in Fig.~\ref{fig:ablation_adjacent}. Both configurations use the same inputs, decoder, data split, training budget, random seeds, and post-processing.
 
 %% 4.4.3 Discussion
 \subsubsection{Discussion}\label{subsubsec4_4_3}

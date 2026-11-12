@@ -427,7 +427,7 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
 %% 4.2 
 \subsection{Evaluation Metrics}\label{subsec4_2}
 
-\hspace{2em}To assess the geometric consistency between the predicted crowns and the reference CAD models, the two surfaces were compared using identical outer-surface segmentation, area-weighted sampling, and post-processing procedures. Each mesh was sampled at 50{,}000 outer-surface points in physical coordinates. Following established dental crown evaluation protocols~\cite{Hosseinimanesh2025PointToMesh,Yang2024DCrownFormer,Yang2025DCrownFormerPlus,Wei2025VBCD,Wei2026MADCrowner}, the prespecified primary endpoints were symmetric CD-\(L_1\) and HD95. CD-\(L_1\) denotes the mean bidirectional nearest-neighbour Euclidean distance, whereas HD95 is the larger directional 95th-percentile distance; lower values indicate better agreement. F-score@0.10\,mm, the harmonic mean of precision and recall for points within the tolerance, was a secondary surface-coverage measure. Margin-to-surface P95 denotes the 95th-percentile distance from input margin points to the generated external surface, reflecting cervical geometric correspondence rather than intaglio fit or clinical marginal adaptation. Results were summarized as case-level mean~\(\pm\)~standard deviation.
+\hspace{2em}\hspace{2em}To assess the geometric consistency between the predicted crowns and the reference CAD models, the two surfaces were compared using identical outer-surface segmentation, area-weighted sampling, and post-processing procedures. Each mesh was sampled at 50{,}000 points in physical coordinates. Following established dental crown evaluation protocols~\cite{Hosseinimanesh2025PointToMesh,Yang2024DCrownFormer,Yang2025DCrownFormerPlus,Wei2025VBCD,Wei2026MADCrowner}, the prespecified primary endpoints were symmetric CD-\(L_1\) and HD95. CD-\(L_1\) denotes the mean bidirectional nearest-neighbour distance, whereas HD95 is the larger directional 95th-percentile distance; lower values indicate better agreement. F-score@0.10\,mm, the harmonic mean of precision and recall within the tolerance, was a secondary coverage metric. Margin-to-surface P95 was the 95th-percentile distance from input margin points to the generated external surface, reflecting cervical geometric correspondence. Severe penetration was defined as a per-case signed distance below \(-0.10\,\mathrm{mm}\), with negative, zero, and positive values indicating interpenetration, contact, and clearance. The rate was the proportion of evaluable cases exceeding this threshold. Results were summarized as case-level mean~\(\pm\)~standard deviation.
 
 %% 4.3 
 \subsection{Implementation Details}\label{subsec4_3}
@@ -454,7 +454,7 @@ MADCrowner~\cite{Wei2026MADCrowner}. These baselines were reimplemented and retr
 
 \begin{table*}[htbp]
     \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm}
-    \caption{\hspace{0.5em}Generation coverage, geometric fidelity, and severe antagonist penetration across evaluated methods}
+    \caption{\hspace{0.5em}Geometric fidelity and severe antagonist penetration across evaluated methods}
     \label{tab:main_comparison}
     \centering
     \footnotesize
@@ -472,7 +472,7 @@ MADCrowner~\cite{Wei2026MADCrowner}. These baselines were reimplemented and retr
     \end{tabularx}
     \par\vspace{3pt}
     \begin{minipage}{\textwidth}
-     \footnotesize\textit{Note:} Completion rate uses the full test set. Continuous values are mean \(\pm\) SD; rates are percentages. CD-\(L_1\) and HD95 are primary endpoints. Margin P95 is a one-sided distance, and reference CAD is an explanatory penetration baseline.
+     \footnotesize\textit{Note:} Continuous values are case-level mean~\(\pm\)~SD. CD-\(L_1\) and HD95 are primary endpoints. Margin P95 is a one-sided distance. Severe penetration is a case-level percentage defined by minimum signed distance \(<-0.10\,\mathrm{mm}\) to the registered opposing dentition; its denominator is the method-specific number of successfully generated and evaluable test cases.
     \end{minipage}
 \end{table*}
 

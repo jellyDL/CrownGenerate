@@ -506,7 +506,7 @@ Each baseline was reimplemented using the input conditions specified in its orig
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\linewidth]{./figures/figure5_technician_score_distribution.pdf}
-    \caption{Modification requirements for generated crown designs assessed independently by three dental technicians using a five-level ordinal scale. Each stacked bar shows one technician’s ratings of the same 80 designs, from 1 (unusable) to 5 (no modification). Right-hand labels indicate the percentage requiring no or only minor modifications (scores 4–5).}
+    \caption{\textbf{Technician assessment of generated crown designs.} Three dental technicians independently rated the same 80 generated crowns using a five-level ordinal scale from 1 (unusable) to 5 (no modification). Each stacked bar represents one technician’s ratings, and the right-hand labels indicate the percentage requiring no or only minor modifications (scores 4--5).}
     \label{fig:technician_evaluation}
 \end{figure}
 
@@ -564,31 +564,38 @@ Each baseline was reimplemented using the input conditions specified in its orig
 
 \begin{table*}[htbp]
   \centering
-  \footnotesize
+  \small
   \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm,belowskip=4pt}
-  \caption{\hspace{0.5em}Leave-one-out ablation of the dental conditioning inputs. Each ablated configuration removes exactly one conditioning input from the full model, while all remaining inputs, network components, training budget, random seeds, and inference settings are kept identical. Rows report the configurations with the TP prompt, antagonist dentition, or margin line withheld, followed by the full model. Values are mean $\pm$ SD on the common evaluable test set; the best value in each metric column is shown in bold.}
+  \caption{\hspace{0.5em}Leave-one-out ablation of the dental conditioning inputs.}
   \label{table_multi_condition_ablation}
-  \setlength{\tabcolsep}{4pt}
-  \renewcommand{\arraystretch}{1.35}
-  \begin{tabularx}{\textwidth}{@{}*{3}{>{\centering\arraybackslash}m{1.90cm}}*{4}{>{\centering\arraybackslash}X}@{}}
+  \setlength{\tabcolsep}{3pt}
+  \renewcommand{\arraystretch}{1.20}
+  \begin{tabularx}{\textwidth}{@{}
+    >{\centering\arraybackslash}m{1.75cm}
+    >{\centering\arraybackslash}m{1.85cm}
+    >{\centering\arraybackslash}m{1.65cm}
+    *{4}{>{\centering\arraybackslash}X}@{}}
     \toprule
-    \multicolumn{3}{c}{Multi conditions} & \multicolumn{4}{c}{Evaluation metrics} \\
+    \multicolumn{3}{c}{Dental conditioning} &
+    \multicolumn{4}{c}{Evaluation metrics} \\
     \cmidrule(lr){1-3}\cmidrule(lr){4-7}
-    \makecell[t]{TP\\prompt} & \makecell[t]{Antagonist\\dentition} & \makecell[t]{Margin\\line} &
-    \makecell[t]{CD-$L_1$\\(mm) $\downarrow$} &
-    \makecell[t]{HD95\\(mm) $\downarrow$} &
-    \makecell[t]{F-score@0.10\,mm\\(\%) $\uparrow$} &
-    \makecell[t]{Margin P95\\(mm) $\downarrow$} \\
+    \makecell[c]{TP\\prompt} &
+    \makecell[c]{Antagonist\\dentition} &
+    \makecell[c]{Margin\\line} &
+    \makecell[c]{CD-$L_1$\\(mm) $\downarrow$} &
+    \makecell[c]{HD95\\(mm) $\downarrow$} &
+    \makecell[c]{F-score@0.10\,mm\\(\%) $\uparrow$} &
+    \makecell[c]{Margin P95\\(mm) $\downarrow$} \\
     \midrule
     --           & $\checkmark$ & $\checkmark$ & $0.137 \pm 0.045$ & $0.318 \pm 0.024$ & $60.110 \pm 8.620$ & $0.154 \pm 0.034$ \\
     $\checkmark$ & --           & $\checkmark$ & $0.132 \pm 0.030$ & $0.352 \pm 0.090$ & $59.752 \pm 8.351$ & $0.107 \pm 0.028$ \\
-    $\checkmark$ & $\checkmark$ & --           & $0.142 \pm 0.043$ & $0.365 \pm 0.096$ & $60.520 \pm 8.503$ & $0.234 \pm 0.057$  \\
+    $\checkmark$ & $\checkmark$ & --           & $0.142 \pm 0.043$ & $0.365 \pm 0.096$ & $60.520 \pm 8.503$ & $0.234 \pm 0.057$ \\
     $\checkmark$ & $\checkmark$ & $\checkmark$ & $\bm{0.126 \pm 0.027}$ & $\bm{0.315 \pm 0.082}$ & $\bm{62.090 \pm 8.160}$ & $\bm{0.092 \pm 0.024}$ \\
     \bottomrule
   \end{tabularx}
-  \par\vspace{4pt}
+  \par\vspace{3pt}
   \begin{minipage}{\textwidth}
-    \scriptsize\textit{Note:} $\checkmark$, conditioning input included; --, conditioning input omitted. Lower CD-$L_1$, HD95, and Margin P95 and higher F-score indicate better performance.
+    \footnotesize\textit{Note:} $\checkmark$, conditioning input included; --, conditioning input omitted. Values are means $\pm$ SD on the common evaluable test set. Each ablated row removes one input while all other settings remain unchanged. Bold values indicate the best result in each metric column; lower CD-$L_1$, HD95, and Margin P95 and higher F-score are preferred.
   \end{minipage}
 \end{table*}
 

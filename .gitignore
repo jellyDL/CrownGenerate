@@ -13,4 +13,4 @@ main.blg
 *.png
 *.json
 .venv
-
+~$*

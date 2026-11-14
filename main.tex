@@ -289,7 +289,7 @@ Personalized crown design \sep Crown generation\sep Conditional flow matching \s
 
 \hspace{2em}The proposed framework generates editable external crown morphology for tooth-supported posterior single crowns. It takes registered maxillary and mandibular scans, a three-dimensional preparation-margin line, and the FDI tooth designation as inputs, combining oriented signed-FDG representation learning, multiscale dental conditioning, and two-stage conditional flow matching. Reference CAD meshes provide supervision during training and are not required at inference.
 
-\hspace{2em}Fig.~\ref{fig:figure_overall_architecture} summarizes the framework. Panel (a) extracts dental conditions using independent encoders for the two generation stages. Panel (b) learns a sparse VAE representation comprising active support and local features. In panel (c), Structure Flow predicts the active support, and Feature Flow generates local features at the predicted locations. Frozen VAE decoding produces oriented signed-FDG attributes, followed by direct FDG mesh extraction. The following subsections detail representation learning, dental conditioning, two-stage generation, and training objectives; reconstruction settings are provided in Sec.~\ref{subsec4_3}.
+\hspace{2em}Fig.~\ref{fig:figure_overall_architecture} summarizes the framework. Panel (a) extracts dental conditions using independent encoders for the two generation stages. Panel (b) learns a sparse variational autoencoder (VAE) representation comprising active support and local features. In panel (c), Structure Flow predicts the active support, and Feature Flow generates local features at the predicted locations. Frozen VAE decoding produces oriented signed-FDG attributes, followed by direct FDG mesh extraction. The following subsections detail representation learning, dental conditioning, two-stage generation, and training objectives; reconstruction settings are provided in Sec.~\ref{subsec4_3}.
 
 %% 3.2
 \subsection{Oriented signed-FDG Representation and Sparse VAE}\label{subsec3_2}
@@ -376,7 +376,7 @@ This representation jointly encodes local geometry, distance, and orientation wi
 %% 3.5.1
 \subsubsection{VAE Reconstruction and Geometric Regularization}\label{subsubsec3_5_1}
 
-\hspace{2em}The VAE reconstructs oriented signed-FDG attributes with a Kullback--Leibler (KL) regularized objective:
+\hspace{2em}The VAE reconstructs oriented signed-FDG attributes with a Kullback--Leibler (KL) regularized objective
 \begin{equation}
 L_{\mathrm{VAE}} = L_{\mathrm{attr}} + \lambda L_{\mathrm{KL}}
 + L_{\mathrm{surf}} + L_{\mathrm{smooth}} + L_{\mathrm{cons}},

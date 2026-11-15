@@ -251,7 +251,7 @@ Personalized crown design \sep Crown generation\sep Conditional flow matching \s
 %% 2 Related work
 \section{Related work}\label{sec2}
 
-\hspace{2em}This review covers related work, including data-driven dental crown generation, high-resolution three-dimensional geometry modeling, and dental spatial conditioning and evaluation, with emphasis on limitations in geometric representation, boundary enforcement, and editable mesh generation.
+\hspace{2em}This review covers related work, including data-driven dental crown generation, high-resolution three-dimensional geometry modeling, and dental spatial conditioning and evaluation, with emphasis on limitations in geometric representation, boundary enforcement, and candidate-mesh generation.
 
 %% 2.1
 \subsection{Data-Driven Dental Crown Morphology Generation}\label{subsec2_1}
@@ -282,6 +282,8 @@ Personalized crown design \sep Crown generation\sep Conditional flow matching \s
 \hspace{2em}Dental conditions serve distinct roles in crown generation. The three-dimensional preparation-margin line provides a boundary reference for the cervical contour; adjacent teeth and the opposing dentition provide proximal and static geometric proximity constraints, respectively; and the FDI tooth designation supplies tooth-type and arch-related morphological priors. Previous methods introduce selected conditions at the input, loss, or post-processing stages~\cite{Wei2026MADCrowner,Yang2025DCrownFormerPlus,Wei2025VBCD}. However, existing studies do not consistently integrate tooth-position semantics, dentition-level spatial correspondences, and margin-neighborhood geometry within a unified multiscale framework.
 
 \hspace{2em}Crown-design evaluation should jointly assess geometric fidelity, dental spatial compatibility, and laboratory usability. Differences in distance definitions, coordinate normalization, and numerical scaling can make direct comparisons across studies misleading~\cite{Yang2024DCrownFormer,Hosseinimanesh2025PointToMesh,Pukanec2026ToothCraft}. This study therefore combines surface-distance, margin, and static geometric-proximity metrics with technician assessments. These complementary measures evaluate overall geometry, local boundary fidelity, spatial relationships, and required modifications. The evaluation is restricted to CAD drafts of external crown morphology and does not establish internal fit, dynamic occlusal performance, or patient outcomes.
+
+\hspace{2em}Taken together, existing dental methods do not provide a unified solution that combines sparse high-resolution representation, preservation of occluded and local surface geometry, explicit preparation-margin enforcement, and dentition-level spatial conditioning. Projection-, point-, voxel-, and template-based approaches retain only part of this information or incur limitations related to surface reconstruction, template dependence, or computational cost, whereas general-purpose three-dimensional generators do not explicitly model dental boundaries and spatial relationships. These gaps motivate the case-conditioned framework presented in the following section, which generates candidate posterior crown meshes from registered dentitions, the preparation-margin line, and FDI tooth-position information.
 
 %% 3
 \section{Method}\label{sec3}

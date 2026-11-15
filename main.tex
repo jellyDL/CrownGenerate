@@ -608,24 +608,25 @@ Each baseline was reimplemented using the input conditions specified in its orig
   \centering
   \footnotesize
   \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm,belowskip=4pt}
-  \caption{\hspace{0.5em}Ablation of hierarchical generation comparing single-stage and two-stage crown generation.}
+  \caption{\hspace{0.5em}Ablation of hierarchical generation: single-stage versus two-stage crown generation.}
   \label{table_hierarchical_ablation}
-  \setlength{\tabcolsep}{6pt}
-  \renewcommand{\arraystretch}{1.35}
-  \begin{tabularx}{0.88\textwidth}{@{}>{\raggedright\arraybackslash}p{4.2cm}*{3}{>{\centering\arraybackslash}X}@{}}
+  \setlength{\tabcolsep}{5pt}
+  \renewcommand{\arraystretch}{1.25}
+  \begin{tabularx}{0.92\textwidth}{@{}>{\raggedright\arraybackslash}p{4.0cm}*{3}{>{\centering\arraybackslash}X}@{}}
     \toprule
-    Structure configuration & \shortstack{CD-$L_1$\\(mm) $\downarrow$} &
-    \shortstack{HD95\\(mm) $\downarrow$} &
-    \shortstack{F-score@0.10\,mm\\(\%) $\uparrow$} \\
+    Generation scheme &
+    \makecell[c]{CD-$L_1$\\(mm) $\downarrow$} &
+    \makecell[c]{HD95\\(mm) $\downarrow$} &
+    \makecell[c]{F-score@0.10\,mm\\(\%) $\uparrow$} \\
     \midrule
-    Single-stage generation       & $0.168 \pm 0.035$ & $0.421 \pm 0.101$ & $60.352 \pm 8.301$ \\
-    \textbf{Two-stage generation} & \bm{$0.126 \pm 0.027$} & \bm{$0.315 \pm 0.082$} & \bm{$62.090 \pm 8.160$} \\
-    Difference                    & $-0.042 \pm 0.044$ & $-0.106 \pm 0.130$ & $+1.738 \pm 11.640$ \\
+    Single-stage generation & $0.168 \pm 0.035$ & $0.421 \pm 0.101$ & $60.352 \pm 8.301$ \\
+    \textbf{Two-stage generation} & $\bm{0.126 \pm 0.027}$ & $\bm{0.315 \pm 0.082}$ & $\bm{62.090 \pm 8.160}$ \\
+    Difference & $-0.042 \pm 0.044$ & $-0.106 \pm 0.130$ & $+1.738 \pm 11.640$ \\
     \bottomrule
   \end{tabularx}
   \par\vspace{3pt}
-  \begin{minipage}{0.88\textwidth}
-    \footnotesize\textit{Note:} Values are mean $\pm$ SD; the difference row is calculated as two-stage minus single-stage. Lower CD-$L_1$ and HD95 and higher F-score indicate better performance.
+  \begin{minipage}{0.92\textwidth}
+    \footnotesize\textit{Note:} Values are case-level means $\pm$ SD. The difference row reports two-stage minus single-stage. Bold values identify the best result among the two generation schemes. Lower values correspond to smaller CD-$L_1$ and HD95, whereas higher F-score indicates greater surface agreement within the specified tolerance.
   \end{minipage}
 \end{table*}
 
@@ -647,7 +648,7 @@ This approach combines geometric precision with dental context to jointly addres
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\linewidth]{./figures/false_cases/merged_heatmaps_annotated.png}
+    \includegraphics[width=0.6\linewidth]{./figures/false_cases/merged_heatmaps_annotated.png}
     \caption{\textbf{Failure cases.} Each row shows a case, with columns displaying the generated crown with its corresponding dental arch, the generated crown alone, the reference crown with the arch, and the reference crown alone. Some generated crowns exhibit hole-like defects in the occlusal pits and fissures. These local discontinuities may be related to the absence of an explicit pit-and-fissure morphology constraint in the current formulation.}
     \label{fig:false_cases}
 \end{figure}

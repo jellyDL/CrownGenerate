@@ -520,11 +520,11 @@ Each baseline was reimplemented using the input conditions specified in its orig
   \label{tab:table_oriented_signed_fdg_ablation}
   \centering
   \footnotesize
-  \setlength{\tabcolsep}{2pt}
+  \setlength{\tabcolsep}{1pt}
   \renewcommand{\arraystretch}{1.30}
   \begin{tabularx}{\textwidth}{@{}
-    >{\raggedright\arraybackslash}p{3.10cm}
-    >{\raggedright\arraybackslash}p{2.60cm}
+    >{\raggedright\arraybackslash}p{3.20cm}
+    >{\raggedright\arraybackslash}p{3.40cm}
     *{4}{>{\centering\arraybackslash}X}@{}}
     \toprule
     \multicolumn{2}{c}{Configuration} & \multicolumn{4}{c}{Evaluation metrics} \\
@@ -533,7 +533,7 @@ Each baseline was reimplemented using the input conditions specified in its orig
     \midrule
     Standard FDG & Direct mesh extraction & 0.157 $\pm$ 0.067 & 0.563 $\pm$ 0.126 & 60.306 $\pm$ 7.901 & 0.117 $\pm$ 0.031 \\
     Oriented signed-FDG & Direct mesh extraction & \textbf{0.126 $\pm$ 0.027} & \textbf{0.315 $\pm$ 0.082} & \textbf{62.090 $\pm$ 8.160} & \textbf{0.092 $\pm$ 0.024} \\
-    Oriented signed-FDG & \makecell[l]{Oriented-field\\reconstruction} & 0.131 $\pm$ 0.033 & 0.497 $\pm$ 0.077 & 61.320 $\pm$ 8.206 & 0.105 $\pm$ 0.032 \\
+    Oriented signed-FDG & Oriented-field reconstruction & 0.131 $\pm$ 0.033 & 0.497 $\pm$ 0.077 & 61.320 $\pm$ 8.206 & 0.105 $\pm$ 0.032 \\
     \bottomrule
   \end{tabularx}
   \par\vspace{3pt}

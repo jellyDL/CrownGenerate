@@ -512,27 +512,33 @@ Each baseline was reimplemented using the input conditions specified in its orig
 \subsubsection{Ablation Study}\label{subsubsec4_4_2}
 
 %%%% Ablation Study 1
-\textbf{Ablation of Oriented Signed-FDG.} This experiment tests whether truncated signed distances and oriented normals improve crown generation and whether the effect depends on mesh reconstruction. With other settings fixed, Table~\ref{tab:table_oriented_signed_fdg_ablation} compares A (standard FDG/direct extraction), B (oriented signed-FDG/direct extraction, adopted in this work), and C (B's representation with oriented-field reconstruction); A--B isolates representation and B--C isolates extraction. B improves all metrics over A, particularly HD95, consistent with stronger boundary supervision and local consistency from Eq.~\eqref{eq:distance_normal_residual}. With the representation fixed, B outperforms C in HD95 ($0.315$ versus $0.497$~mm) and Margin P95 ($0.092$ versus $0.105$~mm). Direct extraction avoids global inside--outside completion and interpolation; local quadratic error function (QEF) fitting can preserve sharp edges and reduce spurious closure surfaces. Oriented-field reconstruction offers watertight, consistently oriented topology but may smooth ridges, whereas direct extraction may leave isolated fragments or missing patches.
+\textbf{Ablation of Oriented Signed-FDG.} This experiment tests whether truncated signed distances and oriented normals improve crown generation and whether the effect depends on mesh reconstruction. With other settings fixed, Table~\ref{tab:table_oriented_signed_fdg_ablation} compares three configurations: standard FDG with direct mesh extraction; oriented signed-FDG with direct mesh extraction, adopted in this work; and oriented signed-FDG with oriented-field reconstruction. This sequence isolates the representation effect in the first comparison and the reconstruction effect in the second. The adopted configuration improved all metrics over standard FDG, particularly HD95, consistent with stronger boundary supervision and local consistency from Eq.~\eqref{eq:distance_normal_residual}. With the representation fixed, direct extraction yielded lower HD95 ($0.315$ versus $0.497$~mm) and Margin P95 ($0.092$ versus $0.105$~mm). Direct extraction avoids global inside--outside completion and interpolation; local quadratic error function (QEF) fitting can preserve sharp edges and reduce spurious closure surfaces. Oriented-field reconstruction offers watertight, consistently oriented topology but may smooth ridges, whereas direct extraction may leave isolated fragments or missing patches.
 
 \begin{table*}[htbp]
   \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm}
   \caption{\hspace{0.5em}Comparison of FDG representations and surface reconstruction strategies.}
-    \label{tab:table_oriented_signed_fdg_ablation}
-    \centering
-    \footnotesize
-    \setlength{\tabcolsep}{4pt}
-    \renewcommand{\arraystretch}{1.25}
-    \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{5.2cm}*{4}{>{\centering\arraybackslash}X}@{}}
-        \hline
-        Method & \shortstack{CD-$L_1$\\(mm) $\downarrow$} & \shortstack{HD95\\(mm) $\downarrow$} & \shortstack{F-score@0.10\,mm\\(\%) $\uparrow$} & \shortstack{Margin P95 \\(mm) $\downarrow$} \\ \hline
-        A: Standard FDG        + FDG mesh extraction           & 0.157 $\pm$ 0.067 & 0.563 $\pm$ 0.126 & 60.306 $\pm$ 7.901 & 0.117 $\pm$ 0.031 \\
-        B: Oriented signed-FDG + FDG mesh extraction           & \textbf{0.126 $\pm$ 0.027} & \textbf{0.315 $\pm$ 0.082} & \textbf{62.090 $\pm$ 8.160} & \textbf{0.092 $\pm$ 0.024} \\
-        C: Oriented signed-FDG + oriented-field reconstruction & 0.131 $\pm$ 0.033 & 0.497 $\pm$ 0.077 & 61.320 $\pm$ 8.206 & 0.105 $\pm$ 0.032 \\
-        \hline
-    \end{tabularx}
-    \par\vspace{3pt}
+  \label{tab:table_oriented_signed_fdg_ablation}
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{2pt}
+  \renewcommand{\arraystretch}{1.30}
+  \begin{tabularx}{\textwidth}{@{}
+    >{\raggedright\arraybackslash}p{3.10cm}
+    >{\raggedright\arraybackslash}p{2.60cm}
+    *{4}{>{\centering\arraybackslash}X}@{}}
+    \toprule
+    \multicolumn{2}{c}{Configuration} & \multicolumn{4}{c}{Evaluation metrics} \\
+    \cmidrule(lr){1-2}\cmidrule(lr){3-6}
+    Representation & \makecell[l]{Surface\\reconstruction} & \makecell{CD-$L_1$\\(mm) $\downarrow$} & \makecell{HD95\\(mm) $\downarrow$} & \makecell{F-score\\@0.10\,mm (\%) $\uparrow$} & \makecell{Margin P95\\(mm) $\downarrow$} \\
+    \midrule
+    Standard FDG & Direct mesh extraction & 0.157 $\pm$ 0.067 & 0.563 $\pm$ 0.126 & 60.306 $\pm$ 7.901 & 0.117 $\pm$ 0.031 \\
+    Oriented signed-FDG & Direct mesh extraction & \textbf{0.126 $\pm$ 0.027} & \textbf{0.315 $\pm$ 0.082} & \textbf{62.090 $\pm$ 8.160} & \textbf{0.092 $\pm$ 0.024} \\
+    Oriented signed-FDG & \makecell[l]{Oriented-field\\reconstruction} & 0.131 $\pm$ 0.033 & 0.497 $\pm$ 0.077 & 61.320 $\pm$ 8.206 & 0.105 $\pm$ 0.032 \\
+    \bottomrule
+  \end{tabularx}
+  \par\vspace{3pt}
   \begin{minipage}{\textwidth}
-    \footnotesize\textit{Note:} Values are mean $\pm$ SD on the common test set. A, B, and C denote standard FDG/direct extraction, oriented signed-FDG/direct extraction, and oriented signed-FDG/field reconstruction, respectively. Bold values indicate the best result in each metric column. Lower CD-$L_1$, HD95, and Margin P95 and higher F-score indicate better performance.
+    \footnotesize\textit{Note:} Values are mean $\pm$ SD on the common test set. Bold values indicate the best result in each metric column. Lower CD-$L_1$, HD95, and Margin P95 and higher F-score indicate better performance.
   \end{minipage}
 \end{table*}
 

@@ -1,19 +1,19 @@
-%% 
+%%
 %% Copyright 2007-2025 Elsevier Ltd
-%% 
+%%
 %% This file is part of the 'Elsarticle Bundle'.
 %% ---------------------------------------------
-%% 
+%%
 %% It may be distributed under the conditions of the LaTeX Project Public
 %% License, either version 1.3 of this license or (at your option) any
 %% later version.  The latest version of this license is in
 %%    http://www.latex-project.org/lppl.txt
 %% and version 1.3 or later is part of all distributions of LaTeX
 %% version 1999/12/01 or later.
-%% 
+%%
 %% The list of all files belonging to the 'Elsarticle Bundle' is
 %% given in the file `manifest.txt'.
-%% 
+%%
 %% Template article for Elsevier's document class `elsarticle'
 %% with numbered style bibliographic references
 %% SP 2008/03/01
@@ -49,7 +49,7 @@
 \usepackage{graphicx,float}
 \usepackage{array,tabularx}
 \usepackage{booktabs,makecell}
-\usepackage{url} 
+\usepackage{url}
 
 %% The lineno packages adds line numbers. Start line numbering with
 %% \begin{linenumbers}, end it with \end{linenumbers}. Or switch it on
@@ -104,7 +104,7 @@
 
 \begin{document}
 \begin{frontmatter}
-    
+
 
 %% Title, authors and addresses
 
@@ -149,31 +149,31 @@
 \affiliation[a]{
 Department={State Key Laboratory of Fluid Power and Mechatronic Systems, School of Mechanical Engineering,},
 organization={Zhejiang University},
-            % addressline={}, 
+            % addressline={},
             city={Hangzhou},
-            postcode={310058}, 
+            postcode={310058},
             state={Zhejiang},
             country={China}}
 
 \affiliation[b]{
 Department={Zhejiang Key Laboratory of Advanced Equipment Manufacturing and Measurement Technology, School of Mechanical Engineering,},
 organization={Zhejiang University},
-            % addressline={}, 
+            % addressline={},
             city={Hangzhou},
-            postcode={310058}, 
+            postcode={310058},
             state={Zhejiang},
             country={China}}
 
 \affiliation[c]{organization={Shining3D Tech Co., Ltd},
-            addressline={1398 Xiangbin Road}, 
+            addressline={1398 Xiangbin Road},
             city={Hangzhou},
-            postcode={311200}, 
+            postcode={311200},
             country={China}}
 
 \affiliation[d]{organization={School of Computer Science and Information Engineering, Zhejiang Gongshang University},
-            addressline={18 Xuezheng Road}, 
+            addressline={18 Xuezheng Road},
             city={Hangzhou},
-            postcode={310018}, 
+            postcode={310018},
             country={China}}
 
 %% use the cortext command for theassociated footnote;
@@ -182,7 +182,7 @@ organization={Zhejiang University},
 
 %% Abstract
 \begin{abstract}
-%% Text of abstract 
+%% Text of abstract
 Personalized dental crown design is a critical component of digital restorative workflows for structurally compromised teeth. It requires reconstructing detailed anatomy while satisfying constraints imposed by the preparation margin, adjacent teeth, and opposing dentition. Conventional computer-aided design (CAD) relies on repeated template adjustments, making the process time-consuming and operator-dependent. To address these limitations, we propose a case-conditioned generative method for tooth-supported posterior single crowns. Given full-arch maxillary and mandibular scans, a three-dimensional preparation margin line, and the FDI tooth designation, the method directly generates a candidate crown mesh. It employs a Flexible Dual Grid (FDG) representation with oriented signed-distance and surface-normal fields, while a sparse variational autoencoder (VAE) compresses high-resolution geometry into a compact latent space. Structure Flow and Feature Flow sequentially generate crown occupancy and local surface features. Multiscale dental conditioning and surface supervision help preserve anatomical details, marginal continuity, and spatial relationships within the dentition. Evaluation on an in-house dataset showed that the proposed method achieved the lowest Chamfer Distance $L_1$ error ($0.126 \pm 0.027$ mm), with improved geometric reconstruction and spatial compatibility. Independent technician assessments supported the usability of the generated crowns as CAD drafts for posterior single-crown restorations.
 \end{abstract}
 
@@ -215,7 +215,7 @@ Personalized crown design \sep Crown generation\sep Conditional flow matching \s
 
 \end{frontmatter}
 
-%% Add \usepackage{lineno} before \begin{document} and uncomment 
+%% Add \usepackage{lineno} before \begin{document} and uncomment
 %% following line to enable line numbers
 %% \linenumbers
 
@@ -238,7 +238,7 @@ Personalized crown design \sep Crown generation\sep Conditional flow matching \s
 
 \hspace{1em}• Introduce an FDG representation augmented with truncated signed distances and oriented surface normals in high-resolution sparse cells. A sparse variational autoencoder subsequently compresses this representation into a compact latent space.
 
-\hspace{1em}• Develop a two-stage conditional flow-matching framework comprising Structure Flow and Feature Flow, which model sparse occupancy and local geometric features, respectively. Dual-level supervision in the latent space and on decoded surfaces preserves geometric details and surface continuity.       
+\hspace{1em}• Develop a two-stage conditional flow-matching framework comprising Structure Flow and Feature Flow, which model sparse occupancy and local geometric features, respectively. Dual-level supervision in the latent space and on decoded surfaces preserves geometric details and surface continuity.
 
 \hspace{1em}• Design multiscale dental conditioning that integrates the maxillary and mandibular dentitions, the margin line, and the FDI tooth designation at the global, voxel-aligned, and coordinate-neighborhood levels, thereby coordinating tooth-position semantics, margin geometry, and dentition-level spatial relationships.
 
@@ -266,7 +266,7 @@ Personalized crown design \sep Crown generation\sep Conditional flow matching \s
     \centering % 图片居中
     \includegraphics[width=1.0\textwidth]{./figures/method_framework.pdf}
     \caption{\textbf{Overall architecture of the dental crown generation framework.} (a) Independent encoders extract multiscale conditions from dental scans, the margin line, and the FDI designation. (b) A sparse VAE learns oriented signed-FDG latents from reference CAD models. (c) Structure Flow and Feature Flow sequentially generate active support and local features, followed by frozen VAE decoding, direct FDG mesh extraction, and quality assessment. Purple dash-dotted lines indicate conditioning; blue lines indicate generation and support dependencies; solid and dashed orange lines indicate VAE forward computation and training supervision, respectively.}
-    \label{fig:figure_overall_architecture} 
+    \label{fig:figure_overall_architecture}
 \end{figure*}
 
 %% 2.2
@@ -312,7 +312,7 @@ d_j&=\operatorname{clip}\!\left(
 g_j&=[v_j-0.5,\ b_j-0.5,\ d_j,\ n_j]\in\mathbb R^{10},
 \label{eq:oriented_signed_feature}
 \end{align}
-Together, the signed distance and feature vector in Eqs.~\eqref{eq:oriented_signed_distance} and \eqref{eq:oriented_signed_feature} encode local geometry, distance, and orientation within the sparse surface neighborhood. For watertight, consistently oriented meshes, the sign of \(d_j\) denotes global inside--outside status; for non-watertight meshes, it indicates only the local direction defined by the nearest surface normal. Fig.~\ref{fig:figure_oriented_signed_fdg_detail} illustrates the latent encoding of sparse active cells and their oriented signed attributes.
+Together, the signed distance and feature vector in Eqs.~\eqref{eq:oriented_signed_distance} and~\eqref{eq:oriented_signed_feature} encode local geometry, distance, and orientation within the sparse surface neighborhood. For watertight, consistently oriented meshes, the sign of \(d_j\) denotes global inside--outside status; for non-watertight meshes, it indicates only the local direction defined by the nearest surface normal. Fig.~\ref{fig:figure_oriented_signed_fdg_detail} illustrates the latent encoding of sparse active cells and their oriented signed attributes.
 
 %% 3.2.2
 \subsubsection{Sparse Geometric VAE and Latent Compression}\label{subsubsec3_2_2}
@@ -323,7 +323,7 @@ Together, the signed distance and feature vector in Eqs.~\eqref{eq:oriented_sign
     \centering % 图片居中
     \includegraphics[width=0.95\textwidth]{./figures/oriented_signed_fdg_detail.pdf}
     \caption{\textbf{Sparse representation and latent encoding of the oriented signed-FDG.} (a) The reference CAD activates crown surface-neighborhood cells on the input grid, with nominal spacing \(\Delta=2h/R\). (b) For each active coordinate \(c_j\), FDG records the vertex offset \(v_j\) and axis-aligned intersection flags \(b_j\). The cell center \(x_j\) queries the nearest surface point \(p_j\); the nearest-face normal \(n_j^f\) determines the local sign of the truncated signed distance \(d_j\), while the interpolated normal \(n_j\) provides oriented surface information. (c) The four attributes form \(g_j\in\mathbb{R}^{10}\) with \(3+3+1+3\) channels and are compressed by the sparse geometric VAE into local features \(F\) defined on the latent support \(O\). Inactive cells store no geometry; for non-watertight reference meshes, the sign of \(d_j\) denotes only the local orientation defined by the nearest-surface normal.}
-    \label{fig:figure_oriented_signed_fdg_detail} 
+    \label{fig:figure_oriented_signed_fdg_detail}
 \end{figure*}
 
 %% 3.3
@@ -342,12 +342,12 @@ Together, the signed distance and feature vector in Eqs.~\eqref{eq:oriented_sign
 \bigskip
 
 \textbf{Coordinate-level neighborhood condition $C_F^n(q)$.} For a query coordinate $q$, the Feature encoder retrieves local neighbors from the maxillary, mandibular, and margin point sets, respectively. Each neighbor is represented by a descriptor composed of relative coordinates, source normal, and distance; the relative coordinates and distance are normalized by the local scale $h$, and the three-dimensional normal for margin points is set to zero. The resulting descriptor is projected by an MLP into $C_F^n(q)$. During inference, $\{C_F^n(q)\mid q\in\hat O\}$ corresponds to $N(\hat O)$ in Fig.~\ref{fig:figure_overall_architecture}; neighborhood size, descriptor dimension, and $h$ are specified in Sec.~\ref{subsec4_3}.
- 
+
 \begin{figure*}[t]  % [t] 表示尽量放在页面顶部
     \centering % 图片居中
     \includegraphics[width=1.0\textwidth]{./figures/feature_condition_detail.pdf}
     \caption{\textbf{Two-stage conditional flow matching.} Top: Structure Flow uses global and voxel-aligned dental conditions to generate structural latents, which a frozen decoder maps to active support \(\hat O\). Bottom: Feature Flow combines dental conditions and support context to generate local features on \(\hat O\). The stages use independent condition encoders and velocity networks. Purple denotes conditioning, blue latent representations, teal active support, and yellow ordinary differential equation (ODE) integration. Solid and dashed arrows indicate data flow and conditioning, respectively; the circled plus indicates addition, and the lock marks the frozen decoder.}
-    \label{fig:figure_feature_condition_detail} 
+    \label{fig:figure_feature_condition_detail}
 \end{figure*}
 
 %% 3.4
@@ -422,14 +422,14 @@ where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{
 %% 4
 \section{Experimental and Discussion}\label{sec4}
 
-%% 4.1 
+%% 4.1
 \subsection{Dataset and Preprocessing}\label{subsec4_1}
 
 \hspace{2em}The dataset comprised 5,049 processed gypsum-model cases obtained from multiple dental prosthetic laboratories. Each case included maxillary and mandibular gypsum models, a cervical margin line, an FDI designation, and a technician-designed reference CAD mesh, with no patient-identifying or physiological information. Eligible cases had at least four adjacent teeth, valid margin and FDI records, and a valid maxillomandibular occlusion. Cases were randomly split at the case level, stratified by FDI position, jaw, and laterality, into 4,292 training, 505 validation, and 252 test cases. The test set included only posterior single crowns.
 
 \hspace{2em}Preprocessing involved input validation, spatial alignment, and sampling. After verifying input completeness, we defined a right-handed local coordinate system from the margin curve and opposing dentition. The target region was normalized to a domain with a half-extent of \(12\,\mathrm{mm}\). Each jaw was sampled at 4,096 points with normals, and the margin curve at 1,024 points. Sampling was controlled by a fixed random seed and case identifier. Truncated signed distances were computed on a flexible dual grid.
 
-%% 4.2 
+%% 4.2
 \subsection{Evaluation Metrics}\label{subsec4_2}
 
 \hspace{2em}To assess the geometric consistency between the predicted crowns and the reference CAD models, the two surfaces were compared using identical outer-surface segmentation, area-weighted sampling, and post-processing procedures. Each mesh was sampled at 50{,}000 points in physical coordinates. Following established dental crown evaluation protocols~\cite{Hosseinimanesh2025PointToMesh,Yang2024DCrownFormer,Yang2025DCrownFormerPlus,Wei2025VBCD,Wei2026MADCrowner}, the prespecified primary endpoints were symmetric Chamfer Distance \(L_1\) (CD-\(L_1\)) and the 95th-percentile Hausdorff Distance (HD95). CD-\(L_1\) denotes the mean bidirectional nearest-neighbour distance, whereas HD95 is the larger directional 95th-percentile distance; lower values correspond to smaller surface differences. F-score@0.10\,mm, the harmonic mean of precision and recall within the tolerance, was a secondary coverage metric. Margin-to-surface 95th-percentile distance (Margin P95) was the distance from input margin points to the generated external surface, reflecting cervical geometric correspondence. Severe penetration was defined as a per-case signed distance below \(-0.10\,\mathrm{mm}\), with negative, zero, and positive values indicating interpenetration, contact, and clearance. The rate was the proportion of evaluable cases exceeding this threshold.
@@ -441,11 +441,11 @@ R_O=\frac{|\hat O\cap O|}{|O|},\qquad
 F1_O=\frac{2P_OR_O}{P_O+R_O},
 \label{eq:support_metrics}
 \end{equation}
-with empty-set cases handled by the prespecified convention \(P_O=R_O=F1_O=1\) only when both supports are empty and zero otherwise. These quantities are averaged per case and reported as mean~$ \pm $~standard deviation (SD) rather than pooled over cells.
+with empty-set cases handled by the prespecified convention \(P_O=R_O=F1_O=1\) only when both supports are empty and zero otherwise. These quantities are averaged per case and reported as mean~$\pm$~standard deviation (SD) rather than pooled over cells.
 
 \hspace{2em}To isolate the effect of support mismatch on Feature Flow, the oracle-support control keeps the trained Feature Flow, condition features, per-case random seed, solver, step count, and decoder fixed, and runs the same model once with \(S=\hat O\) (the deployable setting) and once with \(S=O\). The paired difference in CD-\(L_1\), HD95, F-score, Margin P95, and severe-penetration rate estimates the geometric cost of Structure Flow support errors; oracle \(O\) is used only for this diagnostic and is never supplied in the main inference result. Results were summarized as case-level mean~\(\pm\)~standard deviation.
 
-%% 4.3 
+%% 4.3
 \subsection{Implementation Details}\label{subsec4_3}
 
 \hspace{2em}The oriented signed-FDG representation used an \(R=1024\) grid with truncation parameter \(\tau=3\). The five-level sparse VAE used channel widths 48, 96, 192, 384, and 512, with two blocks per level. Four spatial-to-channel rearrangements produced 32-channel latents on a sparse \(64^3\) grid; each active location predicted 32-dimensional mean and log-variance vectors. Global conditions were projected to 512 dimensions. Voxel-aligned conditions used \(64^3\) and \(16^3\) grids; Feature conditioning used four neighbors per source with 7-dimensional descriptors normalized by \(h=12\)~mm. Training ran on an NVIDIA GeForce RTX 5090 GPU. The VAE and both flows were sequentially optimized with Adam using mixed precision, 0.01 weight decay, learning rates of \(10^{-5}\)--\(10^{-4}\), and cosine decay after 1,000 warm-up steps.
@@ -478,7 +478,7 @@ Each baseline was reimplemented using the input conditions specified in its orig
     \renewcommand{\arraystretch}{1.15}
     \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{2.65cm}*{5}{>{\centering\arraybackslash}X}}
         \hline
-        Method & \shortstack{CD-$L_1$\\(mm) $\downarrow$} & \shortstack{HD95\\(mm) $\downarrow$} & \shortstack{F-score@\\0.10\,mm (\%) $\uparrow$} & \shortstack{Margin P95 \\(mm) $\downarrow$} & \shortstack{Severe\\penetration (\%) $\downarrow$} \\ \hline
+        Method & \shortstack{CD-$L_1$\\(mm) $\downarrow$} & \shortstack{HD95\\(mm) $\downarrow$} & \shortstack{F-score@\\0.10\,mm (\%) $\uparrow$} & \shortstack{Margin P95\\(mm) $\downarrow$} & \shortstack{Severe\\penetration (\%) $\downarrow$} \\ \hline
         VF-Net~\cite{ye2024variational}         & 0.141 $\pm$ 0.045 & 0.678 $\pm$ 0.178 & 56.181 $\pm$ 7.220 & 0.256 $\pm$ 0.072 & 10.5\% \\
         DMCv2~\cite{Hosseinimanesh2025PointToMesh} & 0.135 $\pm$ 0.028 & 0.526 $\pm$ 0.142 & 59.250 $\pm$ 7.132 & 0.153 $\pm$ 0.054 & 7.8\% \\
         VBCD~\cite{Wei2025VBCD}                    & 0.168 $\pm$ 0.035 & 0.485 $\pm$ 0.128 & 60.631 $\pm$ 8.282 & 0.176 $\pm$ 0.048 & 6.3\% \\
@@ -666,7 +666,7 @@ Inadequate tooth preparation, incomplete dental scans, and atypical morphology r
 
 \hspace{2em}We present a case-conditioned framework for generating the external morphology of tooth-supported posterior single crowns. The oriented signed-FDG representation and a sparse VAE efficiently encode local geometry, signed distance, and oriented normals within the crown surface neighborhood, while two-stage Structure and Feature Flows conditional flow matching separately models global support and local anatomic detail. Global, voxel-aligned, and coordinate-neighborhood conditions further integrate maxillary and mandibular scans, a three-dimensional margin line, and FDI tooth-position information, allowing tooth-type priors, spatial arch relationships, and local boundary constraints to be incorporated during generation. Together with direct FDG mesh extraction, mesh cleanup, and engineering quality control, the framework establishes an end-to-end pathway from case inputs to candidate triangular meshes and provides a technical basis for high-resolution crown design suitable for subsequent CAD refinement. Future work will extend the framework to broader tooth positions, missing-tooth patterns, and restorative settings; enable controllable editing of local crown details; incorporate surface texture information in addition to geometry; incorporate dynamic occlusion, manufacturing constraints, and human-in-the-loop design information; and investigate its use for anterior crowns, implant-supported restorations, and multi-unit prostheses to strengthen integration with digital restorative workflows.
 
-\bibliographystyle{elsarticle-num} 
+\bibliographystyle{elsarticle-num}
 \renewcommand{\bibfont}{\footnotesize}
 \setlength{\bibsep}{2pt}
 \bibliography{sn-bibliography}% common bib file

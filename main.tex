@@ -541,12 +541,12 @@ Each baseline was reimplemented using the input conditions specified in its orig
 \bigskip
 
 %%%% Ablation Study 2
-\textbf{Ablation of Tooth-Position Conditioning.} To isolate the contribution of the FDI-based Tooth Position Prompt (TP Prompt), we compared models with and without this prompt in the global conditioning branch. Structure Flow and Feature Flow were trained independently and evaluated on the same commonly evaluable cases. As shown in Table~\ref{table_multi_condition_ablation}, adding the TP Prompt improved all four metrics, yielding lower CD-\(L_1\), HD95, and Margin P95 and a higher F-score. Although the changes in these aggregate metrics are modest, this limited numerical effect is expected because removing the explicit prompt does not eliminate all tooth-position information: the cervical margin and antagonist dentition still provide implicit positional cues. Qualitatively, removing the TP Prompt reduced occlusal-surface detail and made the morphology less organized; the yellow regions in Fig.~\ref{fig:ablation_toothnum} indicate larger prediction-to-reference surface distances.
+\textbf{Ablation of Tooth-Position Conditioning.} To isolate the contribution of the FDI tooth-position (TP) condition, we compared models with and without TP in the global conditioning branch. Structure Flow and Feature Flow were trained independently and evaluated on the same commonly evaluable cases. As shown in Table~\ref{table_multi_condition_ablation}, adding TP improved all four metrics, yielding lower CD-\(L_1\), HD95, and Margin P95 and a higher F-score. Although the changes in these aggregate metrics are modest, this limited numerical effect is expected because removing the explicit TP condition does not eliminate all tooth-position information: the cervical margin and antagonist dentition still provide implicit positional cues. Qualitatively, removing TP reduced occlusal-surface detail and made the morphology less organized; the yellow regions in Fig.~\ref{fig:ablation_toothnum} indicate larger prediction-to-reference surface distances.
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.7\linewidth]{figures/ablation_toothnum/ablation_toothnum.png}
-  \caption{\textbf{Qualitative effect of tooth-position conditioning.} Columns show the reference crown (RC), the crown generated without the TP Prompt, its distance to RC, the crown generated with the TP Prompt, and its distance to RC. Yellow regions indicate larger prediction-to-RC surface distances.}
+  \caption{\textbf{Qualitative effect of tooth-position conditioning.} Columns show the reference crown (RC), the crown generated without TP, its distance to RC, the crown generated with TP, and its distance to RC. Yellow regions indicate larger prediction-to-RC surface distances.}
   \label{fig:ablation_toothnum}
 \end{figure}
 
@@ -579,7 +579,7 @@ Each baseline was reimplemented using the input conditions specified in its orig
     \multicolumn{3}{c}{Dental conditioning} &
     \multicolumn{4}{c}{Evaluation metrics} \\
     \cmidrule(lr){1-3}\cmidrule(lr){4-7}
-    \makecell[c]{TP\\prompt} &
+    \makecell[c]{TP} &
     \makecell[c]{Antagonist\\dentition} &
     \makecell[c]{Margin\\line} &
     \makecell[c]{CD-$L_1$\\(mm) $\downarrow$} &
@@ -600,7 +600,7 @@ Each baseline was reimplemented using the input conditions specified in its orig
 \end{table*}
 
 %%%% Ablation Study 4
-\textbf{Ablation of Cervical-Margin Conditioning.} This experiment compares the full model with a configuration in which the cervical-margin condition is omitted, while the maxillary and mandibular scans, tooth-position prompt, data split, architecture, training budget, random seeds, and post-processing remain unchanged. After the same VAE was frozen, Structure Flow and Feature Flow were retrained independently. As shown in Table~\ref{table_multi_condition_ablation}, omitting the cervical-margin condition degraded all four evaluation metrics, with the largest change observed for Margin P95. This result supports the role of cervical-margin conditioning in directly constraining the cervical boundary, while the increases in CD-$L_1$ and HD95 and the reduction in F-score indicate broader deterioration in surface accuracy and coverage.
+\textbf{Ablation of Cervical-Margin Conditioning.} This experiment compares the full model with a configuration in which the cervical-margin condition is omitted, while the maxillary and mandibular scans, TP input, data split, architecture, training budget, random seeds, and post-processing remain unchanged. After the same VAE was frozen, Structure Flow and Feature Flow were retrained independently. As shown in Table~\ref{table_multi_condition_ablation}, omitting the cervical-margin condition degraded all four evaluation metrics, with the largest change observed for Margin P95. This result supports the role of cervical-margin conditioning in directly constraining the cervical boundary, while the increases in CD-$L_1$ and HD95 and the reduction in F-score indicate broader deterioration in surface accuracy and coverage.
 
 \begin{table*}[htbp]
   \centering

@@ -201,7 +201,7 @@ Flexible Dual Grid encodes high-resolution crown geometry with signed fields.
 Two-stage flow matching generates global structure and local details.
 
 \item Research highlight 3
-Multiscale conditioning integrates dental arches, margin lines, and FDI codes.
+Multiscale dental conditioning integrates dental arches, margin lines, and FDI codes.
 
 \item Research highlight 4
 Generated crowns achieve lowest geometric error and favorable technician ratings.
@@ -240,7 +240,7 @@ Personalized crown design \sep Crown generation\sep Conditional flow matching \s
 
 \hspace{1em}• Develop a two-stage conditional flow-matching framework comprising Structure Flow and Feature Flow, which model sparse occupancy and local geometric features, respectively. Dual-level supervision in the latent space and on decoded surfaces preserves geometric details and surface continuity.       
 
-\hspace{1em}• Design a three-level conditioning scheme that integrates the maxillary and mandibular dentitions, the margin line, and the FDI tooth designation at the global, voxel-aligned, and coordinate-neighborhood levels, thereby coordinating tooth-position semantics, margin geometry, and dentition-level spatial relationships.
+\hspace{1em}• Design multiscale dental conditioning that integrates the maxillary and mandibular dentitions, the margin line, and the FDI tooth designation at the global, voxel-aligned, and coordinate-neighborhood levels, thereby coordinating tooth-position semantics, margin geometry, and dentition-level spatial relationships.
 
 \hspace{1em}• Validate the method through geometric evaluations and independent technician assessments on an in-house dataset. Compared with the baselines, it achieves better geometric consistency and spatial compatibility, with favorable ratings for design quality and laboratory usability.
 
@@ -641,7 +641,7 @@ Each baseline was reimplemented using the input conditions specified in its orig
 \subsubsection{Discussion}\label{subsubsec4_4_3}
 
 \noindent\textbf{Interpretation of Results.}
-This approach combines geometric precision with dental context to jointly address anatomical fidelity and spatial compatibility. Oriented signed-FDG encodes surface distance and orientation, while the sparse VAE supports high-resolution reconstruction through a compact latent representation. Structure Flow predicts global occupancy support, enabling Feature Flow to concentrate on anatomical details within active regions. Multiscale conditioning guides both stages using tooth identity, cervical-margin geometry, and surrounding dentition, while decoded-surface supervision directly links latent learning to reconstruction accuracy. These complementary mechanisms provide a coherent explanation for the observed improvements in geometric accuracy and cervical-margin consistency, together with reduced antagonist penetration.
+This approach combines geometric precision with dental context to jointly address anatomical fidelity and spatial compatibility. Oriented signed-FDG encodes surface distance and orientation, while the sparse VAE supports high-resolution reconstruction through a compact latent representation. Structure Flow predicts global occupancy support, enabling Feature Flow to concentrate on anatomical details within active regions. Multiscale dental conditioning guides both stages using tooth identity, cervical-margin geometry, and surrounding dentition, while decoded-surface supervision directly links latent learning to reconstruction accuracy. These complementary mechanisms provide a coherent explanation for the observed improvements in geometric accuracy and cervical-margin consistency, together with reduced antagonist penetration.
 
 \begin{figure}[H]
     \centering

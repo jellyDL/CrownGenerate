@@ -296,7 +296,7 @@ Personalized crown design \sep Crown generation\sep Conditional flow matching \s
 \hspace{2em}Fig.~\ref{fig:figure_overall_architecture} summarizes the framework. Panel (a) extracts dental conditions using independent encoders for the two generation stages. Panel (b) learns a sparse variational autoencoder (VAE) representation comprising active support and local features. Panel (c) contains the sequential flow-matching stages, frozen VAE decoding, and direct FDG mesh extraction. The following subsections detail representation learning, dental conditioning, two-stage generation, and training objectives.
 
 %% 3.2
-\subsection{Sparse Geometric Representation}\label{subsec3_2}
+\subsection{Sparse Geometric Encoding}\label{subsec3_2}
 
 %% 3.2.1
 \subsubsection{Oriented Signed-FDG Representation}\label{subsubsec3_2_1}
@@ -315,7 +315,7 @@ g_j&=[v_j-0.5,\ b_j-0.5,\ d_j,\ n_j]\in\mathbb R^{10},
 Here \(g_j\) is the 10-dimensional local attribute vector, and \(\tau\) is the truncation bound in grid-spacing units. Together, the signed distance and feature vector in Eqs.~\eqref{eq:oriented_signed_distance} and~\eqref{eq:oriented_signed_feature} encode local geometry, distance, and orientation within the sparse surface neighborhood. For watertight, consistently oriented meshes, the sign of \(d_j\) denotes global inside--outside status; for non-watertight meshes, it indicates only the local direction defined by the nearest surface normal. Fig.~\ref{fig:figure_oriented_signed_fdg_detail} illustrates the latent encoding of sparse active cells and their oriented signed attributes.
 
 %% 3.2.2
-\subsubsection{Sparse Geometric VAE and Latent Compression}\label{subsubsec3_2_2}
+\subsubsection{Sparse VAE for Latent Compression}\label{subsubsec3_2_2}
 
 \hspace{2em}The sparse geometric VAE compresses the high-resolution representation into a latent space suitable for generative modeling. Its multilevel encoder progressively reduces the active support, and the symmetric decoder restores vertex offsets, axial-intersection logits, truncated signed distances, and normalized normals at the original resolution. The decoder additionally predicts the quadrilateral triangulation weights required for differentiable FDG mesh extraction. VAE training uses reparameterized sampling; the posterior mean is used for validation, free decoding, and flow latent caching, whereas generation directly uses latents predicted by the flow models. Parameter settings are provided in Sec.~\ref{subsec4_3}.
 

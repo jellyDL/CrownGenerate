@@ -325,7 +325,7 @@ where subtracting \(0.5\) centers the offset and intersection channels. where su
 \begin{figure*}[t]  % [t] 表示尽量放在页面顶部
     \centering % 图片居中
     \includegraphics[width=0.95\textwidth]{./figures/oriented_signed_fdg_detail.pdf}
-    \caption{\textbf{Sparse representation and latent encoding of the oriented signed-FDG.} (a) The reference CAD model activates only the cells in the crown surface neighbourhood; inactive cells store no geometry. (b) For each active cell \(c_j\), the cell centre \(x_j\) queries the nearest surface point \(p_j\). The nearest-face normal \(n_j^f\) determines the local sign of the truncated distance \(d_j\), while the interpolated normal \(n_j\) provides the encoded orientation; \(v_j\) and \(b_j\) are the local offset and axis-aligned intersection indicators. (c) These attributes form \(g_j=[v_j-0.5,b_j-0.5,d_j,n_j]\) and are compressed by the sparse geometric VAE into the latent support \(O\) and local feature field \(F\), forming \(Z=(O,F)\). For non-watertight reference meshes, the sign of \(d_j\) denotes only the local direction defined by the nearest-surface normal.}
+    \caption{\textbf{Sparse representation and latent encoding of the oriented signed-FDG.} (a) Active cells are restricted to the crown surface neighborhood. (b) Nearest-surface queries provide truncated signed distances and interpolated normals, complementing vertex offsets and axis-aligned intersection indicators. Distance signs are determined by nearest-face normals and indicate local surface sides for non-watertight meshes. (c) The sparse geometric VAE compresses these attributes into \(Z=(O,F)\), where \(O\) is the latent support and \(F\) is the local feature field.}
     \label{fig:figure_oriented_signed_fdg_detail}
 \end{figure*}
 

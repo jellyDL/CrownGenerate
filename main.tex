@@ -310,12 +310,12 @@ d_j=\operatorname{clip}\!\left(
 \end{equation}
 where \(d_j\) is expressed in grid-spacing units, \(\|\cdot\|_2\) is the Euclidean norm, and \((\cdot)^\top\) denotes transpose. The sign function determines the local surface side from the nearest-face normal, and the clipping operator restricts the normalized distance to \([-\tau,\tau]\).
 
-\hspace{2em}The local feature vector is defined as
+\hspace{2em}For each active cell, we concatenate the vertex offset, intersection indicators, truncated signed distance, and oriented normal into a local feature vector:
 \begin{equation}
 g_j=[v_j-0.5,\ b_j-0.5,\ d_j,\ n_j]\in\mathbb{R}^{10},
 \label{eq:oriented_signed_feature}
 \end{equation}
-which concatenates the three-dimensional offset, intersection, and normal attributes with the scalar signed distance; subtracting \(0.5\) centers the offset and intersection channels. Together, these attributes encode local geometry and surface orientation within the sparse neighborhood. The sign of \(d_j\) is determined locally by the nearest-face normal; for non-watertight meshes, it indicates a local surface side rather than global inside--outside status. The sparse VAE then encodes these attributes into local latent features \(F\) defined on active support \(O\), as shown in Fig.~\ref{fig:figure_overall_architecture}.
+where subtracting \(0.5\) centers the offset and intersection channels. where subtracting \(0.5\) centers the offset and intersection channels. These attributes encode local geometry and surface orientation within the sparse neighborhood. Together with the active cell coordinates \(c_j\), they form the oriented signed-FDG representation used as input to the sparse geometric VAE.
 
 %% 3.2.2
 \subsubsection{Sparse VAE for Latent Compression}\label{subsubsec3_2_2}

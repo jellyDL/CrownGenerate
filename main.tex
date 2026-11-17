@@ -332,7 +332,7 @@ where subtracting \(0.5\) centers the offset and intersection channels. where su
 %% 3.3
 \subsection{Multiscale Dental Conditions}\label{subsec3_3}
 
-\hspace{2em}This section describes the multiscale dental conditions used by the two generation stages. After alignment and sampling, the maxillary, mandibular, and margin point sets are processed by independent condition encoders for Structure Flow and Feature Flow, indexed by \(d\in\{S,F\}\). Maxillary and mandibular points are represented by positions and surface normals, whereas margin points use positions only. Source-specific point-wise multilayer perceptrons (MLPs), augmented with learned source embeddings, encode each point set. The FDI code identifies the tooth quadrant and position within the quadrant; its learned embedding is added to the global condition \(G_d\). These global, voxel-aligned, and neighborhood conditions provide complementary case-level, spatial, and local context, respectively.
+\hspace{2em}This section describes the multiscale dental conditions used by the two generation stages. After alignment and sampling, the maxillary, mandibular, and margin point sets are processed by independent condition encoders for Structure Flow and Feature Flow, indexed by (\(d\in\{S,F\}\)). Maxillary and mandibular points use positions and surface normals, while margin points use positions only. Source-specific point-wise MLPs with learned source embeddings encode each point set. The FDI code identifies the tooth quadrant and position; its embedding is added to the global condition \(G_d\). These global, voxel-aligned, and neighborhood conditions provide complementary case-level, spatial, and local context.
 
 \bigskip
 

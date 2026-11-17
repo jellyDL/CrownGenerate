@@ -332,19 +332,19 @@ where subtracting \(0.5\) centers the offset and intersection channels. where su
 %% 3.3
 \subsection{Multiscale Dental Conditions}\label{subsec3_3}
 
-\hspace{2em}This section defines the multiscale dental conditions required by the two-stage generation. After alignment and sampling, the maxillary, mandibular, and margin point sets are fed into independent conditional encoders for the Structure Flow and Feature Flow stages. Let \(d\in\{S,F\}\) index these two stages, respectively. Maxillary and mandibular points use both positions and normals, whereas margin points use positions only. Each of the three sources is first encoded by a source-specific point-wise multilayer perceptron (MLP), augmented with learnable source embeddings.
+\hspace{2em}This section describes the multiscale dental conditions used by the two generation stages. After alignment and sampling, the maxillary, mandibular, and margin point sets are fed into independent conditional encoders for Structure Flow and Feature Flow, indexed by \(d\in\{S,F\}\). Maxillary and mandibular points use positions and surface normals, whereas margin points use positions only. Each point set is encoded by a source-specific point-wise multilayer perceptron (MLP) with a learned source embedding.
 
 \bigskip
 
-\textbf{Global condition $C_d^g$.} For each of the three sources, the features are separately subjected to mean pooling and max pooling, concatenated, and projected into a case-level vector. An FDI embedding is then added to produce the condition $C_d^g$.
+\textbf{Global condition $G_d$.} Features from each point set are mean- and max-pooled, concatenated, and projected into a case-level vector. The FDI code, which specifies the tooth quadrant and position, is represented by a learned embedding and added to this vector to form $G_d$. This condition conveys the overall dental context and tooth identity.
 
 \bigskip
 
-\textbf{Voxel-aligned condition $C_{d,64}^v$.} Point features are scattered onto a voxel grid according to their local coordinates, averaged within each voxel, and refined by local convolutions to yield $C_{d,64}^v$. Its downsampled counterpart is denoted $C_{d,16}^v$; the corresponding resolutions and kernel size are specified in Sec.~\ref{subsec4_3}.
+\textbf{Voxel-aligned condition $V_d$.} Point features are assigned to a voxel grid according to their spatial coordinates, aggregated within each cell, and refined by local convolutions. The resulting multiscale features provide spatially aligned dental context to the flow stages, complementing the case-level global condition.
 
 \bigskip
 
-\textbf{Coordinate-level neighborhood condition $C_F^n(q)$.} For a query coordinate $q$, the feature encoder retrieves local neighbors from the maxillary, mandibular, and margin point sets, respectively. Each neighbor is represented by a descriptor composed of relative coordinates, source normal, and distance; the relative coordinates and distance are normalized by the local scale $h$, and the three-dimensional normal for margin points is set to zero. The resulting descriptor is projected by an MLP into $C_F^n(q)$. During inference, $\{C_F^n(q)\mid q\in\hat O\}$ corresponds to \(N(\hat O)\) in Fig.~\ref{fig:figure_overall_architecture}; \(N(\hat O)\) denotes the collection of neighborhood descriptors queried for coordinates in \(\hat O\). Neighborhood size, descriptor dimension, and \(h\) are specified in Sec.~\ref{subsec4_3}.
+\textbf{Neighborhood condition $N(\hat O)$.} For each query coordinate $q$, the Feature Flow encoder retrieves nearby points from the maxillary, mandibular, and margin point sets. An MLP encodes their relative positions, normals where available, and distances into a local descriptor. At inference, descriptors are computed at the generated support coordinates $q\in\hat O$ and collected as $N(\hat O)$, providing local dental context to Feature Flow.
 
 \begin{figure*}[t]  % [t] 表示尽量放在页面顶部
     \centering % 图片居中

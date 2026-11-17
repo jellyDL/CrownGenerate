@@ -421,18 +421,15 @@ L_{\mathrm{Structure}}
 \end{equation}
 where \(v_{\theta_S}\) is the velocity field predicted by the Structure DiT velocity network with parameters \(\theta_S\), conditioned on the global and voxel-aligned features \(G_S,V_S\). The structural target latent \(x_0^S\), noisy latent \(x_t^S\), and target velocity \(u_t^S\) follow Eq.~\ref{eq:flow_training_path}, and MSE averages the squared error over structural latent entries. At inference, the ODE solver integrates the predicted velocity field; after denormalization, the frozen structure decoder and occupancy selection produce the active support \(\hat O\).
 
-\begin{samepage}
 \hspace{2em}Feature Flow is trained on the reference support using a flow-matching (FM) objective with latent and decoded-geometric supervision:
 \begin{equation}
 L_{\mathrm{Feature}}=L_{\mathrm{FM}}+\lambda_1L_{\mathrm{rec}}
 +\lambda_2L_{\mathrm{grad}}+\lambda_3L_{\mathrm{dec}}+\lambda_4L_{\mathrm{end}},
 \label{eq:feature_training_objective}
 \end{equation}
-where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{FM}}\) supervises the predicted velocity \(v\) through time-weighted MSE. The corresponding clean-latent estimate is \(\hat x_0=(1-\sigma)x_t-[\sigma+(1-\sigma)t]v\). \(L_{\mathrm{rec}}\) constrains feature reconstruction by comparing \(\hat x_0\) with \(x_0\), while \(L_{\mathrm{grad}}\) preserves local feature variation by comparing their axial-neighbor differences. Both use MSE weighted by \(1-t\); velocity and reconstruction errors additionally use normalized target-neighborhood weights.
-\end{samepage}
 
+where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{FM}}\) supervises the predicted velocity \(v\) through time-weighted MSE. The corresponding clean-latent estimate is \(\hat x_0=(1-\sigma)x_t-[\sigma+(1-\sigma)t]v\). \(L_{\mathrm{rec}}\) constrains feature reconstruction by comparing \(\hat x_0\) with \(x_0\), while \(L_{\mathrm{grad}}\) preserves local feature variation by comparing their axial-neighbor differences. Both use MSE weighted by \(1-t\); velocity and reconstruction errors additionally use normalized target-neighborhood weights. \(L_{\mathrm{dec}}\) links feature generation to reconstructed geometry through the frozen VAE decoder. It compares decodings of denormalized \(\hat x_0\) and \(x_0\), reusing the detail-reconstruction, neighborhood, and distance--normal consistency penalties, together with BCE for signs, intersections, and subdivision. These comparisons use overlapping cells at flow times near the data endpoint and are weighted by the mean \(1-t\) across selected cases. \(L_{\mathrm{end}}\) supervises the integrated latent by measuring MSE between an Euler-rollout endpoint and \(x_0\), complementing the instantaneous velocity objective. Sparse errors are averaged within each case, then across cases.
 
-\hspace{2em}\(L_{\mathrm{dec}}\) links feature generation to reconstructed geometry through the frozen VAE decoder. It compares decodings of denormalized \(\hat x_0\) and \(x_0\), reusing the detail-reconstruction, neighborhood, and distance--normal consistency penalties, together with BCE for signs, intersections, and subdivision. These comparisons use overlapping cells at flow times near the data endpoint and are weighted by the mean \(1-t\) across selected cases. \(L_{\mathrm{end}}\) supervises the integrated latent by measuring MSE between an Euler-rollout endpoint and \(x_0\), complementing the instantaneous velocity objective. Sparse errors are averaged within each case, then across cases.
 %% 4
 \section{Experiments and Discussion}\label{sec4}
 

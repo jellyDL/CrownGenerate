@@ -332,7 +332,7 @@ where subtracting \(0.5\) centers the offset and intersection channels. where su
 %% 3.3
 \subsection{Multiscale Dental Conditions}\label{subsec3_3}
 
-\hspace{2em}This section describes the multiscale dental conditions used by the two generation stages. After alignment and sampling, the maxillary, mandibular, and margin point sets are processed by independent condition encoders for Structure Flow and Feature Flow, indexed by (\(d\in\{S,F\}\)). Maxillary and mandibular points use positions and surface normals, while margin points use positions only. Source-specific point-wise MLPs with learned source embeddings encode each point set. The FDI code identifies the tooth quadrant and position; its embedding is added to the global condition \(G_d\). These global, voxel-aligned, and neighborhood conditions provide complementary case-level, spatial, and local context.
+\hspace{2em}This section describes the multiscale dental conditions used by the two generation stages. After alignment and sampling, the maxillary, mandibular, and margin point sets are processed by independent condition encoders for Structure Flow and Feature Flow, indexed by \(d\in\{S,F\}\). Thus, \(G_S\) and \(V_S\) denote the global and voxel-aligned conditions for Structure Flow, while \(G_F\) and \(V_F\) denote those for Feature Flow. Maxillary and mandibular points use positions and surface normals, while margin points use positions only. Source-specific point-wise MLPs with learned source embeddings encode each point set. The FDI code identifies the tooth quadrant and position; its embedding is added to the global condition \(G_d\). These global, voxel-aligned, and neighborhood conditions provide complementary case-level, spatial, and local context.
 
 \bigskip
 
@@ -340,15 +340,16 @@ where subtracting \(0.5\) centers the offset and intersection channels. where su
 
 \bigskip
 
-\textbf{Voxel-aligned condition \(V_d\).} Point features are assigned to a voxel grid using according to their coordinates, aggregated within each cell, and refined by local convolutions. The resulting multiscale features provide spatially aligned dental context to the flow stages, complementing the global condition.
+\textbf{Voxel-aligned condition \(V_d\).} Point features are assigned to a voxel grid according to their coordinates, aggregated within each cell, and refined by local convolutions. The resulting multiscale features provide spatially aligned dental context to the flow stages, complementing the global condition.
 
 \bigskip
 
 \textbf{Neighborhood condition \(N(\hat{O})\).} For each query coordinate \(q\), the Feature Flow encoder retrieves nearby points from the maxillary, mandibular, and margin point sets. An MLP encodes their relative positions, available normals, and distances into a local descriptor. At inference, descriptors are computed at the generated support coordinates and collected as \(N(\hat{O})\), providing local dental context to Feature Flow.
+
 \begin{figure*}[t]  % [t] 表示尽量放在页面顶部
     \centering % 图片居中
     \includegraphics[width=1.0\textwidth]{./figures/feature_condition_detail.pdf}
-    \caption{\textbf{Two-stage conditional flow matching.} Top: Structure Flow uses global and voxel-aligned dental conditions to generate structural latents, which a frozen decoder maps to active support \(\hat O\). Bottom: Feature Flow combines dental conditions and support context to generate local features on \(\hat O\). The stages use independent condition encoders and velocity networks. Purple denotes conditioning, blue latent representations, teal active support, and yellow ordinary differential equation (ODE) integration. Solid and dashed arrows indicate data flow and conditioning, respectively; the circled plus indicates addition, and the lock marks the frozen decoder.}
+    \caption{\textbf{Two-stage conditional flow matching.} Top: Structure Flow uses the global condition \(G_S\) and voxel-aligned condition \(V_S\) to generate structural latents, which a frozen decoder maps to active support \(\hat O\). Bottom: Feature Flow uses its corresponding conditions \(G_F\) and \(V_F\), together with neighborhood geometry and support context, to generate local features on \(\hat O\). The stages use independent condition encoders and velocity networks. Purple denotes conditioning, blue latent representations, teal active support, and yellow ordinary differential equation (ODE) integration. Solid and dashed arrows indicate data flow and conditioning, respectively; the circled plus indicates addition, and the lock marks the frozen decoder.}
     \label{fig:figure_feature_condition_detail}
 \end{figure*}
 

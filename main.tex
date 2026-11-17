@@ -380,22 +380,22 @@ where subtracting \(0.5\) centers the offset and intersection channels. where su
 %% 3.5.1
 \subsubsection{VAE Reconstruction and Geometric Regularization}\label{subsubsec3_5_1}
 
-\hspace{2em}The VAE reconstructs oriented signed-FDG attributes with a Kullback--Leibler (KL) regularized objective:
+\hspace{2em}The VAE reconstructs oriented signed-FDG attributes with a Kullback--Leibler (KL) regularized objective to preserve local geometry and surface orientation:
 \begin{equation}
 L_{\mathrm{VAE}} = L_{\mathrm{attr}} + \lambda L_{\mathrm{KL}}
 + L_{\mathrm{surf}} + L_{\mathrm{smooth}} + L_{\mathrm{cons}},
 \label{eq:vae_training_objective}
 \end{equation}
-where \(L_{\mathrm{VAE}}\) is the total loss, \(\lambda\) weights latent regularization, and composite terms include their component weights. \(L_{\mathrm{attr}}\) combines vertex-offset mean squared error (MSE), intersection and subdivision binary cross-entropy (BCE), and quadrilateral-midpoint error measured against the reference diagonal midpoints. \(L_{\mathrm{KL}}\) averages \(\tfrac12(\mu^2+e^{\ell}-\ell-1)\) over latent entries to regularize the posterior toward a standard normal prior~\cite{Kingma2013AutoEncoding}; \(\mu,\ell\) denote posterior mean and clipped log-variance, and \(e\) is Euler's number.
+where \(L_{\mathrm{VAE}}\) is the total loss, \(\lambda\) weights latent regularization, and composite terms include their component weights. \(L_{\mathrm{attr}}\) supervises geometric placement and connectivity through vertex-offset mean squared error (MSE), intersection and subdivision binary cross-entropy (BCE), and quadrilateral-midpoint error against the reference diagonal midpoints. \(L_{\mathrm{KL}}\) regularizes the latent posterior toward a standard normal prior~\cite{Kingma2013AutoEncoding}.
 
-\hspace{2em}\(L_{\mathrm{surf}}\) supervises signed distances and normal alignment. Midpoint and distance errors use Smooth-L1~\cite{Girshick2015FastRCNN}, while normal alignment uses \(1-\hat n^{\top}n\) for the predicted and reference unit normals \(\hat n,n\). To constrain local geometry, \(L_{\mathrm{smooth}}\) applies the same robust penalty to axial-difference and Laplacian errors in vertex, distance, and normal fields; Laplacians average valid center-minus-neighbor differences.
+\hspace{2em}\(L_{\mathrm{surf}}\) supervises signed distances and normal alignment. Midpoint and distance errors use Smooth-L1~\cite{Girshick2015FastRCNN}, while normal alignment uses \(1-\hat n^{\top}n\) for the predicted and reference unit normals \(\hat n,n\). To preserve local geometric variation, \(L_{\mathrm{smooth}}\) applies the same robust penalty to axial-difference and Laplacian errors in vertex, distance, and normal fields.
 
-\hspace{2em}The consistency term \(L_{\mathrm{cons}}\) applies this penalty to differences between the predicted and reference distance--normal residuals:
+\hspace{2em}The consistency term \(L_{\mathrm{cons}}\) couples the distance and normal fields by penalizing differences between their predicted and reference residuals:
 \begin{equation}
 r_{ij}=d_i-d_j-\tfrac12(n_i+n_j)^{\top}(c_i-c_j),
 \label{eq:distance_normal_residual}
 \end{equation}
-where \(r_{ij}\) is the distance--normal residual between neighboring active cells; \(i,j\) index those cells; and \(c_i,d_i,n_i\) denote their grid coordinates, signed distances in grid-spacing units, and normalized normals, respectively. Detail reconstruction averages the same robust errors for vertices and distances with normal cosine errors. Reference-normal-variation weights emphasize anatomical detail in the neighborhood, residual, and reconstruction terms. Training and inference settings are provided in Sec.~\ref{subsec4_3}.
+where \(i,j\) index neighboring active cells, and \(c_i,d_i,n_i\) denote grid coordinates, signed distances in grid-spacing units, and normalized normals, respectively. This term constrains local distance variation relative to surface orientation. Detail reconstruction combines robust vertex and distance errors with normal cosine errors. Reference-normal-variation weights emphasize anatomical detail in the neighborhood, residual, and reconstruction terms. Training and inference settings are provided in Sec.~\ref{subsec4_3}.
 
 %% 3.5.2
 \subsubsection{Structure Flow and Feature Flow Objectives}\label{subsec3_5_2}

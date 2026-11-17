@@ -386,16 +386,12 @@ L_{\mathrm{VAE}} = L_{\mathrm{attr}} + \lambda L_{\mathrm{KL}}
 + L_{\mathrm{surf}} + L_{\mathrm{smooth}} + L_{\mathrm{cons}},
 \label{eq:vae_training_objective}
 \end{equation}
-where \(L_{\mathrm{VAE}}\) is the total loss, \(\lambda\) weights latent regularization, and composite terms include their component weights. \(L_{\mathrm{attr}}\) supervises geometric placement and connectivity through vertex-offset mean squared error (MSE), intersection and subdivision binary cross-entropy (BCE), and quadrilateral-midpoint error against the reference diagonal midpoints. \(L_{\mathrm{KL}}\) regularizes the latent posterior toward a standard normal prior~\cite{Kingma2013AutoEncoding}.
-
-\hspace{2em}\(L_{\mathrm{surf}}\) supervises signed distances and normal alignment. Midpoint and distance errors use Smooth-L1~\cite{Girshick2015FastRCNN}, while normal alignment uses \(1-\hat n^{\top}n\) for the predicted and reference unit normals \(\hat n,n\). To preserve local geometric variation, \(L_{\mathrm{smooth}}\) applies the same robust penalty to axial-difference and Laplacian errors in vertex, distance, and normal fields.
-
-\hspace{2em}The consistency term \(L_{\mathrm{cons}}\) couples the distance and normal fields by penalizing differences between their predicted and reference residuals:
+where $\lambda$ weights latent regularization. $L_{\mathrm{attr}}$ supervises geometry and connectivity via vertex-offset mean squared error (MSE), intersection and subdivision binary cross-entropy (BCE), and quadrilateral-midpoint error against diagonal midpoints. $L_{\mathrm{KL}}$ aligns the latent posterior with a standard normal prior~\cite{Kingma2013AutoEncoding}. $L_{\mathrm{surf}}$ supervises distances and normals via Smooth-L1~\cite{Girshick2015FastRCNN} and $1-\hat n^{\top}n$ for unit normals $\hat n,n$. $L_{\mathrm{smooth}}$ applies the same robust penalty to axial-difference and Laplacian errors in vertex, distance, and normal fields. $L_{\mathrm{cons}}$ penalizes predicted--reference residual differences between distance and normal fields:
 \begin{equation}
 r_{ij}=d_i-d_j-\tfrac12(n_i+n_j)^{\top}(c_i-c_j),
 \label{eq:distance_normal_residual}
 \end{equation}
-where \(i,j\) index neighboring active cells, and \(c_i,d_i,n_i\) denote grid coordinates, signed distances in grid-spacing units, and normalized normals, respectively. This term constrains local distance variation relative to surface orientation. Detail reconstruction combines robust vertex and distance errors with normal cosine errors. Reference-normal-variation weights emphasize anatomical detail in the neighborhood, residual, and reconstruction terms. Training and inference settings are provided in Sec.~\ref{subsec4_3}.
+where $i,j$ index neighboring active cells and $c_i,d_i,n_i$ denote grid coordinates, grid-spacing-unit signed distances, and normalized normals. It constrains local distance variation relative to surface orientation. Detail reconstruction combines robust vertex/distance errors with normal cosine errors. Reference-normal-variation weights highlight anatomical detail in the neighborhood, residual, and reconstruction terms. Settings are given in Sec.~\ref{subsec4_3}.
 
 %% 3.5.2
 \subsubsection{Structure Flow and Feature Flow Objectives}\label{subsec3_5_2}

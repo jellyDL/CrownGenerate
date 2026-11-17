@@ -539,17 +539,15 @@ Each baseline was reimplemented using the input conditions specified in its orig
   \end{minipage}
 \end{table*}
 
-\bigskip
-
-%%%% Ablation Study 2
-\textbf{Ablation of Tooth-Position Conditioning.} To isolate the contribution of the FDI tooth-position (TP) condition, we compared models with and without TP in the global conditioning branch. Structure Flow and Feature Flow were trained independently and evaluated on the same commonly evaluable cases. As shown in Table~\ref{table_multi_condition_ablation}, adding TP improved all four metrics, yielding lower CD-\(L_1\), HD95, and Margin P95 and a higher F-score. Although the changes in these aggregate metrics are modest, this limited numerical effect is expected because removing the explicit TP condition does not eliminate all tooth-position information: the cervical margin and antagonist dentition still provide implicit positional cues. Qualitatively, removing TP reduced occlusal-surface detail and made the morphology less organized; the yellow regions in Fig.~\ref{fig:ablation_toothnum} indicate larger prediction-to-reference surface distances.
-
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.7\linewidth]{figures/ablation_toothnum/ablation_toothnum.png}
   \caption{\textbf{Qualitative effect of tooth-position conditioning.} Columns show the reference crown (RC), the crown generated without TP, its distance to RC, the crown generated with TP, and its distance to RC. Yellow regions indicate larger prediction-to-RC surface distances.}
   \label{fig:ablation_toothnum}
 \end{figure}
+
+%%%% Ablation Study 2
+\textbf{Ablation of Tooth-Position Conditioning.} To isolate the contribution of the FDI tooth-position (TP) condition, we compared models with and without TP in the global conditioning branch. Structure Flow and Feature Flow were trained independently and evaluated on the same commonly evaluable cases. As shown in Table~\ref{table_multi_condition_ablation}, adding TP improved all four metrics, yielding lower CD-\(L_1\), HD95, and Margin P95 and a higher F-score. Although the changes in these aggregate metrics are modest, this limited numerical effect is expected because removing the explicit TP condition does not eliminate all tooth-position information: the cervical margin and antagonist dentition still provide implicit positional cues. Qualitatively, removing TP reduced occlusal-surface detail and made the morphology less organized; the yellow regions in Fig.~\ref{fig:ablation_toothnum} indicate larger prediction-to-reference surface distances.
 
 \bigskip
 
@@ -629,6 +627,9 @@ Each baseline was reimplemented using the input conditions specified in its orig
   \end{minipage}
 \end{table*}
 
+%%%% Ablation Study 5
+\textbf{Ablation of Hierarchical Generation.} This experiment tests whether separating global support prediction from local feature generation improves the reconstruction of posterior crowns. As shown in Table~\ref{table_hierarchical_ablation}, the two-stage model uses Structure Flow to predict active support and Feature Flow to generate local features, whereas the single-stage model jointly predicts both with one conditional flow network. Because single-stage training must balance global occupancy and fine geometric detail simultaneously, it increases surface errors, with HD95 being particularly sensitive to local omissions and anomalies and F-score being reduced by lower surface coverage. When the Structure Flow stage is removed, the model can still produce a plausible overall crown morphology; however, it lacks explicit spatial support, which may leave empty regions near adjacent teeth, as shown in Fig.~\ref{fig:ablation_adjacent}. Both configurations use the same inputs, decoder, data split, training budget, random seeds, and post-processing.
+
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.72\linewidth]{figures/ablation_adjacent/merged_heatmaps.png}
@@ -636,21 +637,11 @@ Each baseline was reimplemented using the input conditions specified in its orig
   \label{fig:ablation_adjacent}
 \end{figure}
 
-%%%% Ablation Study 5
-\textbf{Ablation of Hierarchical Generation.} This experiment tests whether separating global support prediction from local feature generation improves the reconstruction of posterior crowns. As shown in Table~\ref{table_hierarchical_ablation}, the two-stage model uses Structure Flow to predict active support and Feature Flow to generate local features, whereas the single-stage model jointly predicts both with one conditional flow network. Because single-stage training must balance global occupancy and fine geometric detail simultaneously, it increases surface errors, with HD95 being particularly sensitive to local omissions and anomalies and F-score being reduced by lower surface coverage. When the Structure Flow stage is removed, the model can still produce a plausible overall crown morphology; however, it lacks explicit spatial support, which may leave empty regions near adjacent teeth, as shown in Fig.~\ref{fig:ablation_adjacent}. Both configurations use the same inputs, decoder, data split, training budget, random seeds, and post-processing.
-
 %% 4.4.3 Discussion
 \subsubsection{Discussion}\label{subsubsec4_4_3}
 
 \noindent\textbf{Interpretation of Results.}
 This approach combines geometric precision with dental context to jointly address anatomical fidelity and spatial compatibility. Oriented signed-FDG encodes surface distance and orientation, while the sparse VAE supports high-resolution reconstruction through a compact latent representation. Structure Flow predicts global occupancy support, enabling Feature Flow to concentrate on anatomical details within active regions. Multiscale dental conditioning guides both stages using tooth identity, cervical-margin geometry, and the surrounding dentition, while decoded-surface supervision directly links latent learning to reconstruction accuracy. These complementary mechanisms provide a coherent explanation for the observed improvements in geometric accuracy and cervical-margin consistency, together with reduced antagonist penetration.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\linewidth]{./figures/false_cases/merged_heatmaps_annotated.png}
-    \caption{\textbf{Failure cases.} Each row shows a case, with columns displaying the generated crown with its corresponding dental arch, the generated crown alone, the reference crown with the arch, and the reference crown alone. Some generated crowns exhibit hole-like defects in the occlusal pits and fissures. These local discontinuities may be related to the absence of an explicit pit-and-fissure morphology constraint in the current formulation.}
-    \label{fig:false_cases}
-\end{figure}
 
 % 失败案例
 % （1）窝沟形态不好， 暂时未考虑如何加约束
@@ -658,6 +649,13 @@ This approach combines geometric precision with dental context to jointly addres
 
 \noindent\textbf{Limitations and Scope of Application.}
 Inadequate tooth preparation, incomplete dental scans, and atypical morphology remain risk scenarios. Fig.~\ref{fig:false_cases} shows that, despite preservation of the global crown form, failures concentrate in occlusal pits and fissures, including interrupted grooves, hole-like depressions, fragments, and spike-like protrusions, possibly because no explicit pit-and-fissure constraint is imposed. Direct FDG extraction may additionally be sensitive to inconsistencies in local geometry and connectivity, resulting in sliver faces or protrusions that post-processing cannot fully remove. Because the support is fixed before Feature Flow, a local Structure-Flow omission is another plausible source of a missing patch; the support audit above indicates that this mechanism is plausible but does not establish its case-level effect on surface metrics. The audit used ten held-out cases; therefore, support precision, recall, and their relationship to geometric error should be confirmed on the complete test set. The system should therefore be used as a CAD draft for external crown morphology, with inspection and correction before downstream use; the reference CAD should be regarded as a historical design instance rather than a unique ground truth. Future work should investigate controllable editing of localized crown details (e.g., cusps, ridges, grooves, and fossae), explicit constraints on pit-and-fissure continuity and local surface topology, support refinement between the two flows, and surface texture modeling beyond geometry alone, followed by independent laboratory validation, \textit{in vitro} measurements, and prospective workflow studies.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\linewidth]{./figures/false_cases/merged_heatmaps_annotated.png}
+    \caption{\textbf{Failure cases.} Each row shows a case, with columns displaying the generated crown with its corresponding dental arch, the generated crown alone, the reference crown with the arch, and the reference crown alone. Some generated crowns exhibit hole-like defects in the occlusal pits and fissures. These local discontinuities may be related to the absence of an explicit pit-and-fissure morphology constraint in the current formulation.}
+    \label{fig:false_cases}
+\end{figure}
 
 %% 5
 \section{Conclusion}\label{sec5}

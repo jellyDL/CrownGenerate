@@ -299,26 +299,24 @@ Personalized crown design \sep Crown generation\sep Conditional flow matching \s
 %% 3.2.1
 \subsubsection{Oriented Signed-FDG Representation}\label{subsubsec3_2_1}
 
-\hspace{2em}The FDG stores geometric information only in active cells within the crown surface neighborhood, thereby avoiding construction of a dense high-resolution voxel grid~\cite{xiang2026native}. For active cell \(j\), let \(c_j\) denote its integer grid coordinate and \(x_j\) its center in the aligned physical domain. Standard FDG records the local dual-grid vertex offset \(v_j\in[0,1]^3\) and three axis-aligned intersection indicators \(b_j\in\{0,1\}^3\), which describe local geometry and connectivity but do not explicitly distinguish the two sides of a surface or encode its orientation.
+\hspace{2em}The FDG stores geometric information only in active cells within the crown surface neighborhood, thereby avoiding construction of a dense high-resolution voxel grid~\cite{xiang2026native}. For active cell \(j\), let \(c_j\) denote its integer grid coordinate and \(x_j\) its center in the aligned physical domain. Standard FDG records the local dual-grid vertex offset \(v_j\in[0,1]^3\) and three axis-aligned intersection indicators \(b_j\in\{0,1\}^3\). These attributes encode geometry and connectivity but lack explicit signed-distance and normal cues, potentially hindering surface-side discrimination, orientation learning, and fine-detail reconstruction.
 
-\hspace{2em}We therefore augment the FDG attributes with a truncated signed distance and an oriented normal. Before nearest-surface queries, reference meshes are cleaned and consistently oriented. As shown in Fig.~\ref{fig:figure_oriented_signed_fdg_detail}, let \(p_j\) be the closest point on the reference surface to \(x_j\), \(n_j^f\) the unit normal of the closest face, and \(n_j\) the normalized vertex normal interpolated at \(p_j\), set to zero for degenerate cases. With \(\Delta\) denoting the physical grid spacing and \(\tau\) the dimensionless truncation bound, the oriented signed distance is defined as follows:
-
-\begin{align}
-d_j&=\operatorname{clip}\!\left(
+\hspace{2em}We therefore augment the FDG attributes with a truncated signed distance and an oriented normal. Before nearest-surface queries, reference meshes are cleaned and consistently oriented. As illustrated in Fig.~\ref{fig:figure_oriented_signed_fdg_detail}, let \(p_j\) be the closest point on the reference surface to \(x_j\), \(n_j^f\) the unit normal of the closest face, and \(n_j\) the normalized, barycentrically interpolated vertex normal at \(p_j\), set to zero when the interpolated normal is degenerate. With \(\Delta\) denoting the physical grid spacing and \(\tau\) the dimensionless truncation bound, the truncated signed distance is defined as:
+\begin{equation}
+d_j=\operatorname{clip}\!\left(
 \operatorname{sign}\!\left[(x_j-p_j)^\top n_j^f\right]
 \frac{\|x_j-p_j\|_2}{\Delta},-\tau,\tau
 \right),\label{eq:oriented_signed_distance}
-\end{align}
-where \(j\) indexes active cells, \(d_j\) is the signed distance in grid-spacing units, \(\|\cdot\|_2\) is the Euclidean norm, \((\cdot)^\top\) denotes transpose in the inner product, \(\operatorname{sign}(\cdot)\) selects the local surface side, and \(\operatorname{clip}(\cdot,-\tau,\tau)\) limits the normalized distance to \([-\tau,\tau]\). 
+\end{equation}
+where \(d_j\) is expressed in grid-spacing units, \(\|\cdot\|_2\) is the Euclidean norm, and \((\cdot)^\top\) denotes transpose. The sign function determines the local surface side from the nearest-face normal, and the clipping operator restricts the normalized distance to \([-\tau,\tau]\).
 
-The local feature is defined as follows:
-\begin{align}
-g_j&=[v_j-0.5,\ b_j-0.5,\ d_j,\ n_j],
+\hspace{2em}The local feature vector is defined as
+\begin{equation}
+g_j=[v_j-0.5,\ b_j-0.5,\ d_j,\ n_j]\in\mathbb{R}^{10},
 \label{eq:oriented_signed_feature}
-\end{align}
+\end{equation}
+which concatenates the three-dimensional offset, intersection, and normal attributes with the scalar signed distance; subtracting \(0.5\) centers the offset and intersection channels. Together, these attributes encode local geometry and surface orientation within the sparse neighborhood. The sign of \(d_j\) is determined locally by the nearest-face normal; for non-watertight meshes, it indicates a local surface side rather than global inside--outside status. The sparse VAE then encodes these attributes into local latent features \(F\) defined on active support \(O\), as shown in Fig.~\ref{fig:figure_overall_architecture}.
 
-The vector \(g_j\) concatenates the offset, intersection, distance, and orientation attributes; because \(v_j\), \(b_j\), and \(n_j\) are three-dimensional and \(d_j\) is scalar, \(g_j\in\mathbb{R}^{10}\). Together, these features preserve local geometry and surface orientation within the sparse neighbourhood. For watertight, consistently oriented meshes, the sign of \(d_j\) indicates global inside--outside status; for non-watertight meshes, it indicates only the local direction defined by the nearest surface normal. The resulting oriented signed-FDG attributes are then encoded by the sparse VAE, which learns latent support \(O\) and local features \(F\) as shown in Fig.~\ref{fig:figure_overall_architecture};
- 
 %% 3.2.2
 \subsubsection{Sparse VAE for Latent Compression}\label{subsubsec3_2_2}
 

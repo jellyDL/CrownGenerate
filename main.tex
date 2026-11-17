@@ -336,16 +336,15 @@ where subtracting \(0.5\) centers the offset and intersection channels. where su
 
 \bigskip
 
-\textbf{Global condition $G_d$.} Features from each point set are mean- and max-pooled, concatenated, and projected into a case-level vector. The FDI code, which specifies the tooth quadrant and position, is represented by a learned embedding and added to this vector to form $G_d$. This condition conveys the overall dental context and tooth identity.
+\textbf{Global condition $G_d$.} Features from each point set are aggregated using mean and max pooling, concatenated, and projected into a case-level vector. The FDI code, which specifies the tooth quadrant and position, is embedded and added to this vector to form $G_d$, providing overall dental context and tooth identity.
 
 \bigskip
 
-\textbf{Voxel-aligned condition $V_d$.} Point features are assigned to a voxel grid according to their spatial coordinates, aggregated within each cell, and refined by local convolutions. The resulting multiscale features provide spatially aligned dental context to the flow stages, complementing the case-level global condition.
+\textbf{Voxel-aligned condition \(V_d\).} Point features are assigned to a voxel grid using according to their coordinates, aggregated within each cell, and refined by local convolutions. The resulting multiscale features provide spatially aligned dental context to the flow stages, complementing the global condition.
 
 \bigskip
 
-\textbf{Neighborhood condition $N(\hat O)$.} For each query coordinate $q$, the Feature Flow encoder retrieves nearby points from the maxillary, mandibular, and margin point sets. An MLP encodes their relative positions, normals where available, and distances into a local descriptor. At inference, descriptors are computed at the generated support coordinates $q\in\hat O$ and collected as $N(\hat O)$, providing local dental context to Feature Flow.
-
+\textbf{Neighborhood condition \(N(\hat{O})\).} For each query coordinate \(q\), the Feature Flow encoder retrieves nearby points from the maxillary, mandibular, and margin point sets. An MLP encodes their relative positions, available normals, and distances into a local descriptor. At inference, descriptors are computed at the generated support coordinates and collected as \(N(\hat{O})\), providing local dental context to Feature Flow.
 \begin{figure*}[t]  % [t] 表示尽量放在页面顶部
     \centering % 图片居中
     \includegraphics[width=1.0\textwidth]{./figures/feature_condition_detail.pdf}

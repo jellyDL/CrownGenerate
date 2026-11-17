@@ -406,7 +406,20 @@ x_t=(1-t)x_0+[\sigma+(1-\sigma)t]\epsilon,
 \qquad u_t=(1-\sigma)\epsilon-x_0,
 \label{eq:flow_training_path}
 \end{equation}
-where \(x_0,x_t\) are the target and noisy latents, \(u_t\) is the target velocity, \(t\in[0,1]\) is flow time, and \(\sigma\) is the residual noise scale, with standard Gaussian noise \(\epsilon\sim\mathcal N(0,I)\). Structure Flow minimizes velocity MSE in the structural latent space; the generated latent is subsequently decoded into active support by the frozen structure decoder.
+where \(x_0,x_t\) are the target and noisy latents, \(u_t\) is the target velocity, \(t\in[0,1]\) is flow time, and \(\sigma\) is the residual noise scale, with standard Gaussian noise \(\epsilon\sim\mathcal N(0,I)\).
+
+\hspace{2em}Structure Flow minimizes velocity MSE in the structural latent space:
+\begin{equation}
+L_{\mathrm{Structure}}
+=\mathbb{E}_{x_0^S,t,\epsilon}
+\left[
+\operatorname{MSE}\!\left(
+ v_{\theta_S}(x_t^S,t;G_S,V_S),u_t^S
+\right)
+\right],
+\label{eq:structure_training_objective}
+\end{equation}
+where \(v_{\theta_S}\) is the velocity field predicted by the Structure DiT velocity network with parameters \(\theta_S\), conditioned on the global and voxel-aligned features \(G_S,V_S\). The structural target latent \(x_0^S\), noisy latent \(x_t^S\), and target velocity \(u_t^S\) follow Eq.~\ref{eq:flow_training_path}, and MSE averages the squared error over structural latent entries. At inference, the ODE solver integrates the predicted velocity field; after denormalization, the frozen structure decoder and occupancy selection produce the active support \(\hat O\).
 
 \begin{samepage}
 \hspace{2em}Feature Flow is trained on the reference support using a flow-matching (FM) objective with latent and decoded-geometric supervision:

@@ -400,26 +400,26 @@ where \(i,j\) index neighboring active cells, and \(c_i,d_i,n_i\) denote grid co
 %% 3.5.2
 \subsubsection{Structure Flow and Feature Flow Objectives}\label{subsec3_5_2}
 
-\hspace{2em}Both stages use the flow-matching path~\cite{lipman2023flow}:
+\hspace{2em}Both stages learn the velocity fields used by the ODE solvers through the flow-matching path~\cite{lipman2023flow}:
 \begin{equation}
 x_t=(1-t)x_0+[\sigma+(1-\sigma)t]\epsilon,
 \qquad u_t=(1-\sigma)\epsilon-x_0,
 \label{eq:flow_training_path}
 \end{equation}
-where \(x_0,x_t\) are the target and noisy latents, \(u_t\) is the target velocity, \(t\in[0,1]\) is time, and \(\sigma\) is the residual noise scale. The noise satisfies \(\epsilon\sim\mathcal N(0,I)\), where \(\mathcal N(0,I)\) denotes a Gaussian distribution with zero mean and identity covariance \(I\), and \(\epsilon\) is a sample from this distribution. Structure Flow minimizes velocity MSE.
+where \(x_0,x_t\) are the target and noisy latents, \(u_t\) is the target velocity, \(t\in[0,1]\) is flow time, and \(\sigma\) is the residual noise scale, with standard Gaussian noise \(\epsilon\sim\mathcal N(0,I)\). Structure Flow minimizes velocity MSE in the structural latent space; the generated latent is subsequently decoded into active support by the frozen structure decoder.
 
 \begin{samepage}
-\hspace{2em}Feature Flow minimizes the flow-matching (FM) objective:
+\hspace{2em}Feature Flow is trained on the reference support using a flow-matching (FM) objective with latent and decoded-geometric supervision:
 \begin{equation}
 L_{\mathrm{Feature}}=L_{\mathrm{FM}}+\lambda_1L_{\mathrm{rec}}
 +\lambda_2L_{\mathrm{grad}}+\lambda_3L_{\mathrm{dec}}+\lambda_4L_{\mathrm{end}},
 \label{eq:feature_training_objective}
 \end{equation}
-where \(L_{\mathrm{Feature}}\) is the total Feature Flow loss and \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{FM}}\) is time-weighted velocity MSE. The predicted velocity \(v\) yields \(\hat x_0=(1-\sigma)x_t-[\sigma+(1-\sigma)t]v\), where \(v\) is the predicted velocity and \(\hat x_0\) is the reconstructed clean latent. \(L_{\mathrm{rec}}\) and \(L_{\mathrm{grad}}\) compare \(\hat x_0\) with \(x_0\) using MSE in latent values and axial-neighbor differences, respectively, weighted by \(1-t\). Velocity and reconstruction errors additionally use normalized target-neighborhood weights.
+where \(\lambda_1,\ldots,\lambda_4\) balance the auxiliary losses. \(L_{\mathrm{FM}}\) supervises the predicted velocity \(v\) through time-weighted MSE. The corresponding clean-latent estimate is \(\hat x_0=(1-\sigma)x_t-[\sigma+(1-\sigma)t]v\). \(L_{\mathrm{rec}}\) constrains feature reconstruction by comparing \(\hat x_0\) with \(x_0\), while \(L_{\mathrm{grad}}\) preserves local feature variation by comparing their axial-neighbor differences. Both use MSE weighted by \(1-t\); velocity and reconstruction errors additionally use normalized target-neighborhood weights.
 \end{samepage}
 
-\hspace{2em}\(L_{\mathrm{dec}}\) extends geometric supervision to frozen-VAE decodings of denormalized \(\hat x_0\) and \(x_0\), reusing the detail-reconstruction, neighborhood, and distance--normal consistency penalties above, together with BCE for signs, intersections, and subdivision. Surface comparisons use overlapping cells at near-data times, weighted by the mean \(1-t\) across the selected cases. \(L_{\mathrm{end}}\) is latent MSE between an Euler-rollout endpoint and \(x_0\). Sparse errors are averaged within each case, then across cases.
 
+\hspace{2em}\(L_{\mathrm{dec}}\) links feature generation to reconstructed geometry through the frozen VAE decoder. It compares decodings of denormalized \(\hat x_0\) and \(x_0\), reusing the detail-reconstruction, neighborhood, and distance--normal consistency penalties, together with BCE for signs, intersections, and subdivision. These comparisons use overlapping cells at flow times near the data endpoint and are weighted by the mean \(1-t\) across selected cases. \(L_{\mathrm{end}}\) supervises the integrated latent by measuring MSE between an Euler-rollout endpoint and \(x_0\), complementing the instantaneous velocity objective. Sparse errors are averaged within each case, then across cases.
 %% 4
 \section{Experiments and Discussion}\label{sec4}
 

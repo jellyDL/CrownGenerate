@@ -299,7 +299,7 @@ Personalized crown design \sep Crown generation \sep Conditional flow matching \
 %% 3.2.1
 \subsubsection{Oriented Signed-FDG Representation}\label{subsubsec3_2_1}
 
-\hspace{2em}The FDG stores geometric information only in active cells within the crown surface neighborhood, thereby avoiding construction of a dense high-resolution voxel grid~\cite{xiang2026native}. For active cell \(j\), let \(c_j\) denote its integer grid coordinate and \(x_j\) its center in the aligned physical domain. Standard FDG records the local dual-grid vertex offset \(v_j\in[0,1]^3\) and three axis-aligned intersection indicators \(b_j\in\{0,1\}^3\). These attributes encode geometry and connectivity but lack explicit signed-distance and normal cues, potentially hindering surface-side discrimination, orientation learning, and fine-detail reconstruction.
+\hspace{2em}The FDG stores geometric information only in active cells within the crown surface neighborhood, thereby avoiding construction of a dense high-resolution voxel grid~\cite{xiang2026native}. For an active cell \(j\), let \(c_j\) denote its integer grid coordinate and \(x_j\) its center in the aligned physical domain. Standard FDG records the local dual-grid vertex offset \(v_j\in[0,1]^3\) and three axis-aligned intersection indicators \(b_j\in\{0,1\}^3\). These attributes encode geometry and connectivity but lack explicit signed-distance and normal cues, potentially hindering surface-side discrimination, orientation learning, and fine-detail reconstruction.
 
 \hspace{2em}We therefore augment the FDG attributes with a truncated signed distance and an oriented normal. Before nearest-surface queries, reference meshes are cleaned and consistently oriented. As illustrated in Fig.~\ref{fig:figure_oriented_signed_fdg_detail}, let \(p_j\) be the closest point on the reference surface to \(x_j\), \(n_j^f\) the unit normal of the closest face, and \(n_j\) the normalized, barycentrically interpolated vertex normal at \(p_j\), set to zero when the interpolated normal is degenerate. With \(\Delta\) denoting the physical grid spacing and \(\tau\) the dimensionless truncation bound, the truncated signed distance is defined as:
 \begin{equation}
@@ -332,7 +332,7 @@ where subtracting \(0.5\) centers the offset and intersection channels. These at
 %% 3.3
 \subsection{Multiscale Dental Conditions}\label{subsec3_3}
 
-\hspace{2em}This section describes the multiscale dental conditions used by the two generation stages. After alignment and sampling, the maxillary, mandibular, and margin point sets are processed by independent condition encoders for Structure Flow and Feature Flow, indexed by \(d\in\{S,F\}\). Thus, \(G_S\) and \(V_S\) denote the global and voxel-aligned conditions for Structure Flow, while \(G_F\) and \(V_F\) denote those for Feature Flow. Maxillary and mandibular points use positions and surface normals, while margin points use positions only. Source-specific point-wise MLPs with learned source embeddings encode each point set. The FDI code identifies the tooth quadrant and position; its embedding is added to the global condition \(G_d\). These global, voxel-aligned, and neighborhood conditions provide complementary case-level, spatial, and local context.
+\hspace{2em}This section describes the multiscale dental conditions used by the two generation stages. After alignment and sampling, the maxillary, mandibular, and margin point sets are processed by independent condition encoders for Structure Flow and Feature Flow, indexed by \(d\in\{S,F\}\). Thus, \(G_S\) and \(V_S\) denote the global and voxel-aligned conditions for Structure Flow, while \(G_F\) and \(V_F\) denote those for Feature Flow. Maxillary and mandibular points use positions and surface normals, while margin points use positions only. Source-specific point-wise multilayer perceptrons (MLPs) with learned source embeddings encode each point set. The FDI code identifies the tooth quadrant and position; its embedding is added to the global condition \(G_d\). These global, voxel-aligned, and neighborhood conditions provide complementary case-level, spatial, and local context.
 
 \bigskip
 
@@ -380,7 +380,7 @@ where subtracting \(0.5\) centers the offset and intersection channels. These at
 %% 3.5.1
 \subsubsection{VAE Reconstruction and Geometric Regularization}\label{subsubsec3_5_1}
 
-\hspace{2em}The VAE reconstructs oriented signed-FDG attributes with a Kullback--Leibler (KL) regularized objective to preserve local geometry and surface orientation:
+\hspace{2em}The VAE reconstructs oriented signed-FDG attributes using an objective regularized by Kullback--Leibler (KL) divergence to preserve local geometry and surface orientation:
 \begin{equation}
 L_{\mathrm{VAE}} = L_{\mathrm{attr}} + \lambda L_{\mathrm{KL}}
 + L_{\mathrm{surf}} + L_{\mathrm{smooth}} + L_{\mathrm{cons}},
@@ -402,7 +402,7 @@ x_t=(1-t)x_0+[\sigma+(1-\sigma)t]\epsilon,
 \qquad u_t=(1-\sigma)\epsilon-x_0,
 \label{eq:flow_training_path}
 \end{equation}
-where \(x_0,x_t\) are the target and noisy latents, \(u_t\) is the target velocity, \(t\in[0,1]\) is flow time, and \(\sigma\) is the residual noise scale, with standard Gaussian noise \(\epsilon\sim\mathcal N(0,I)\).
+where \(x_0\) and \(x_t\) denote the target and noisy latents, respectively; \(u_t\) is the target velocity; \(t\in[0,1]\) is the flow time; and \(\sigma\) is the residual noise scale. Here, \(\epsilon\sim\mathcal N(0,I)\) denotes standard Gaussian noise.
 
 \hspace{2em}Structure Flow minimizes velocity MSE in the structural latent space:
 \begin{equation}
@@ -415,7 +415,7 @@ v_{\theta_S}(x_t^S,t;G_S,V_S),u_t^S
 \right],
 \label{eq:structure_training_objective}
 \end{equation}
-where $v_{\theta_S}$ is the Structure DiT velocity field with parameters $\theta_S$, conditioned on the global and voxel-aligned features $G_S,V_S$. The target $x_0^S$, noisy $x_t^S$, and velocity $u_t^S$ follow Eq.~\ref{eq:flow_training_path}, and MSE averages squared error over latent entries. At inference, the ODE solver integrates the predicted field; after denormalization, the frozen decoder and occupancy selection yield the active support $\hat O$.
+where $v_{\theta_S}$ is the Structure DiT velocity field with parameters $\theta_S$, conditioned on the global and voxel-aligned features $G_S,V_S$. The target $x_0^S$, the noisy latent $x_t^S$, and the target velocity $u_t^S$ follow Eq.~\ref{eq:flow_training_path}, and MSE averages squared errors over latent entries. At inference, the ODE solver integrates the predicted field; after denormalization, the frozen decoder and occupancy selection yield the active support $\hat O$.
 
 
 \hspace{2em}Feature Flow minimizes a flow-matching (FM) loss on the reference support with latent and decoded supervision:
@@ -424,8 +424,7 @@ L_{\mathrm{Feature}}=L_{\mathrm{FM}}+\lambda_1L_{\mathrm{rec}}
 +\lambda_2L_{\mathrm{grad}}+\lambda_3L_{\mathrm{dec}}+\lambda_4L_{\mathrm{end}},
 \label{eq:feature_training_objective}
 \end{equation}
-where $\lambda_1,\ldots,\lambda_4$ weight the auxiliary losses. $L_{\mathrm{FM}}$ applies time-weighted MSE to $v$, giving $\hat x_0=(1-\sigma)x_t-[\sigma+(1-\sigma)t]v$. $L_{\mathrm{rec}}$ matches $\hat x_0$ to $x_0$; $L_{\mathrm{grad}}$ their axial-neighbor differences, both under $1-t$-weighted MSE; velocity and reconstruction errors also use normalized target-neighborhood weights. $L_{\mathrm{dec}}$ compares frozen-VAE decodings of denormalized $\hat x_0$ and $x_0$ via detail-reconstruction, neighborhood, and distance--normal penalties plus BCE on signs, intersections, and subdivision, on overlapping endpoint cells with $1-t$ weights. $L_{\mathrm{end}}$ is the MSE of an Euler-rollout endpoint against $x_0$. Sparse errors are averaged per case and overall.
-
+where $\lambda_1,\ldots,\lambda_4$ weight the auxiliary losses. $L_{\mathrm{FM}}$ applies time-weighted MSE to $v$, giving $\hat x_0=(1-\sigma)x_t-[\sigma+(1-\sigma)t]v$. $L_{\mathrm{rec}}$ matches $\hat x_0$ to $x_0$, while $L_{\mathrm{grad}}$ penalizes their axial-neighbor differences; both use $1-t$-weighted MSE. Velocity and reconstruction errors also use normalized target-neighborhood weights. $L_{\mathrm{dec}}$ compares frozen-VAE decodings of denormalized $\hat x_0$ and $x_0$ on overlapping endpoint cells using $1-t$ weights and detail-reconstruction, neighborhood, and distance--normal penalties, as well as BCE losses on signs, intersections, and subdivision. $L_{\mathrm{end}}$ is the MSE between an Euler-rollout endpoint and $x_0$. Sparse errors are averaged per case and overall.
 
 
 %% 4

@@ -248,8 +248,8 @@ Personalized crown design \sep Crown generation \sep Conditional flow matching \
 
 % Accordingly, this study focuses on the generation of a case-adapted CAD draft mesh conditioned on registered full-arch maxillary and mandibular scans, a three-dimensional margin line, and the FDI tooth designation. The scope is limited to the external morphology of tooth-supported posterior single crowns and excludes intaglio-surface design, cement-space definition, manufacturing compensation, and fabrication-ready restoration generation.
 
-%% 2 Related work
-\section{Related work}\label{sec2}
+%% 2 Related Work
+\section{Related Work}\label{sec2}
 
 \hspace{2em}This review covers related work, including data-driven dental crown generation, high-resolution three-dimensional geometry modeling, and dental spatial conditioning and evaluation, with emphasis on limitations in geometric representation, boundary enforcement, and candidate-mesh generation.
 
@@ -270,7 +270,7 @@ Personalized crown design \sep Crown generation \sep Conditional flow matching \
 \end{figure*}
 
 %% 2.2
-\subsection{High-Resolution 3D Geometry Generation}\label{subsec2_2}
+\subsection{High-Resolution Three-Dimensional Geometry Generation}\label{subsec2_2}
 
 \hspace{2em}High-resolution three-dimensional generation requires a balance among representational capacity, topological flexibility, and computational cost. Dense signed-distance-field (SDF) and occupancy representations can express complex shapes, but their storage and computational demands scale cubically with resolution. Marching Cubes extracts a surface from these fields but does not learn mesh connectivity directly~\cite{Lorensen1987MarchingCubes}. Sparse generative representations address this cost by separating global structure from local geometric features and restricting computation to relevant spatial neighborhoods~\cite{Xiang2025TRELLIS,xiang2026native,li2026pixal3d,He2025SparseFlex,Wu2025Direct3DS2}. These methods provide transferable strategies for high-resolution representation and computationally efficient geometric generation; however, they do not explicitly model dental conditions or preparation-margin boundaries.
 

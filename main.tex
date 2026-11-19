@@ -598,7 +598,7 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
 \end{table*}
 
 %%%% Ablation Study 4
-\textbf{Ablation of Cervical-Margin Conditioning.} This experiment compared the full model with a configuration in which the cervical-margin condition was omitted, while the maxillary and mandibular scans, TP input, data split, architecture, training budget, random seeds, and post-processing remained unchanged. With the VAE frozen, Structure Flow and Feature Flow were retrained independently. As shown in Table~\ref{table_multi_condition_ablation}, omitting the cervical-margin condition degraded all four evaluation metrics, with the largest change observed for Margin P95. This result supports the role of cervical-margin conditioning in directly constraining the cervical boundary, while the increases in CD-$L_1$ and HD95 and the reduction in F-score indicate broader deterioration in surface accuracy and coverage.
+\textbf{Ablation of Cervical-Margin Conditioning.} The full model was compared with a variant in which the cervical-margin conditioning was removed; all other experimental settings were kept identical. With the VAE frozen, both flow stages were retrained independently. As shown in Table~\ref{table_multi_condition_ablation}, this ablation degraded all four metrics, with the largest degradation observed for Margin P95. The finding confirms that cervical-margin conditioning directly constrains the cervical boundary, whereas the increases in CD-$L_1$ and HD95 and the reduction in F-score indicate broader deterioration in surface accuracy and coverage.
 
 \begin{figure}[H]
   \centering

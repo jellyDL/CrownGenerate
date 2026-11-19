@@ -343,7 +343,7 @@ where subtracting \(0.5\) centers the offset and intersection channels. These at
 
 \bigskip
 
-\textbf{Neighborhood condition \(N(\hat{O})\).} For each query coordinate \(q\), the Feature Flow encoder retrieves nearby points from the maxillary, mandibular, and margin point sets. An MLP encodes their relative positions, available normals, and distances into a local descriptor. At inference, descriptors are computed at the generated support coordinates and collected as \(N(\hat{O})\), providing local dental context to Feature Flow.
+\textbf{Neighborhood condition $N(\hat{O})$.} For each query coordinate $q$, the Feature Flow encoder retrieves nearby maxillary, mandibular, and margin points. An MLP encodes their relative positions, normals, and distances into a local descriptor. At inference, descriptors at the generated support form $N(\hat{O})$, providing local context to Feature Flow.
 
 \begin{figure*}[t]  % [t] 表示尽量放在页面顶部
     \centering % 图片居中

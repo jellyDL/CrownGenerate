@@ -461,8 +461,7 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
 %% 4.4.1 Experiment Result
 \subsubsection{Experimental Results}\label{subsubsec4_4_1}
 
-\hspace{2em}We systematically evaluated the proposed model against four baselines: VF-Net~\cite{ye2024variational}, DMCv2~\cite{Hosseinimanesh2025PointToMesh}, VBCD~\cite{Wei2025VBCD}, and MADCrowner~\cite{Wei2026MADCrowner}.
-Each baseline was reimplemented using the input conditions specified in its original publication and retrained on the same case-level training split. Outputs from all methods were converted to meshes for evaluation; however, implementation and training differences may cause deviations from the original reports. All methods were evaluated on the same test set (\(n_{\text{test}} = 252\)), and the same dental crown metrics were computed for comparison.
+\hspace{2em}We evaluated the proposed model against four baselines: VF-Net~\cite{ye2024variational}, DMCv2~\cite{Hosseinimanesh2025PointToMesh}, VBCD~\cite{Wei2025VBCD}, and MADCrowner~\cite{Wei2026MADCrowner}. All baselines were reimplemented with their original input conditions and retrained on the same datasetsplit. Outputs were converted to meshes for evaluation, though implementation differences may cause deviations from the original reports. All methods were evaluated on the same test set.
 
 \begin{table*}[htbp]
     \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm}

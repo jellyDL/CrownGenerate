@@ -424,8 +424,7 @@ L_{\mathrm{Feature}}=L_{\mathrm{FM}}+\lambda_1L_{\mathrm{rec}}
 +\lambda_2L_{\mathrm{grad}}+\lambda_3L_{\mathrm{dec}}+\lambda_4L_{\mathrm{end}},
 \label{eq:feature_training_objective}
 \end{equation}
-where $\lambda_1,\ldots,\lambda_4$ weight the auxiliary losses. $L_{\mathrm{FM}}$ applies time-weighted MSE to $v$, giving $\hat x_0=(1-\sigma)x_t-[\sigma+(1-\sigma)t]v$. $L_{\mathrm{rec}}$ matches $\hat x_0$ to $x_0$, while $L_{\mathrm{grad}}$ penalizes their axial-neighbor differences; both use $1-t$-weighted MSE. Velocity and reconstruction errors also use normalized target-neighborhood weights. $L_{\mathrm{dec}}$ compares frozen-VAE decodings of denormalized $\hat x_0$ and $x_0$ on overlapping endpoint cells using $1-t$ weights and detail-reconstruction, neighborhood, and distance--normal penalties, as well as BCE losses on signs, intersections, and subdivision. $L_{\mathrm{end}}$ is the MSE between an Euler-rollout endpoint and $x_0$. Sparse errors are averaged per case and overall.
-
+where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{FM}}\) applies time-weighted MSE to \(v\), giving \(\hat{x}_0=(1-\sigma)x_t-[\sigma+(1-\sigma)t]v\). \(L_{\mathrm{rec}}\) and \(L_{\mathrm{grad}}\) compare \(\hat{x}_0\) with \(x_0\) in value and axial-neighbor differences via \((1-t)\)-weighted MSE; the velocity and reconstruction terms also use normalized target-neighborhood weights. \(L_{\mathrm{dec}}\) supervises frozen-VAE decodings of \(\hat{x}_0\) and \(x_0\) with \((1-t)\)-weighted detail, neighborhood, and distance--normal penalties and BCE on signs, intersections, and subdivision. \(L_{\mathrm{end}}\) is the Euler-endpoint MSE to \(x_0\).
 
 %% 4
 \section{Experiments and Discussion}\label{sec4}

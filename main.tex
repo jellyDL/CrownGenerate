@@ -639,22 +639,15 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
 %% 4.4.3 Discussion
 \subsubsection{Discussion}\label{subsubsec4_4_3}
 
-\noindent\textbf{Interpretation of Results.}
-This approach combines geometric precision with dental context to jointly address anatomical fidelity and spatial compatibility. Oriented signed-FDG encodes surface distance and orientation, while the sparse VAE supports high-resolution reconstruction through a compact latent representation. Structure Flow predicts global occupancy support, enabling Feature Flow to concentrate on anatomical details within active regions. Multiscale dental conditioning guides both stages using tooth identity, cervical-margin geometry, and the surrounding dentition, while decoded-surface supervision directly links latent learning to reconstruction accuracy. These complementary mechanisms provide a coherent explanation for the observed improvements in geometric accuracy and cervical-margin consistency, together with reduced antagonist penetration.
+\hspace{2em}These improvements stem from the decoupling of global structure and local detail: occupancy prediction confines feature generation to anatomically relevant regions, where signed-distance and normal cues constrain surface-side discrimination, while margin-line conditioning acts directly on the cervical boundary, consistent with the largest gains in Margin P95 (Table~\ref{tab:main_comparison}). Antagonist conditioning further reduces severe penetration by explicitly modeling interarch distance, absent in projection- and template-based baselines. Nevertheless, inadequate preparation, incomplete scans, and atypical morphology remain risks. As shown in Fig.~\ref{fig:false_cases}, the model preserves global crown form but exhibits localized pit-and-fissure failures, including interrupted grooves, hole-like depressions, and spike-like protrusions, attributable to the lack of an explicit pit-and-fissure constraint. Direct FDG extraction may also amplify local inconsistencies into sliver faces. Therefore, the generated crown should be treated as a CAD draft requiring inspection before downstream use, and the reference CAD as a historical design instance rather than a unique ground truth. Future work will investigate controllable editing of local crown details, explicit pit-and-fissure continuity constraints, and surface texture modeling, followed by independent laboratory validation and prospective workflow studies.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\linewidth]{./figures/false_cases/merged_heatmaps_annotated.png}
-    \caption{\textbf{Failure cases.} Each row corresponds to one case. The columns show the generated crown with its corresponding dental arch, the generated crown alone, the reference crown with the arch, and the reference crown alone. Some generated crowns exhibit hole-like defects in the occlusal pits and fissures. These local discontinuities may be related to the absence of an explicit pit-and-fissure morphology constraint in the current formulation.}
+    \caption{\textbf{Failure cases.} Each row shows one case. The columns show the generated crown with the dental arch, the generated crown alone, the reference crown with the arch, and the reference crown alone. Some generated crowns exhibit hole-like defects in the occlusal pits and fissures, likely attributable to the absence of an explicit pit-and-fissure morphology constraint.}
     \label{fig:false_cases}
 \end{figure}
 
-% 失败案例
-% （1）窝沟形态不好， 暂时未考虑如何加约束
-% （2）外观形态不好， 未来考虑广顺和加更多数据
-
-\noindent\textbf{Limitations and Scope of Application.}
-Inadequate tooth preparation, incomplete dental scans, and atypical morphology pose risks to generation quality. Fig.~\ref{fig:false_cases} shows preserved global crown form but localized pit-and-fissure failures, including interrupted grooves, hole-like depressions, fragments, and spike-like protrusions, possibly because no explicit pit-and-fissure constraint is imposed. Direct FDG extraction may be sensitive to local geometry and connectivity inconsistencies, producing sliver faces or protrusions that persist after post-processing. Therefore, the generated crown should be treated as a CAD draft for external crown morphology and must be inspected and corrected before downstream use; the reference CAD should be regarded as a historical design instance rather than a unique ground truth. Future work should investigate controllable editing of localized crown details (e.g., cusps, ridges, grooves, and fossae), explicit constraints on pit-and-fissure continuity and local surface topology, and surface texture modeling beyond geometry alone, followed by independent laboratory validation, \textit{in vitro} measurements, and prospective workflow studies.
 
 %% 5
 \section{Conclusion}\label{sec5}

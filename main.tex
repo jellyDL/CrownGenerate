@@ -164,7 +164,7 @@ organization={Zhejiang University},
             state={Zhejiang},
             country={China}}
 
-\affiliation[c]{organization={Shining3D Tech Co., Ltd},
+\affiliation[c]{organization={Shining3D Tech Co., Ltd.},
             addressline={1398 Xiangbin Road},
             city={Hangzhou},
             postcode={311200},
@@ -182,7 +182,7 @@ organization={Zhejiang University},
 
 %% Abstract
 \begin{abstract}
-Personalized dental crown design is a critical component of digital restorative workflows for structurally compromised teeth, requiring the restoration of patient-specific tooth morphology while ensuring marginal integrity and functional contacts. Conventional computer-aided design (CAD) relies on repeated template adjustments, making the process time-consuming and operator-dependent. To address these limitations, we propose a case-conditioned generative framework for posterior single crowns. Given full-arch maxillary and mandibular scans, a three-dimensional preparation margin line, and the FDI tooth designation, it directly generates a candidate crown mesh. The approach employs a Flexible Dual Grid (FDG) representation with oriented signed-distance and surface-normal fields, while a sparse variational autoencoder (VAE) compresses high-resolution geometry into a compact latent space. Structure Flow and Feature Flow then sequentially generate crown occupancy and local surface features. Multiscale dental conditioning and surface supervision help preserve fine anatomical features and marginal continuity. Evaluation on an in-house dataset showed that the proposed method achieved the lowest \(L_1\) Chamfer distance among evaluated methods (\(0.126 \pm 0.027\,\mathrm{mm}\)), demonstrating improved geometric fidelity and spatial compatibility. Independent technician assessments further supported the usability of the generated crowns as CAD drafts for posterior single-crown restorations.
+Personalized dental crown design is a critical component of digital restorative workflows for structurally compromised teeth, requiring the restoration of patient-specific tooth morphology while ensuring marginal integrity and functional contacts. Conventional computer-aided design (CAD) relies on repeated template adjustments, making the process time-consuming and operator-dependent. To address these limitations, we propose a case-conditioned generative framework for posterior single crowns. Given full-arch maxillary and mandibular scans, a three-dimensional preparation margin line, and the FDI tooth designation, it directly generates a candidate crown mesh. The approach employs a Flexible Dual Grid (FDG) representation with oriented signed-distance and surface-normal fields, while a sparse variational autoencoder (VAE) compresses high-resolution geometry into a compact latent space. Structure Flow and Feature Flow then sequentially generate crown occupancy and local surface features. Multiscale dental conditioning and surface supervision help preserve fine anatomical features and marginal continuity. Evaluation on an in-house dataset showed that the proposed method achieved the lowest \(L_1\) Chamfer distance among the evaluated methods (\(0.126 \pm 0.027\,\mathrm{mm}\)), demonstrating improved geometric fidelity and spatial compatibility. Independent technician assessments further supported the usability of the generated crowns as CAD drafts for posterior single-crown restorations.
 \end{abstract}
 
 %%Graphical abstract
@@ -259,7 +259,7 @@ Personalized crown design \sep Crown generation \sep Conditional flow matching \
 
 \hspace{2em}Among these approaches, point-cloud completion and point-to-mesh methods predict crown points and surface normals from preparation and antagonist inputs, followed by differentiable surface reconstruction to obtain the final mesh~\cite{Yang2025DCrownFormerPlus}. Voxel-based methods incorporate curvature, margin, and FDI tooth-position information into volumetric crown generation~\cite{Wei2025VBCD}. Template-deformation methods combine cervical-margin information with multiscale anatomical conditioning and coarse-to-fine deformation of an initial tooth template~\cite{Wei2026MADCrowner}. These approaches demonstrate the value of dental context and boundary information; however, they remain subject to trade-offs involving sampling resolution, surface reconstruction, template dependence, local anatomical detail, and computational cost.
 
-\hspace{2em}Implicit-field and diffusion models have further advanced dental shape completion. ToothDIT constructs individualized implicit templates from complete anterior-tooth morphology, whereas ToothCraft performs conditional diffusion over signed-distance-function voxels~\cite{Pukanec2026ToothCraft}. Several other studies investigate point-cloud completion and generative restoration for dental crowns~\cite{Ying2026Tooth3dNet,Shu2026AIDrivenCrown,Zhao2026ToothGAN,Tian2022DCPRGAN,Chanintonsongkhla2025PointFlow,Bae2026CrownGen}.  However, anterior-tooth template or synthetic-data evaluations may limit applicability to posterior crowns with prepared abutments and surrounding dentition.
+\hspace{2em}Implicit-field and diffusion models have further advanced dental shape completion. ToothDIT constructs individualized implicit templates from complete anterior-tooth morphology, whereas ToothCraft performs conditional diffusion over signed-distance-function voxels~\cite{Pukanec2026ToothCraft}. Several other studies investigate point-cloud completion and generative restoration for dental crowns~\cite{Ying2026Tooth3dNet,Shu2026AIDrivenCrown,Zhao2026ToothGAN,Tian2022DCPRGAN,Chanintonsongkhla2025PointFlow,Bae2026CrownGen}. However, anterior-tooth template or synthetic-data evaluations may limit applicability to posterior crowns with prepared abutments and surrounding dentition.
 
 \begin{figure*}[t]  % [t] 表示尽量放在页面顶部
     \centering % 图片居中
@@ -273,7 +273,7 @@ Personalized crown design \sep Crown generation \sep Conditional flow matching \
 
 \hspace{2em}High-resolution three-dimensional generation requires a balance among representational capacity, topological flexibility, and computational cost. Dense signed-distance-field (SDF) and occupancy representations can express complex shapes, but their storage and computational demands scale cubically with resolution. Marching Cubes extracts a surface from these fields but does not learn mesh connectivity directly~\cite{Lorensen1987MarchingCubes}. Sparse generative representations address this cost by separating global structure from local geometric features and restricting computation to relevant spatial neighborhoods~\cite{li2026pixal3d}. These methods provide transferable strategies for high-resolution representation and computationally efficient geometric generation; however, they do not explicitly model dental conditions or preparation-margin boundaries.
 
-\hspace{2em}Explicit mesh-generation methods directly represent geometry and connectivity, providing an alternative paradigm for mesh synthesis. MeshFlow encodes continuous vertex positions and discrete connectivity relations in a latent space and generates them using rectified flow~\cite{Li_2026_CVPR}. LATO uses topology-preserving latents for mesh flow matching~\cite{Zhao2026LATO}, whereas FACE uses face-level autoregressive decoding~\cite{Wang2026FACE}. Shape As Points reconstructs surfaces from oriented points using a differentiable Poisson solver~\cite{Peng2021ShapeAsPoints}. Other approaches use signed-distance fields and orientation-aware information, such as surface normals, for geometric supervision~\cite{li2025triposg,Ye2025Hi3DGen}. These studies indicate that oriented surface information is an important complement to structural representations for capturing high-frequency geometry.
+\hspace{2em}Explicit mesh-generation methods directly represent geometry and connectivity, providing an alternative paradigm for mesh synthesis. MeshFlow encodes continuous vertex positions and discrete connectivity relations in a latent space and generates them using rectified flow~\cite{Li_2026_CVPR}. LATO uses topology-preserving latents for mesh flow matching~\cite{Zhao2026LATO}, whereas FACE uses face-level autoregressive decoding~\cite{Wang2026FACE}. ShapeAsPoints reconstructs surfaces from oriented points using a differentiable Poisson solver~\cite{Peng2021ShapeAsPoints}. Other approaches use signed-distance fields and orientation-aware information, such as surface normals, for geometric supervision~\cite{li2025triposg,Ye2025Hi3DGen}. These studies indicate that oriented surface information is an important complement to structural representations for capturing high-frequency geometry.
 
 %% 2.3
 \subsection{Dental Spatial Conditioning and Evaluation}\label{subsec2_3}
@@ -331,7 +331,7 @@ where subtracting \(0.5\) centers the offset and intersection channels. These at
 %% 3.3
 \subsection{Multiscale Dental Conditions}\label{subsec3_3}
 
-\hspace{2em}This section describes the multiscale dental conditions used by the two generation stages. After alignment and sampling, the maxillary, mandibular, and margin point sets are processed by independent condition encoders for Structure Flow and Feature Flow, indexed by \(d\in\{S,F\}\). Thus, \(G_S\) and \(V_S\) denote the global and voxel-aligned conditions for Structure Flow, while \(G_F\) and \(V_F\) denote those for Feature Flow. Maxillary and mandibular points use positions and surface normals, while margin points use positions only. Source-specific point-wise multilayer perceptrons (MLPs) with learned source embeddings encode each point set. The FDI code identifies the tooth quadrant and position; its embedding is added to the global condition \(G_d\). These global, voxel-aligned, and neighborhood conditions provide complementary case-level, spatial, and local context.
+\hspace{2em}This section describes the multiscale dental conditions used by the two generation stages. After alignment and sampling, the maxillary, mandibular, and margin point sets are processed by independent condition encoders for Structure Flow and Feature Flow, indexed by \(d\in\{S,F\}\). Thus, \(G_S\) and \(V_S\) denote the global and voxel-aligned conditions for Structure Flow, while \(G_F\) and \(V_F\) denote those for Feature Flow. Maxillary and mandibular points use positions and surface normals, while margin points use positions only. Source-specific pointwise multilayer perceptrons (MLPs) with learned source embeddings encode each point set. The FDI code identifies the tooth quadrant and position; its embedding is added to the global condition \(G_d\). These global, voxel-aligned, and neighborhood conditions provide complementary case-level, spatial, and local context.
 
 \bigskip
 
@@ -348,7 +348,7 @@ where subtracting \(0.5\) centers the offset and intersection channels. These at
 \begin{figure*}[t]  % [t] 表示尽量放在页面顶部
     \centering % 图片居中
     \includegraphics[width=1.0\textwidth]{./figures/feature_condition_detail.pdf}
-    \caption{\textbf{Two-stage conditional flow matching.} Top: Structure Flow uses the global condition \(G_S\) and voxel-aligned condition \(V_S\) to generate structural latents, which a frozen decoder maps to active support \(\hat O\). Bottom: Feature Flow uses its corresponding conditions \(G_F\) and \(V_F\), together with neighborhood geometry and support context, to generate local features \(\hat F\). The stages use independent condition encoders and velocity networks. Purple denotes conditioning, blue latent representations, teal active support, and yellow ODE integration. Solid/dashed arrows denote data flow/conditioning; circled plus indicates addition, and the lock marks the frozen decoder.}
+    \caption{\textbf{Two-stage conditional flow matching.} Top: Structure Flow uses the global condition \(G_S\) and voxel-aligned condition \(V_S\) to generate structural latents, which a frozen decoder maps to active support \(\hat O\). Bottom: Feature Flow uses its corresponding conditions \(G_F\) and \(V_F\), together with neighborhood geometry and support context, to generate local features \(\hat F\). The stages use independent condition encoders and velocity networks. Purple denotes conditioning, blue latent representations, teal active support, and yellow ODE integration. Solid/dashed arrows denote data flow/conditioning; circled plus sign indicates addition, and the lock marks the frozen decoder.}
     \label{fig:figure_feature_condition_detail}
 \end{figure*}
 
@@ -360,7 +360,7 @@ where subtracting \(0.5\) centers the offset and intersection channels. These at
 %% 3.4.1
 \subsubsection{Structure Flow}\label{subsec3_4_1}
 
-\hspace{2em}Structure Flow generates the sparse support for subsequent feature generation (Fig.~\ref{fig:figure_feature_condition_detail}, top). The multiscale encoder maps the maxillary, mandibular, and margin inputs to global and spatial features, with the FDI embedding incorporated to the global condition. These features reach the Structure Diffusion Transformer (DiT)~\cite{peebles2023scalable} via two pathways. The projected global condition and coarse voxel tokens provide case-level and spatial context for dental cross-attention. Spatial features are also pooled onto the latent grid and linearly projected into each DiT block.
+\hspace{2em}Structure Flow generates the sparse support for subsequent feature generation (Fig.~\ref{fig:figure_feature_condition_detail}, top). The multiscale encoder maps the maxillary, mandibular, and margin inputs to global and spatial features, with the FDI embedding incorporated into the global condition. These features reach the Structure Diffusion Transformer (DiT)~\cite{peebles2023scalable} via two pathways. The projected global condition and coarse voxel tokens provide case-level and spatial context for dental cross-attention. Spatial features are also pooled onto the latent grid and linearly projected into each DiT block.
 
 \hspace{2em}The noisy structural latent \(\hat{x}_t^S\) is flattened into tokens. Structure DiT processes these tokens through time-modulated self-attention, dental cross-attention, and feed-forward layers. Within each block, aligned features are added to the cross-attention residual. The output projection maps the tokens back to the latent grid to predict the velocity field. The ordinary differential equation (ODE) solver integrates this field from Gaussian noise to obtain \(\hat{x}_O^S\). Here, \(\hat{x}_t^S\) is the noisy latent at flow time \(t\), and \(\hat{x}_O^S\) is the denoised latent. After denormalization, the frozen structure decoder~\cite{Xiang2025TRELLIS,xiang2026native} converts the latent into occupancy scores. Occupancy selection produces the active support \(\hat{O}\), which defines the coordinates for Feature Flow.
 
@@ -386,7 +386,7 @@ L_{\mathrm{VAE}} = L_{\mathrm{attr}} + \lambda L_{\mathrm{KL}}
 + L_{\mathrm{surf}} + L_{\mathrm{smooth}} + L_{\mathrm{cons}},
 \label{eq:vae_training_objective}
 \end{equation}
-where \(\lambda\) weights the KL term. \(L_{\mathrm{attr}}\) supervises geometry and connectivity via vertex-offset mean squared error (MSE), intersection and subdivision binary cross-entropy (BCE), and quadrilateral-midpoint error. \(L_{\mathrm{KL}}\) aligns the latent posterior with a standard normal prior~\cite{Kingma2013AutoEncoding}. \(L_{\mathrm{surf}}\) supervises distances and normals via Smooth-L1~\cite{Girshick2015FastRCNN} and \(1-\hat{n}^{\top}n\) for normals \(\hat{n},n\). \(L_{\mathrm{smooth}}\) applies the same penalty to axial and Laplacian errors in vertex, distance, and normal fields. \(L_{\mathrm{cons}}\) penalizes predicted--reference residual differences:
+where \(\lambda\) weights the KL term. \(L_{\mathrm{attr}}\) supervises geometry and connectivity via vertex-offset mean squared error (MSE), intersection and subdivision binary cross-entropy (BCE), and quadrilateral-midpoint error. \(L_{\mathrm{KL}}\) aligns the latent posterior with a standard normal prior~\cite{Kingma2013AutoEncoding}. \(L_{\mathrm{surf}}\) supervises distances and normals via smooth \(L_1\) loss~\cite{Girshick2015FastRCNN} and \(1-\hat{n}^{\top}n\) for normals \(\hat{n},n\). \(L_{\mathrm{smooth}}\) applies the same penalty to axial and Laplacian errors in vertex, distance, and normal fields. \(L_{\mathrm{cons}}\) penalizes predicted--reference residual differences:
 \begin{equation}
 r_{ij}=d_i-d_j-\tfrac12(n_i+n_j)^{\top}(c_i-c_j),
 \label{eq:distance_normal_residual}
@@ -415,7 +415,7 @@ v_{\theta_S}(x_t^S,t;G_S,V_S),u_t^S
 \right],
 \label{eq:structure_training_objective}
 \end{equation}
-where \(v_{\theta_S}\) is the Structure DiT velocity field with parameters \(\theta_S\), conditioned on the features \(G_S, V_S\). The target \(x_0^S\), noisy \(x_t^S\), and velocity \(u_t^S\) follow Eq.~\ref{eq:flow_training_path}. MSE averages over latent entries. At inference, the ODE solver integrates the predicted field. After denormalization, the frozen decoder and occupancy selection yield \(\hat{O}\).
+where \(v_{\theta_S}\) is the Structure DiT velocity field with parameters \(\theta_S\), conditioned on the features \(G_S, V_S\). The target \(x_0^S\), noisy \(x_t^S\), and velocity \(u_t^S\) follow Eq.~\eqref{eq:flow_training_path}. MSE averages over latent entries. At inference, the ODE solver integrates the predicted field. After denormalization, the frozen decoder and occupancy selection yield \(\hat{O}\).
 
 
 \hspace{2em}Feature Flow minimizes a flow-matching (FM) loss on the reference support with latent and decoded supervision:
@@ -439,7 +439,7 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
 %% 4.2
 \subsection{Evaluation Metrics}\label{subsec4_2}
 
-\hspace{2em}To assess geometric consistency, predicted and reference crowns were compared after identical segmentation, sampling, registration, and post-processing. Following~\cite{Hosseinimanesh2025PointToMesh,Yang2024DCrownFormer,Yang2025DCrownFormerPlus,Wei2025VBCD}, surface-level agreement was measured by symmetric Chamfer distance (\(\mathrm{CD}\text{-}L_1\); mean bidirectional nearest-neighbor distance) and 95th-percentile Hausdorff distance (\(\mathrm{HD95}\); larger directional percentile), with lower values indicating closer agreement. Surface coverage was measured by the F-score, the harmonic mean of precision and recall within \(0.10\,\mathrm{mm}\), with higher values indicating better coverage. Cervical fidelity was measured by margin-to-surface 95th-percentile distance (Margin P95), the unsigned distance from sampled margin points to the generated surface. Occlusal compatibility was measured by the severe-penetration rate, the proportion of evaluable cases with minimum crown–antagonist signed distance below \(-0.10\,\mathrm{mm}\) under static occlusion. These metrics evaluate external crown morphology only and do not establish internal fit, dynamic occlusal performance, or patient outcomes.
+\hspace{2em}To assess geometric consistency, predicted and reference crowns were compared after identical segmentation, sampling, registration, and post-processing. Following cited protocols~\cite{Hosseinimanesh2025PointToMesh,Yang2024DCrownFormer,Yang2025DCrownFormerPlus,Wei2025VBCD}, surface-level agreement was measured by symmetric Chamfer distance (\(\mathrm{CD}\text{-}L_1\); mean bidirectional nearest-neighbor distance) and 95th-percentile Hausdorff distance (\(\mathrm{HD95}\); larger directional percentile), with lower values indicating closer agreement. Surface coverage was measured by the F-score, the harmonic mean of precision and recall within \(0.10\,\mathrm{mm}\), with higher values indicating better coverage. Cervical fidelity was measured by margin-to-surface 95th-percentile distance (Margin P95), the unsigned distance from sampled margin points to the generated surface. Occlusal compatibility was measured by the severe-penetration rate, the proportion of evaluable cases with minimum crown--antagonist signed distance below \(-0.10\,\mathrm{mm}\) under static occlusion. These metrics evaluate external crown morphology only and do not establish internal fit, dynamic occlusal performance, or patient outcomes.
 \begin{figure*}[t!]
     \centering
     \includegraphics[width=0.9\textwidth]{./figures//method_comparison_preview_1/method_comparison_preview.png}
@@ -450,7 +450,7 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
 %% 4.3
 \subsection{Implementation Details}\label{subsec4_3}
 
-\hspace{2em}The oriented signed-FDG representation used a grid resolution of \(R=1024\) and truncation parameter \(\tau=3\). The five-level sparse VAE used channel widths of 48, 96, 192, 384, and 512, producing 32-channel latents on a sparse \(64^3\) grid. Global conditions were projected to 512 dimensions, and voxel-aligned conditions used \(64^3\) and \(16^3\) grids with 7-dimensional neighborhood descriptors normalized by \(h=12\)~mm. All models were optimized with Adam using mixed precision, weight decay of 0.01, learning rates of \(10^{-5}\)--\(10^{-4}\), and cosine decay after 1,000 warm-up steps.
+\hspace{2em}The oriented signed-FDG representation used a grid resolution of \(R=1024\) and truncation parameter \(\tau=3\). The five-level sparse VAE used channel widths of 48, 96, 192, 384, and 512, producing 32-channel latents on a sparse \(64^3\) grid. Global conditions were projected to 512 dimensions, and voxel-aligned conditions used \(64^3\) and \(16^3\) grids with 7-dimensional neighborhood descriptors normalized by \(h=12\,\mathrm{mm}\). All models were optimized with Adam using mixed precision, a weight decay of 0.01, learning rates of \(10^{-5}\)--\(10^{-4}\), and cosine decay after 1,000 warm-up steps.
 
 \hspace{2em}For the two flow networks, Transformer blocks used rotary embeddings and memory-efficient exact attention~\cite{Su2024RoFormer,Dao2022FlashAttention}, with the sparse VAE frozen and rank-32 LoRA~\cite{hu2022lora} applied to Feature Flow. Flow training used \(\sigma=10^{-5}\), auxiliary weights \((0.6,0.35,3.0,0.5)\), and velocity weighting \((1+2t^4)/1.4\). At inference, one candidate per case was generated with a fixed seed, using 50 steps with the Heun and Euler solvers, respectively, and a classifier-free guidance scale of 3.0~\cite{Ho2022ClassifierFree}. The frozen VAE decoded latents into oriented signed-FDG attributes for direct mesh extraction, followed by mesh cleanup and checks of watertightness, orientation consistency, genus-0 topology, and geometric validity.
 
@@ -461,7 +461,7 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
 %% 4.4.1 Experiment Result
 \subsubsection{Experimental Results}\label{subsubsec4_4_1}
 
-\hspace{2em}We evaluated the proposed model against four baselines: VF-Net~\cite{ye2024variational}, DMCv2~\cite{Hosseinimanesh2025PointToMesh}, VBCD~\cite{Wei2025VBCD}, and MADCrowner~\cite{Wei2026MADCrowner}. All baselines were reimplemented with their original input conditions and retrained on the same datasetsplit. Outputs were converted to meshes for evaluation, though implementation differences may cause deviations from the original reports. All methods were evaluated on the same test set.
+\hspace{2em}We evaluated the proposed model against four baselines: VF-Net~\cite{ye2024variational}, DMCv2~\cite{Hosseinimanesh2025PointToMesh}, VBCD~\cite{Wei2025VBCD}, and MADCrowner~\cite{Wei2026MADCrowner}. All baselines were reimplemented with their original input conditions and retrained on the same dataset split. Outputs were converted to meshes for evaluation, though implementation differences may cause deviations from the original reports. All methods were evaluated on the same test set.
 
 \begin{table*}[htbp]
     \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm}
@@ -483,13 +483,13 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
     \end{tabularx}
     \par\vspace{3pt}
     \begin{minipage}{\textwidth}
-     \footnotesize\textit{Note:} Continuous metrics are reported as case-level means $\pm$ standard deviations (SD); bold values indicate the best result in each metric column; lower values are preferred for CD-\(L_1\), HD95, Margin P95, and severe penetration, whereas higher values are preferred for F-score.
+     \footnotesize\textit{Note:} Continuous metrics are reported as case-level means $\pm$ standard deviations (SD). Bold values indicate the best result in each metric column. Lower values are preferred for CD-\(L_1\), HD95, Margin P95, and severe penetration, whereas higher values are preferred for F-score.
     \end{minipage}
 \end{table*}
 
 \bigskip
 
-\textbf{Geometric and Static Spatial Evaluation.} As shown in Table~\ref{tab:main_comparison}, the proposed model achieved the lowest CD-$L_1$, HD95, Margin P95, and severe-penetration rate, together with the highest F-score@0.10~mm among the evaluated methods. CD-$L_1$ and HD95 quantify overall and upper-tail surface agreement, respectively. A lower Margin P95 indicates closer correspondence to the preparation-margin line, whereas a higher F-score indicates greater surface coverage within the prescribed tolerance. A lower severe-penetration rate indicates improved compatibility with the registered opposing dentition under static occlusion. Fig.~\ref{fig:method_comparison_preview} compares representative cases using color-coded deviations around cusps, central grooves, and cervical margins. Smaller deviations and fewer artifacts indicate closer agreement with the reference morphology while preserving anatomical features and proximal and occlusal relationships under registered static occlusion.
+\textbf{Geometric and Static Spatial Evaluation.} As shown in Table~\ref{tab:main_comparison}, the proposed model achieved the lowest CD-$L_1$, HD95, Margin P95, and severe-penetration rate, together with the highest F-score at 0.10\,mm among the evaluated methods. CD-$L_1$ and HD95 quantify overall and upper-tail surface agreement, respectively. A lower Margin P95 indicates closer correspondence to the preparation-margin line, whereas a higher F-score indicates greater surface coverage within the prescribed tolerance. A lower severe-penetration rate indicates improved compatibility with the registered opposing dentition under static occlusion. Fig.~\ref{fig:method_comparison_preview} compares representative cases using color-coded deviations around cusps, central grooves, and cervical margins. Smaller deviations and fewer artifacts indicate closer agreement with the reference morphology while preserving anatomical features and proximal and occlusal relationships under registered static occlusion.
 
 \bigskip
 
@@ -498,7 +498,7 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\linewidth]{./figures/figure5_technician_score_distribution.pdf}
-    \caption{\textbf{Technician assessment of generated crown designs.} Three dental technicians independently rated the same 80 generated crowns using a five-level ordinal scale from 1 (unusable) to 5 (no modification). Each stacked bar represents one technician’s ratings, and the right-hand labels indicate the percentage requiring no or only minor modifications (scores 4--5).}
+    \caption{\textbf{Technician assessment of generated crown designs.} Three dental technicians independently rated the same 80 generated crowns using a five-level ordinal scale from 1 (unusable) to 5 (no modification). Each stacked bar represents one technician's ratings, and the right-hand labels indicate the percentage requiring no or only minor modifications (scores 4--5).}
     \label{fig:technician_evaluation}
 \end{figure}
 
@@ -508,7 +508,7 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
 \bigskip
 
 %%%% Ablation Study 1
-\textbf{Ablation of Oriented Signed-FDG.} This experiment examined the effects of truncated signed distances, oriented normals, and the reconstruction strategy. With all other settings fixed, Table~\ref{tab:table_oriented_signed_fdg_ablation} compares three configurations: standard FDG with direct mesh extraction, oriented signed-FDG with direct mesh extraction (adopted here), and oriented signed-FDG with oriented-field reconstruction. With direct mesh extraction fixed, the oriented representation adds signed distances and oriented normals that distinguish surface sides and constrain local direction; with the distance--normal consistency term in Eq.~\eqref{eq:distance_normal_residual}, these cues yielded lower CD-$L_1$, HD95, and Margin P95 and a higher F-score than standard FDG. With the representation fixed, direct mesh extraction uses quadratic error function (QEF) fitting to convert local attributes into a mesh, avoiding global completion while preserving sharp features, and yields lower HD95 and Margin P95 than oriented-field reconstruction, which may smooth high-curvature ridges and attenuate fine crown details despite enforcing watertight topology.
+\textbf{Ablation of Oriented Signed-FDG.} This experiment examined the effects of truncated signed distances, oriented normals, and the reconstruction strategy. With all other settings fixed, Table~\ref{tab:table_oriented_signed_fdg_ablation} compares three configurations: standard FDG with direct mesh extraction, oriented signed-FDG with direct mesh extraction (adopted here), and oriented signed-FDG with oriented-field reconstruction. With direct mesh extraction fixed, the oriented representation adds signed distances and oriented normals that distinguish surface sides and constrain local direction; with the distance--normal consistency term in Eq.~\eqref{eq:distance_normal_residual}, these cues yielded lower CD-$L_1$, HD95, and Margin P95 and a higher F-score than standard FDG. With the representation fixed, direct mesh extraction used quadratic error function (QEF) fitting to convert local attributes into a mesh, avoiding global completion while preserving sharp features, and yielded lower HD95 and Margin P95 than oriented-field reconstruction, which may smooth high-curvature ridges and attenuate fine crown details despite enforcing watertight topology.
 
 \bigskip
 
@@ -539,7 +539,7 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
   \end{tabularx}
   \par\vspace{3pt}
   \begin{minipage}{\textwidth}
-    \footnotesize\textit{Note:} Values are mean $\pm$ SD on the common test set. Bold values indicate the best result in each metric column. Lower CD-$L_1$, HD95, and Margin P95 and higher F-score indicate better performance.
+    \footnotesize\textit{Note:} Values are means $\pm$ SD on the common test set. Bold values indicate the best result in each metric column. Lower CD-$L_1$, HD95, and Margin P95 and higher F-score indicate better performance.
   \end{minipage}
 \end{table*}
 
@@ -593,7 +593,7 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
   \end{tabularx}
   \par\vspace{3pt}
   \begin{minipage}{\textwidth}
-    \footnotesize\textit{Note:} $\checkmark$, conditioning input included; --, conditioning input omitted. Values are means $\pm$ SD on the common evaluable test set. Each ablated row removes one input while all other settings remain unchanged. Bold values indicate the best result in each metric column; lower CD-$L_1$, HD95, and Margin P95 and higher F-score are preferred.
+    \footnotesize\textit{Note:} $\checkmark$, conditioning input included; --, conditioning input omitted. Values are means $\pm$ SD on the common evaluable test set. Each ablation removed one input while all other settings remained unchanged. Bold values indicate the best result in each metric column; lower CD-$L_1$, HD95, and Margin P95 and higher F-score are preferred.
   \end{minipage}
 \end{table*}
 
@@ -603,12 +603,12 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.66\linewidth]{figures/ablation_adjacent/merged_heatmaps.png}
-  \caption{\textbf{Qualitative visualization of hierarchical structure generation.} Rows are arranged as the reference crown, and the outputs from the single-stage and two-stage models. Colors indicate the implicit distance between the crown and adjacent or opposing surfaces. Without the Structure Flow occupancy stage, the model can preserve the overall crown morphology but may leave empty regions near adjacent teeth.}
+  \caption{\textbf{Qualitative visualization of hierarchical structure generation.} Rows are arranged as the reference crown, and the outputs of the single-stage and two-stage models, respectively. Colors indicate the implicit distance between the crown and adjacent or opposing surfaces. Without the Structure Flow occupancy stage, the model can preserve the overall crown morphology but may leave empty regions near adjacent teeth.}
   \label{fig:ablation_adjacent}
 \end{figure}
 
 %%%% Ablation Study 5
-\textbf{Ablation of Hierarchical Generation.} We tested whether separating global support prediction from local feature generation improves posterior crown reconstruction. The single-stage baseline jointly predicts support and features with one conditional flow network, whereas the proposed two-stage model assigns them to Structure Flow and Feature Flow, respectively (Table~\ref{table_hierarchical_ablation}). The single-stage model yielded larger surface errors, as simultaneous prediction of global occupancy and fine detail degraded both; HD95 was particularly sensitive to local omissions, and the reduced F-score reflected poorer surface coverage. Without the explicit support stage, the model still produced a plausible overall morphology but left empty regions near adjacent teeth (Fig.~\ref{fig:ablation_adjacent}), indicating that missing structural priors manifest as spatial voids in proximal areas.
+\textbf{Ablation of Hierarchical Generation.} We tested whether separating global support prediction from local feature generation improved posterior crown reconstruction. The single-stage baseline jointly predicts support and features with one conditional flow network, whereas the proposed two-stage model assigns them to Structure Flow and Feature Flow, respectively (Table~\ref{table_hierarchical_ablation}). The single-stage model yielded larger surface errors, as simultaneous prediction of global occupancy and fine detail degraded both; HD95 was particularly sensitive to local omissions, and the reduced F-score reflected poorer surface coverage. Without the explicit support stage, the model still produced a plausible overall morphology but left empty regions near adjacent teeth (Fig.~\ref{fig:ablation_adjacent}), indicating that missing structural priors manifest as spatial voids in proximal areas.
 
 \begin{table*}[htbp]
   \centering

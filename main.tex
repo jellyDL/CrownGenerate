@@ -386,12 +386,12 @@ L_{\mathrm{VAE}} = L_{\mathrm{attr}} + \lambda L_{\mathrm{KL}}
 + L_{\mathrm{surf}} + L_{\mathrm{smooth}} + L_{\mathrm{cons}},
 \label{eq:vae_training_objective}
 \end{equation}
-where $\lambda$ weights latent regularization. $L_{\mathrm{attr}}$ supervises geometry and connectivity via vertex-offset mean squared error (MSE), intersection and subdivision binary cross-entropy (BCE), and quadrilateral-midpoint error against diagonal midpoints. $L_{\mathrm{KL}}$ aligns the latent posterior with a standard normal prior~\cite{Kingma2013AutoEncoding}. $L_{\mathrm{surf}}$ supervises distances and normals via Smooth-L1~\cite{Girshick2015FastRCNN} and $1-\hat n^{\top}n$ for unit normals $\hat n,n$. $L_{\mathrm{smooth}}$ applies the same robust penalty to axial-difference and Laplacian errors in vertex, distance, and normal fields. $L_{\mathrm{cons}}$ penalizes predicted--reference residual differences between distance and normal fields:
+where \(\lambda\) weights the KL term. \(L_{\mathrm{attr}}\) supervises geometry and connectivity via vertex-offset mean squared error (MSE), intersection and subdivision binary cross-entropy (BCE), and quadrilateral-midpoint error. \(L_{\mathrm{KL}}\) aligns the latent posterior with a standard normal prior~\cite{Kingma2013AutoEncoding}. \(L_{\mathrm{surf}}\) supervises distances and normals via Smooth-L1~\cite{Girshick2015FastRCNN} and \(1-\hat{n}^{\top}n\) for normals \(\hat{n},n\). \(L_{\mathrm{smooth}}\) applies the same penalty to axial and Laplacian errors in vertex, distance, and normal fields. \(L_{\mathrm{cons}}\) penalizes predicted--reference residual differences:
 \begin{equation}
 r_{ij}=d_i-d_j-\tfrac12(n_i+n_j)^{\top}(c_i-c_j),
 \label{eq:distance_normal_residual}
 \end{equation}
-where $i,j$ index neighboring active cells and $c_i,d_i,n_i$ denote grid coordinates, grid-spacing-unit signed distances, and normalized normals. It constrains local distance variation relative to surface orientation. Detail reconstruction combines robust vertex/distance errors with normal cosine errors. Reference-normal-variation weights highlight anatomical detail in the neighborhood, residual, and reconstruction terms. Settings are given in Sec.~\ref{subsec4_3}.
+where \(i,j\) index neighboring active cells and \(c_i,d_i,n_i\) denote grid coordinates, grid-spacing-unit signed distances, and normalized normals. Detail reconstruction combines vertex/distance and normal errors. Reference-normal-variation weights highlight detail in the neighborhood, residual, and reconstruction terms. Settings are given in Sec.~\ref{subsec4_3}.
 
 %% 3.5.2
 \subsubsection{Structure Flow and Feature Flow Objectives}\label{subsec3_5_2}

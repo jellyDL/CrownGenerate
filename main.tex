@@ -396,13 +396,13 @@ where \(i,j\) index neighboring active cells and \(c_i,d_i,n_i\) denote grid coo
 %% 3.5.2
 \subsubsection{Structure Flow and Feature Flow Objectives}\label{subsec3_5_2}
 
-\hspace{2em}Both stages learn the velocity fields used by the ODE solvers through the flow-matching path~\cite{lipman2023flow}:
+\hspace{2em}Both stages learn the ODE velocity fields via the flow-matching path~\cite{lipman2023flow}:
 \begin{equation}
 x_t=(1-t)x_0+[\sigma+(1-\sigma)t]\epsilon,
 \qquad u_t=(1-\sigma)\epsilon-x_0,
 \label{eq:flow_training_path}
 \end{equation}
-where \(x_0\) and \(x_t\) denote the target and noisy latents, respectively; \(u_t\) is the target velocity; \(t\in[0,1]\) is the flow time; and \(\sigma\) is the residual noise scale. Here, \(\epsilon\sim\mathcal N(0,I)\) denotes standard Gaussian noise.
+where $x_0$ and $x_t$ are the target and noisy latents, $u_t$ is the target velocity, $t\in[0,1]$ is the flow time, and $\sigma$ is the residual noise scale. Here, \(\epsilon\sim\mathcal N(0,I)\) denotes standard Gaussian noise.
 
 \hspace{2em}Structure Flow minimizes velocity MSE in the structural latent space:
 \begin{equation}

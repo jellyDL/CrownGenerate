@@ -237,7 +237,7 @@ Personalized crown design \sep Crown generation \sep Conditional flow matching \
 
 \hspace{2em}The main contributions of this paper are summarized as follows:
 
-\hspace{1em}• Introduce an FDG representation augmented with truncated signed distances and oriented surface normals in high-resolution sparse cells. A sparse variational autoencoder subsequently compresses this representation into a compact latent space.
+\hspace{1em}• Introduce an FDG representation augmented with truncated signed distances and oriented surface normals in high-resolution sparse cells. A sparse variational autoencoder (VAE) subsequently compresses this representation into a compact latent space.
 
 \hspace{1em}• Develop a two-stage conditional flow-matching framework comprising Structure Flow and Feature Flow, which model sparse occupancy and local geometric features, respectively. Dual-level supervision in the latent space and on decoded surfaces preserves geometric details and surface continuity.
 
@@ -292,7 +292,7 @@ Personalized crown design \sep Crown generation \sep Conditional flow matching \
 %% 3.1
 \subsection{Overview}\label{subsec3_1}
 
-\hspace{2em}The overall framework is illustrated in Fig.~\ref{fig:figure_overall_architecture}, which takes registered maxillary and mandibular scans, a three-dimensional margin line, and the FDI tooth designation as input and generates a CAD draft mesh of the external crown. Panel (a) shows independent encoders extracting dental conditions for both generation stages; panel (b) shows a sparse variational autoencoder (VAE) that learns active-support and local-feature representations; and panel (c) shows the sequential flow-matching stages, frozen VAE decoding, and direct FDG mesh extraction. The following subsections detail representation learning, multiscale dental conditioning, two-stage generation, and training objectives.
+\hspace{2em}The overall framework is illustrated in Fig.~\ref{fig:figure_overall_architecture}, which takes registered maxillary and mandibular scans, a three-dimensional margin line, and the FDI tooth designation as input and generates a CAD draft mesh of the external crown. Panel (a) shows independent encoders extracting dental conditions for both generation stages; panel (b) shows a sparse variational autoencoder that learns active-support and local-feature representations; and panel (c) shows the sequential flow-matching stages, frozen VAE decoding, and direct FDG mesh extraction. The following subsections detail representation learning, multiscale dental conditioning, two-stage generation, and training objectives.
 
 %% 3.2
 \subsection{Sparse Geometric Encoding}\label{subsec3_2}

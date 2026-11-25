@@ -46,13 +46,16 @@ def main() -> None:
     parser.add_argument("--folders", nargs="+", help="case folder names in display order")
     parser.add_argument("-o", "--output", type=Path, default=Path("merged_heatmaps.png"),
                         help="output filename; relative paths use the script directory")
-    parser.add_argument("--gap", type=int, default=80,
-                        help="column gap and outer margin in pixels (default: 80)")
+    parser.add_argument("--gap", type=int, default=120,
+                        help="outer margin in pixels (default: %(default)s)")
+    # 图片的列间距
+    parser.add_argument("--column-gap", type=int, metavar="PX", default=280,
+                        help="horizontal gap between image columns in pixels (default: %(default)s)")
     # 保留参数兼容旧命令；当前每个文件夹占一行。
-    parser.add_argument("--line_space", "--line-space", type=int, default=80,
+    parser.add_argument("--line_space", "--line-space", type=int, default=100,
                         help="gap between the two rows in each block (default: 80)")
     # 文件夹行之间的竖直间距，单位像素。
-    parser.add_argument("--block_space", "--block-space", type=int, default=140,
+    parser.add_argument("--block_space", "--block-space", type=int, default=60,
                         help="vertical gap between case blocks (default: 80)")
      # 上方文字字体大小
     parser.add_argument("--font-size", type=int, default=90,
@@ -89,8 +92,8 @@ def main() -> None:
     vmin, vmax = (0.0, args.clim[0]) if len(args.clim) == 1 else args.clim
     if not all(math.isfinite(value) for value in (vmin, vmax)) or vmin >= vmax:
         parser.error("--clim must contain finite limits with MIN < MAX")
-    if min(args.gap, args.line_space, args.block_space, args.colorbar_gap) < 0:
-        parser.error("gap, line_space, block_space and colorbar-gap must be nonnegative")
+    if min(args.gap, args.column_gap, args.line_space, args.block_space, args.colorbar_gap) < 0:
+        parser.error("gap, column-gap, line_space, block_space and colorbar-gap must be nonnegative")
     if min(args.font_size, args.block_font_size, args.colorbar_font_size) <= 0:
         parser.error("all font sizes must be positive")
     if args.colorbar_width is not None and args.colorbar_width < 2:
@@ -152,7 +155,9 @@ def main() -> None:
     bar_length = args.colorbar_width if args.colorbar_width is not None else max(2, round(image_height * 0.7))
     if args.colorbar and bar_length > image_height:
         parser.error(f"colorbar-length must not exceed the image region height ({image_height} pixels)")
-    image_right = left_width + 4 * tile_width + 4 * args.gap
+    image_left = left_width + args.gap
+    column_stride = tile_width + args.column_gap
+    image_right = image_left + (len(COLUMN_LABELS) - 1) * column_stride + tile_width
     bar_x = image_right + args.colorbar_gap
     # Anchor the vertical colorbar to the bottom-right of the image region.
     bar_y = args.gap + header_height + image_height - bar_length
@@ -167,14 +172,14 @@ def main() -> None:
     canvas = Image.new("RGB", (canvas_width, canvas_height), args.background)
     draw = ImageDraw.Draw(canvas)
     for column, label in enumerate(COLUMN_LABELS):
-        center_x = left_width + args.gap + column * (tile_width + args.gap) + tile_width // 2
+        center_x = image_left + column * column_stride + tile_width // 2
         draw.text((center_x, args.gap + header_height // 2), label,
                   font=font, fill="black", anchor="mm")
     for block_index, block in enumerate(blocks):
         block_y = args.gap + header_height + block_index * (block_height + args.block_space)
         row = block[0]
         for column, image in enumerate(row):
-            x = left_width + args.gap + column * (tile_width + args.gap)
+            x = image_left + column * column_stride
             tile = ImageOps.contain(image, (tile_width, tile_height))
             canvas.paste(tile, (x + (tile_width - tile.width) // 2,
                                 block_y + (tile_height - tile.height) // 2))

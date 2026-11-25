@@ -42,19 +42,22 @@ def main() -> None:
     parser.add_argument("--folders", nargs="+", help="case folder names in display order")
     parser.add_argument("-o", "--output", type=Path, default=Path("merged_heatmaps.png"),
                         help="output filename; relative paths use the script directory")
-    parser.add_argument("--gap", type=int, default=90,
-                        help="column gap and outer margin in pixels (default: 80)")
+    parser.add_argument("--gap", type=int, default=30,
+                        help="outer margin and default column gap in pixels (default: %(default)s)")
+    # 列间距
+    parser.add_argument("--column-gap", "--column_gap", type=int, default=200,
+                        help="horizontal gap between columns in pixels (default: --gap)")
     # 板块内两行间距，单位像素。
-    parser.add_argument("--line_space", "--line-space", type=int, default=80,
+    parser.add_argument("--line_space", "--line-space", type=int, default=0,
                         help="gap between the two rows in each block (default: 80)")
     # 板块之间的竖直间距，单位像素。
-    parser.add_argument("--block_space", "--block-space", type=int, default=140,
+    parser.add_argument("--block_space", "--block-space", type=int, default=80,
                         help="vertical gap between case blocks (default: 80)")
-     # 上方文字字体大小
+    # 上方文字字体大小
     parser.add_argument("--font-size", type=int, default=90,
                         help="column title font size (default: 68)")
     # 左侧文字字体大小
-    parser.add_argument("--block-font-size", "--block_font_size", type=int, default=90,
+    parser.add_argument("--block-font-size", "--block_font_size", type=int, default=100,
                         help="left-side block label font size (default: 68)")
     # 左侧文字是否加粗
     parser.add_argument("--block-bold", "--block_bold", action="store_true",
@@ -70,13 +73,13 @@ def main() -> None:
                         dest="colorbar_width", type=int, default=1200,
                         help="vertical colorbar length in pixels (default: automatic)")
     # 色带图带宽
-    parser.add_argument("--colorbar-thickness", type=int, default=50,
+    parser.add_argument("--colorbar-thickness", type=int, default=65,
                         help="vertical colorbar thickness in pixels (default: 30)")
-    parser.add_argument("--colorbar-gap", type=int, default=100,
+    parser.add_argument("--colorbar-gap", type=int, default=80,
                         help="horizontal gap between images and colorbar (default: 80)")
     # 色带图位置
     parser.add_argument("--colorbar-position", "--colorbar_position", nargs=2, type=int,
-                        default=(3600, 2000), metavar=("X", "Y"),
+                        default=(3700, 1650), metavar=("X", "Y"),
                         help="colorbar top-left pixel coordinates; origin is image top-left (default: 3500 1500)")
     args = parser.parse_args()
     if len(args.clim) not in (1, 2):
@@ -84,8 +87,9 @@ def main() -> None:
     vmin, vmax = (0.0, args.clim[0]) if len(args.clim) == 1 else args.clim
     if not all(math.isfinite(value) for value in (vmin, vmax)) or vmin >= vmax:
         parser.error("--clim must contain finite limits with MIN < MAX")
-    if min(args.gap, args.line_space, args.block_space, args.colorbar_gap) < 0:
-        parser.error("gap, line_space, block_space and colorbar-gap must be nonnegative")
+    column_gap = args.gap if args.column_gap is None else args.column_gap
+    if min(args.gap, column_gap, args.line_space, args.block_space, args.colorbar_gap) < 0:
+        parser.error("gap, column-gap, line-space, block-space and colorbar-gap must be nonnegative")
     if min(args.font_size, args.block_font_size, args.colorbar_font_size) <= 0:
         parser.error("all font sizes must be positive")
     if args.colorbar_width is not None and args.colorbar_width < 2:
@@ -143,12 +147,12 @@ def main() -> None:
     bar_length = args.colorbar_width if args.colorbar_width is not None else max(2, round(image_height * 0.7))
     if bar_length > image_height:
         parser.error(f"colorbar-length must not exceed the image region height ({image_height} pixels)")
-    image_right = left_width + 3 * tile_width + 3 * args.gap
-    bar_x = image_right + args.colorbar_gap
-    # Anchor the vertical colorbar to the bottom-right of the image region.
-    bar_y = args.gap + header_height + image_height - bar_length
-    if args.colorbar_position is not None:
-        bar_x, bar_y = args.colorbar_position
+    image_left = left_width + args.gap
+    column_stride = tile_width + column_gap
+    image_right = image_left + (len(COLUMN_LABELS) - 1) * column_stride + tile_width
+    bar_x, bar_y = args.colorbar_position or default_colorbar_position
+    if args.colorbar_position is None and args.column_gap is not None:
+        bar_x = image_right + args.colorbar_gap
     canvas_width = max(image_right + args.gap,
                        bar_x + args.colorbar_thickness + 16 + max_tick_width + max(args.gap, 20))
     canvas_height = max(2 * args.gap + header_height + image_height,
@@ -156,7 +160,7 @@ def main() -> None:
     canvas = Image.new("RGB", (canvas_width, canvas_height), args.background)
     draw = ImageDraw.Draw(canvas)
     for column, label in enumerate(COLUMN_LABELS):
-        center_x = left_width + args.gap + column * (tile_width + args.gap) + tile_width // 2
+        center_x = image_left + column * column_stride + tile_width // 2
         draw.text((center_x, args.gap + header_height // 2), label,
                   font=font, fill="black", anchor="mm")
     for block_index, block in enumerate(blocks):
@@ -167,7 +171,7 @@ def main() -> None:
         for row_index, row in enumerate(block):
             y = block_y + row_index * (tile_height + args.line_space)
             for column, image in enumerate(row):
-                x = left_width + args.gap + column * (tile_width + args.gap)
+                x = image_left + column * column_stride
                 tile = ImageOps.contain(image, (tile_width, tile_height))
                 canvas.paste(tile, (x + (tile_width - tile.width) // 2,
                                     y + (tile_height - tile.height) // 2))

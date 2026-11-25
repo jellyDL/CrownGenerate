@@ -58,7 +58,7 @@ def main() -> None:
     parser.add_argument("--block_space", "--block-space", type=int, default=60,
                         help="vertical gap between case blocks (default: 80)")
      # 上方文字字体大小
-    parser.add_argument("--font-size", type=int, default=90,
+    parser.add_argument("--font-size", type=int, default=100,
                         help="column title font size (default: 68)")
     # 左侧文字字体大小
     parser.add_argument("--block-font-size", "--block_font_size", type=int, default=90,

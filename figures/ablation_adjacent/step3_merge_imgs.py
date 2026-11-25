@@ -240,6 +240,11 @@ def main() -> None:
         draw.line((bar_x + args.colorbar_thickness, tick_y, bar_x + args.colorbar_thickness + 6, tick_y), fill="black")
         draw.text((bar_x + args.colorbar_thickness + 12, tick_y), label,
                   font=colorbar_font, fill="black", anchor="lm")
+    background = Image.new("RGB", canvas.size, args.background)
+    content_bounds = ImageChops.difference(canvas, background).getbbox()
+    if content_bounds is not None and content_bounds[3] < canvas.height:
+        canvas = canvas.crop((0, 0, canvas.width, content_bounds[3]))
+
     output = args.output.expanduser()
     if not output.is_absolute():
         output = SCRIPT_DIR / output

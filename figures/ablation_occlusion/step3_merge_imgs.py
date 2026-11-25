@@ -3,7 +3,7 @@
 from __future__ import annotations
 import argparse, math
 from pathlib import Path
-from PIL import Image, ImageDraw, ImageFont, ImageOps
+from PIL import Image, ImageChops, ImageDraw, ImageFont, ImageOps
 from occlusion_colormap_shining3d import DEFAULT_LIMITS, PENETRATION_COLOR, occlusion_colormap
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -23,16 +23,16 @@ def main() -> None:
     selection.add_argument("--cases", nargs="+", metavar="DIR", help="case folders in top-to-bottom order, relative to folder or absolute")
     selection.add_argument("--list", dest="case_list", type=Path, help="file listing case folders in top-to-bottom order")
     parser.add_argument("-o", "--output", type=Path, default=Path("merged_heatmaps.png"))
-    parser.add_argument("--gap", type=int, default=40, help="outer margin in pixels (default: %(default)s)")
+    parser.add_argument("--gap", type=int, default=30, help="outer margin in pixels (default: %(default)s)")
     # 图片的列间距
-    parser.add_argument("--column-gap", type=int, metavar="PX", default=320,
+    parser.add_argument("--column-gap", type=int, metavar="PX", default=300,
                         help="horizontal gap between image columns in pixels (default: %(default)s)")
     # 图片的行间距
-    parser.add_argument("--row-gap", type=int, metavar="PX", default=40,
+    parser.add_argument("--row-gap", type=int, metavar="PX", default=60,
                         help="vertical gap between image rows in pixels (default: %(default)s)")
     # 上方文字和图片的距离
     parser.add_argument("--header-gap", type=int, default=50, help="distance from the bottom of column label text to images (pixels)")
-    parser.add_argument("--font-size", type=int, default=80, help="column label font size")
+    parser.add_argument("--font-size", type=int, default=100, help="column label font size")
     parser.add_argument("--labels", nargs=3, default=("Reference Crown", "I-Opposing", "Full model"), metavar=("GT", "WITHOUT", "WITH"))
     parser.add_argument("--background", default="white")
     parser.add_argument("--clim", nargs="+", type=float, default=DEFAULT_LIMITS, help="clearance limits in mm: MAX or 0 MAX (default: 0 0.2); use the same limits as step2")
@@ -42,7 +42,7 @@ def main() -> None:
     parser.add_argument("--colorbar-thickness", type=int, default=50)
     parser.add_argument("--colorbar-gap", type=int, default=120)
     parser.add_argument("--colorbar-position", nargs=2, type=int, 
-            default=(3200, 2130), metavar=("X", "Y"), help="colorbar top-left position; default is right of images")
+            default=(3550, 1580), metavar=("X", "Y"), help="colorbar top-left position; default is right of images")
     args = parser.parse_args()
     if len(args.clim) not in (1, 2): parser.error("--clim expects MAX or MIN MAX")
     vmin, vmax = (0.0, args.clim[0]) if len(args.clim) == 1 else args.clim
@@ -132,6 +132,10 @@ def main() -> None:
         tick_y = bar_y + round((bar_length - 1) * i / (tick_count - 1))
         draw.line((bar_x + args.colorbar_thickness, tick_y, bar_x + args.colorbar_thickness + 8, tick_y), fill="black")
         draw.text((bar_x + args.colorbar_thickness + 14, tick_y), label, font=colorbar_font, fill="black", anchor="lm")
+    background = Image.new("RGB", canvas.size, args.background)
+    content_bounds = ImageChops.difference(canvas, background).getbbox()
+    if content_bounds is not None and content_bounds[3] < canvas.height:
+        canvas = canvas.crop((0, 0, canvas.width, content_bounds[3]))
     output = args.output.expanduser(); output = output if output.is_absolute() else SCRIPT_DIR / output
     output.parent.mkdir(parents=True, exist_ok=True); canvas.save(output)
     print(f"saved {output.resolve()} ({len(rows)} rows)")

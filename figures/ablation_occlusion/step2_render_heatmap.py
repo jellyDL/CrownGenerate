@@ -11,6 +11,7 @@ import argparse, json, re
 from pathlib import Path
 import numpy as np
 import pyvista as pv
+from PIL import Image
 from occlusion_colormap_shining3d import (
     BACKGROUND_COLOR, DEFAULT_LIMITS, PENETRATION_COLOR, occlusion_colormap,
 )
@@ -54,8 +55,12 @@ def main() -> None:
     # 删除多少三角面片，值越大删除越多
     parser.add_argument("--jaw-reduction", type=float, default=0.9,
                         help="∂ 0 keeps all (default: 0.9)")
+    parser.add_argument("--crop-percent", type=float, default=10,
+                        help="percentage of screenshot height to crop from each of the top and bottom (default: %(default)s)")
     parser.add_argument("-o", "--output", type=Path, default=None)
     args = parser.parse_args()
+    if not 0 <= args.crop_percent < 50:
+        parser.error("--crop-percent must be in [0, 50)")
     if len(args.clim) not in (1, 2):
         parser.error("--clim expects MAX or MIN MAX")
     vmin, vmax = (0.0, args.clim[0]) if len(args.clim) == 1 else args.clim
@@ -93,7 +98,7 @@ def main() -> None:
         contact_values = values.astype(float, copy=True)
         contact_values[contact_values > vmax] = np.nan
         crown["surface_distance"] = contact_values
-        plotter = pv.Plotter(off_screen=True, window_size=(780, 700))
+        plotter = pv.Plotter(off_screen=True, window_size=(900, 700))
         plotter.set_background("white")
         plotter.add_mesh(wire_jaw, color="#a8aaa5", style="wireframe", line_width=2.0,
                          opacity=0.32, show_edges=True)
@@ -114,6 +119,13 @@ def main() -> None:
                 plotter.camera.clipping_range = view["clipping_range"]
         output = args.output if args.output and stem == "gt" else folder / f"{stem}_heatmap.png"
         plotter.show(screenshot=str(output), auto_close=True)
+        if args.crop_percent:
+            with Image.open(output) as screenshot:
+                trim = int(screenshot.height * args.crop_percent / 100)
+                if trim:
+                    cropped = screenshot.crop((0, trim, screenshot.width, screenshot.height - trim))
+            if trim:
+                cropped.save(output)
         print(output)
 
 

@@ -74,7 +74,7 @@ def main() -> None:
     # 上方文字字体大小
     parser.add_argument("--font-size", type=int, default=120,
                         help="column title font size (default: 68)")
-    # 上方文字里图片距离
+    # 上方文字离图片距离
     parser.add_argument("--header-gap", "--header_gap", type=int, metavar="PX", default=80,
                         help="gap from the bottom of the column labels to the first image row in pixels")
     # 左侧标签与第一列图片的间距

@@ -23,24 +23,31 @@ def main() -> None:
     selection.add_argument("--cases", nargs="+", metavar="DIR", help="case folders in top-to-bottom order, relative to folder or absolute")
     selection.add_argument("--list", dest="case_list", type=Path, help="file listing case folders in top-to-bottom order")
     parser.add_argument("-o", "--output", type=Path, default=Path("merged_heatmaps.png"))
-    parser.add_argument("--gap", type=int, default=60, help="tile gap and outer margin (pixels)")
+    parser.add_argument("--gap", type=int, default=40, help="outer margin in pixels (default: %(default)s)")
+    # 图片的列间距
+    parser.add_argument("--column-gap", type=int, metavar="PX", default=320,
+                        help="horizontal gap between image columns in pixels (default: %(default)s)")
+    # 图片的行间距
+    parser.add_argument("--row-gap", type=int, metavar="PX", default=40,
+                        help="vertical gap between image rows in pixels (default: %(default)s)")
     # 上方文字和图片的距离
-    parser.add_argument("--header-gap", type=int, default=80, help="distance from the bottom of column label text to images (pixels)")
+    parser.add_argument("--header-gap", type=int, default=50, help="distance from the bottom of column label text to images (pixels)")
     parser.add_argument("--font-size", type=int, default=80, help="column label font size")
     parser.add_argument("--labels", nargs=3, default=("Reference Crown", "I-Opposing", "Full model"), metavar=("GT", "WITHOUT", "WITH"))
     parser.add_argument("--background", default="white")
     parser.add_argument("--clim", nargs="+", type=float, default=DEFAULT_LIMITS, help="clearance limits in mm: MAX or 0 MAX (default: 0 0.2); use the same limits as step2")
     parser.add_argument("--colorbar-font-size", type=int, default=80)
     parser.add_argument("--colorbar-unit-gap", type=int, default=30, help="vertical distance between (mm) and the top tick label (pixels)")
-    parser.add_argument("--colorbar-length", type=int, default=1200, help="vertical colorbar length; default is 70%% of image height")
-    parser.add_argument("--colorbar-thickness", type=int, default=40)
-    parser.add_argument("--colorbar-gap", type=int, default=100)
-    parser.add_argument("--colorbar-position", nargs=2, type=int, default=(3100,580), metavar=("X", "Y"), help="colorbar top-left position; default is right of images")
+    parser.add_argument("--colorbar-length", type=int, default=900, help="vertical colorbar length; default is 70%% of image height")
+    parser.add_argument("--colorbar-thickness", type=int, default=50)
+    parser.add_argument("--colorbar-gap", type=int, default=120)
+    parser.add_argument("--colorbar-position", nargs=2, type=int, 
+            default=(3200, 2130), metavar=("X", "Y"), help="colorbar top-left position; default is right of images")
     args = parser.parse_args()
     if len(args.clim) not in (1, 2): parser.error("--clim expects MAX or MIN MAX")
     vmin, vmax = (0.0, args.clim[0]) if len(args.clim) == 1 else args.clim
     if not all(math.isfinite(v) for v in (vmin, vmax)) or vmin != 0 or vmax <= 0: parser.error("--clim requires MIN=0 and finite MAX>0; negative distances use the penetration color")
-    if min(args.gap, args.header_gap, args.colorbar_gap, args.colorbar_unit_gap) < 0 or args.font_size <= 0: parser.error("gaps must be nonnegative and font-size must be positive")
+    if min(args.gap, args.row_gap, args.column_gap, args.header_gap, args.colorbar_gap, args.colorbar_unit_gap) < 0 or args.font_size <= 0: parser.error("gaps must be nonnegative and font-size must be positive")
     if args.colorbar_thickness <= 0 or args.colorbar_font_size <= 0: parser.error("colorbar dimensions and font size must be positive")
     root = args.folder.expanduser().resolve()
     if root.is_file():
@@ -79,8 +86,11 @@ def main() -> None:
     header_boxes = [font.getbbox(label, anchor="lt") for label in args.labels]
     header_text_height = max(box[3] for box in header_boxes)
     header_height = header_text_height + args.header_gap
-    image_height = len(rows) * tile_height + (len(rows) - 1) * args.gap
-    image_left = args.gap; image_right = image_left + 3 * tile_width + 2 * args.gap
+    row_stride = tile_height + args.row_gap
+    image_height = tile_height + (len(rows) - 1) * row_stride
+    column_stride = tile_width + args.column_gap
+    image_left = args.gap
+    image_right = image_left + 2 * column_stride + tile_width
     bar_length = args.colorbar_length or max(2, round(image_height * 0.7))
     if not 2 <= bar_length <= image_height: parser.error(f"colorbar-length must be between 2 and image region height ({image_height} pixels)")
     bar_x, bar_y = args.colorbar_position or (image_right + args.colorbar_gap, args.gap + header_height + image_height - bar_length)
@@ -99,13 +109,14 @@ def main() -> None:
     canvas_height = max(args.gap + header_height + image_height + args.gap, bar_y + bar_length + args.colorbar_font_size + args.gap)
     canvas = Image.new("RGB", (canvas_width, canvas_height), args.background); draw = ImageDraw.Draw(canvas)
     for column, label in enumerate(args.labels):
-        x = image_left + column * (tile_width + args.gap) + tile_width // 2
+        x = image_left + column * column_stride + tile_width // 2
         label_height = header_boxes[column][3]
         draw.text((x, args.gap + header_text_height - label_height), label, font=font, fill="black", anchor="mt")
     for row_index, row in enumerate(rows):
-        y = args.gap + header_height + row_index * (tile_height + args.gap)
+        y = args.gap + header_height + row_index * row_stride
         for column, image in enumerate(row):
-            x = image_left + column * (tile_width + args.gap); tile = ImageOps.contain(image, (tile_width, tile_height))
+            x = image_left + column * column_stride
+            tile = ImageOps.contain(image, (tile_width, tile_height))
             canvas.paste(tile, (x + (tile_width - tile.width) // 2, y + (tile_height - tile.height) // 2))
     draw.text((bar_x, unit_bottom), "(mm)", font=colorbar_font, fill="black", anchor="lb")
     # Negative distance is blue-violet. Clearance runs from red at zero

@@ -461,26 +461,34 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
 \hspace{2em}We evaluated the proposed model against four baselines: VF-Net~\cite{ye2024variational}, DMCv2~\cite{Hosseinimanesh2025PointToMesh}, VBCD~\cite{Wei2025VBCD}, and MADCrowner~\cite{Wei2026MADCrowner}. All baselines were reimplemented with their original input conditions and retrained on the same dataset split. Outputs were converted to meshes for evaluation, though implementation differences may cause deviations from the original reports. All methods were evaluated on the same test set.
 
 \begin{table*}[htbp]
-    \captionsetup{justification=raggedright,singlelinecheck=false,margin=0cm}
+    \captionsetup{position=top,justification=raggedright,singlelinecheck=false,margin=0cm,skip=6pt}
     \caption{\hspace{0.5em}Geometric fidelity and severe antagonist penetration across evaluated methods.}
     \label{tab:main_comparison}
     \centering
+    \renewcommand{\baselinestretch}{1}
     \footnotesize
-    \setlength{\tabcolsep}{3pt}
+    \setlength{\tabcolsep}{2.5pt}
     \renewcommand{\arraystretch}{1.15}
-    \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{2.65cm}*{5}{>{\centering\arraybackslash}X}}
-        \hline
-        Method & \shortstack{CD-$L_1$\\(mm) $\downarrow$} & \shortstack{HD95\\(mm) $\downarrow$} & \shortstack{F-score@\\0.10\,mm (\%) $\uparrow$} & \shortstack{Margin P95\\(mm) $\downarrow$} & \shortstack{Severe\\penetration (\%) $\downarrow$} \\ \hline
-        VF-Net~\cite{ye2024variational}         & 0.141 $\pm$ 0.045 & 0.678 $\pm$ 0.178 & 56.181 $\pm$ 7.220 & 0.256 $\pm$ 0.072 & 10.5\% \\
-        DMCv2~\cite{Hosseinimanesh2025PointToMesh} & 0.135 $\pm$ 0.028 & 0.526 $\pm$ 0.142 & 59.250 $\pm$ 7.132 & 0.153 $\pm$ 0.054 & 7.8\% \\
-        VBCD~\cite{Wei2025VBCD}                    & 0.168 $\pm$ 0.035 & 0.485 $\pm$ 0.128 & 60.631 $\pm$ 8.282 & 0.176 $\pm$ 0.048 & 6.3\% \\
-        MADCrowner~\cite{Wei2026MADCrowner}        & 0.187 $\pm$ 0.042 & 0.412 $\pm$ 0.105 & 61.434 $\pm$ 8.121 & 0.148 $\pm$ 0.039 & 4.5\% \\
-        \textbf{Ours}                 & \textbf{0.126 $\pm$ 0.027} & \textbf{0.315 $\pm$ 0.082} & \textbf{62.090 $\pm$ 8.160} & \textbf{0.092 $\pm$ 0.024} & \textbf{3.4\%} \\
-        \hline
-    \end{tabularx}
-    \par\vspace{3pt}
-    \begin{minipage}{\textwidth}
-     \footnotesize\textit{Note:} Continuous metrics are reported as case-level means $\pm$ standard deviations (SD). Bold values indicate the best result in each metric column. Lower values are preferred for CD-\(L_1\), HD95, Margin P95, and severe penetration, whereas higher values are preferred for F-score.
+    \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lccccc@{}}
+        \toprule
+        \makecell[l]{Method} &
+        \makecell[b]{CD-$L_1$\\(mm) $\downarrow$} &
+        \makecell[b]{HD95\\(mm) $\downarrow$} &
+        \makecell[b]{F-score\\@ 0.10\,mm (\%) $\uparrow$} &
+        \makecell[b]{Margin P95\\(mm) $\downarrow$} &
+        \makecell[b]{Severe\\penetration\\(\%) $\downarrow$} \\
+        \midrule
+        VF-Net~\cite{ye2024variational}           & $0.141 \pm 0.045$ & $0.678 \pm 0.178$ & $56.181 \pm 7.220$ & $0.256 \pm 0.072$ & 10.5 \\
+        DMCv2~\cite{Hosseinimanesh2025PointToMesh} & $0.135 \pm 0.028$ & $0.526 \pm 0.142$ & $59.250 \pm 7.132$ & $0.153 \pm 0.054$ & 7.8 \\
+        VBCD~\cite{Wei2025VBCD}                   & $0.168 \pm 0.035$ & $0.485 \pm 0.128$ & $60.631 \pm 8.282$ & $0.176 \pm 0.048$ & 6.3 \\
+        MADCrowner~\cite{Wei2026MADCrowner}       & $0.187 \pm 0.042$ & $0.412 \pm 0.105$ & $61.434 \pm 8.121$ & $0.148 \pm 0.039$ & 4.5 \\
+        \textbf{Ours} & $\bm{0.126 \pm 0.027}$ & $\bm{0.315 \pm 0.082}$ & $\bm{62.090 \pm 8.160}$ & $\bm{0.092 \pm 0.024}$ & \textbf{3.4} \\
+        \bottomrule
+    \end{tabular*}
+    \par\vspace{4pt}
+    \begin{minipage}{\linewidth}
+        \raggedright
+        \textit{Note:} Continuous metrics are reported as case-level means $\pm$ standard deviations (SD). Bold values indicate the best result in each metric column. Lower values are preferred for CD-\(L_1\), HD95, Margin P95, and severe penetration, whereas higher values are preferred for F-score.
     \end{minipage}
 \end{table*}
 
@@ -598,7 +606,7 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.8\linewidth]{figures/ablation_adjacent/merged_heatmaps.png}
+  \includegraphics[width=0.9\linewidth]{figures/ablation_adjacent/merged_heatmaps.png}
   \caption{\textbf{Qualitative visualization of hierarchical structure generation.} Rows are arranged as the reference crown, and the outputs of the single-stage and two-stage models, respectively. Colors indicate the implicit distance between the crown and adjacent or opposing surfaces. Without the Structure Flow occupancy stage, the model can preserve the overall crown morphology but may leave empty regions near adjacent teeth.}
   \label{fig:ablation_adjacent}
 \end{figure}

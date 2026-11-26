@@ -147,7 +147,7 @@
 
 %% Author affiliation
 \affiliation[a]{
-Department={State Key Laboratory of Fluid Power and Mechatronic Systems, School of Mechanical Engineering,},
+department={State Key Laboratory of Fluid Power and Mechatronic Systems, School of Mechanical Engineering},
 organization={Zhejiang University},
             % addressline={},
             city={Hangzhou},
@@ -156,7 +156,7 @@ organization={Zhejiang University},
             country={China}}
 
 \affiliation[b]{
-Department={Zhejiang Key Laboratory of Advanced Equipment Manufacturing and Measurement Technology, School of Mechanical Engineering,},
+department={Zhejiang Key Laboratory of Advanced Equipment Manufacturing and Measurement Technology, School of Mechanical Engineering},
 organization={Zhejiang University},
             % addressline={},
             city={Hangzhou},
@@ -337,15 +337,15 @@ where subtracting \(0.5\) centers the offset and intersection channels. These at
 
 \bigskip
 
-\textbf{Global condition $G_d$.} Features from each point set are aggregated using mean and max pooling, concatenated, and projected into a case-level vector. The FDI code, which specifies the tooth quadrant and position, is embedded and added to this vector to form $G_d$, providing overall dental context and tooth identity.
+\textbf{Global Condition $G_d$.} Features from each point set are aggregated using mean and max pooling, concatenated, and projected into a case-level vector. The FDI code, which specifies the tooth quadrant and position, is embedded and added to this vector to form $G_d$, providing overall dental context and tooth identity.
 
 \bigskip
 
-\textbf{Voxel-aligned condition \(V_d\).} Point features are assigned to a voxel grid according to their coordinates, aggregated within each cell, and refined by local convolutions. The resulting multiscale features provide spatially aligned dental context to the flow stages, complementing the global condition.
+\textbf{Voxel-Aligned Condition \(V_d\).} Point features are assigned to a voxel grid according to their coordinates, aggregated within each cell, and refined by local convolutions. The resulting multiscale features provide spatially aligned dental context to the flow stages, complementing the global condition.
 
 \bigskip
 
-\textbf{Neighborhood condition $N(\hat{O})$.} For each query coordinate $q$, the Feature Flow encoder retrieves nearby maxillary, mandibular, and margin points. An MLP encodes their relative positions, normals, and distances into a local descriptor. At inference, descriptors at the generated support form $N(\hat{O})$, providing local context to Feature Flow.
+\textbf{Neighborhood Condition $N(\hat{O})$.} For each query coordinate $q$, the Feature Flow encoder retrieves nearby maxillary, mandibular, and margin points. An MLP encodes their relative positions, normals, and distances into a local descriptor. At inference, descriptors at the generated support form $N(\hat{O})$, providing local context to Feature Flow.
 
 \begin{figure*}[t]  % [t] 表示尽量放在页面顶部
     \centering % 图片居中

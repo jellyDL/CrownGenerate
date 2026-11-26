@@ -9,6 +9,7 @@ For every subfolder, one row is appended in this order::
 from __future__ import annotations
 
 import argparse
+import math
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
@@ -31,6 +32,7 @@ COLORBAR_GAP = 60 #色带与最后一张图片之间间距
 # Default colour-scale limit (mm). step2_render_stl_rt.py must be run with the
 # same --clim value; run.sh keeps both in sync.
 COLORBAR_MAX = 0.3
+COLORBAR_TICK_STEP = 0.1  # mm
 
 # Desired row order by sample-folder name; set to () for the default alphabetical order.
 ROW_ORDER = (
@@ -75,21 +77,16 @@ def make_colorbar(height: int, bar_width: int = 60, font_size: int = 60,
         font = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial.ttf", font_size)
     except OSError:
         font = ImageFont.load_default()
-    # Seven evenly spaced ticks, with the largest positive value at the top.
-    # Derive the labels from the LUT position so they always describe the
-    # colour-to-millimetre mapping actually used by the renderer.
-    d_step = (t_top - t_bottom) * 2 * vmax / 6
-    decimals = max(1, min(3, int(np.ceil(-np.log10(d_step))))) if d_step > 0 else 1
-    labels = []
-    for index in range(7):
-        t = t_top - index * (t_top - t_bottom) / 6
-        value = round((2 * t - 1) * vmax, decimals)
-        labels.append(f"{0.0 if value == 0 else value:.{decimals}f}")
-    for index, label in enumerate(labels):
-        y = margin_y + round(index * (bar_height - 1) / (len(labels) - 1))
+    # Include endpoints such as 0.3 that division can round just below a tick.
+    max_tick = math.floor(math.nextafter(vmax / COLORBAR_TICK_STEP, math.inf))
+    min_tick = 0 if one_sided else -max_tick
+    for tick in range(max_tick, min_tick - 1, -1):
+        value = tick * COLORBAR_TICK_STEP
+        t = 0.5 + value / (2 * vmax)
+        y = margin_y + round((t_top - t) / (t_top - t_bottom) * (bar_height - 1))
         draw.line((bar_width - 4, y, bar_width + 8, y), fill="black", width=2)
         text_y = max(0, min(height - font_size, y - font_size // 2))
-        draw.text((bar_width + 20, text_y), label, fill="black", font=font)
+        draw.text((bar_width + 20, text_y), f"{value:.1f}", fill="black", font=font)
     # Unit label above the scale.
     # Keep the unit fully inside the colorbar canvas and clearly above the
     # first numeric tick label.
@@ -134,8 +131,8 @@ def main() -> None:
                         help="draw only the 0..clim part of the scale (green to dark "
                              "red), for non-negative distance heatmaps")
     args = parser.parse_args()
-    if args.clim <= 0:
-        parser.error("--clim must be positive")
+    if not math.isfinite(args.clim) or args.clim <= 0:
+        parser.error("--clim must be finite and positive")
     if args.colorbar_length is not None and args.colorbar_length < 2:
         parser.error("colorbar-length must be at least 2 pixels")
     if args.colorbar_thickness <= 0:

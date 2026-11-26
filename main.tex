@@ -551,7 +551,7 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.65\linewidth]{figures/ablation_occlusion/merged_heatmaps.png}
+  \includegraphics[width=0.8\linewidth]{figures/ablation_occlusion/merged_heatmaps.png}
   \caption{Representative visualization of the antagonist-conditioning ablation. Columns show the reference crown, I-Opposing (without antagonist-dentition conditioning), and the full model. The color map encodes the signed distance between crown and antagonist surfaces, with negative values indicating local penetration. Removing the antagonist condition leads to incomplete occlusal contact regions and localized premature contacts.}
   \label{fig:ablation_occlusion}
 \end{figure}
@@ -598,7 +598,7 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.66\linewidth]{figures/ablation_adjacent/merged_heatmaps.png}
+  \includegraphics[width=0.8\linewidth]{figures/ablation_adjacent/merged_heatmaps.png}
   \caption{\textbf{Qualitative visualization of hierarchical structure generation.} Rows are arranged as the reference crown, and the outputs of the single-stage and two-stage models, respectively. Colors indicate the implicit distance between the crown and adjacent or opposing surfaces. Without the Structure Flow occupancy stage, the model can preserve the overall crown morphology but may leave empty regions near adjacent teeth.}
   \label{fig:ablation_adjacent}
 \end{figure}
@@ -639,7 +639,7 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.55\linewidth]{./figures/false_cases/merged_heatmaps_annotated.png}
+    \includegraphics[width=0.8\linewidth]{./figures/false_cases/merged_heatmaps_annotated.png}
     \caption{\textbf{Failure cases.} Each row shows one case. The columns show the generated crown with the dental arch, the generated crown alone, the reference crown with the arch, and the reference crown alone. Some generated crowns exhibit hole-like defects in the occlusal pits and fissures, likely attributable to the absence of an explicit pit-and-fissure morphology constraint.}
     \label{fig:false_cases}
 \end{figure}

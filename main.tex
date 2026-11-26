@@ -21,14 +21,16 @@
 %%
 % \documentclass[preprint,12pt]{elsarticle}
 
+%% Pattern Recognition submission format: single column, double line
+%% spacing, and continuous line numbers (review mode).
 %% Use the option review to obtain double line spacing
-%% \documentclass[authoryear,preprint,review,12pt]{elsarticle}
+\documentclass[preprint,review,12pt]{elsarticle}
 
 %% Use the options 1p,twocolumn; 3p; 3p,twocolumn; 5p; or 5p,twocolumn
 %% for a journal layout:
 %% \documentclass[final,1p,times]{elsarticle}
 %% \documentclass[final,1p,times,twocolumn]{elsarticle}
-\documentclass[final,3p,times]{elsarticle}
+%% \documentclass[final,3p,times]{elsarticle}
 % \documentclass[final,3p,times,twocolumn]{elsarticle}
 %% \documentclass[final,5p,times]{elsarticle}
 %% \documentclass[final,5p,times,twocolumn]{elsarticle}
@@ -54,9 +56,10 @@
 %% The lineno packages adds line numbers. Start line numbering with
 %% \begin{linenumbers}, end it with \end{linenumbers}. Or switch it on
 %% for the whole article with \linenumbers.
-%% \usepackage{lineno}
+%% Pattern Recognition requires continuous line numbers in submissions.
+\usepackage{lineno}
 
-\journal{Journal Name}
+\journal{Pattern Recognition}
 
 \biboptions{sort&compress}
 
@@ -192,18 +195,10 @@ Personalized dental crown design is a critical component of digital restorative 
 
 %%Research highlights
 \begin{highlights}
-
-\item Research highlight 1
-Flexible Dual Grid encodes high-resolution crown geometry with signed fields.
-
-\item Research highlight 2
-Two-stage flow matching generates global structure and local details.
-
-\item Research highlight 3
-Multiscale dental conditioning integrates dental arches, margin lines, and FDI codes.
-
-% \item Research highlight 4
-% Generated crowns achieve the lowest geometric error and favorable technician ratings.
+\item Flexible Dual Grid encodes high-resolution crown geometry with signed fields.
+\item Two-stage flow matching generates global structure and local details.
+\item Multiscale dental conditioning integrates dental arches, margin lines, and FDI codes.
+% \item Generated crowns achieve the lowest geometric error and favorable technician ratings.
 
 \end{highlights}
 
@@ -216,7 +211,7 @@ Personalized crown design \sep Crown generation \sep Conditional flow matching \
 
 %% Add \usepackage{lineno} before \begin{document} and uncomment
 %% following line to enable line numbers
-%% \linenumbers
+\linenumbers
 
 %% main text
 %%

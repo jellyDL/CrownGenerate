@@ -93,7 +93,7 @@ def main() -> None:
     parser.add_argument("--colorbar-font-size", type=int, default=100,
                         help="colorbar tick font size (default: 80)")
     # 色带图宽度
-    default_colorbar_length = 900
+    default_colorbar_length = 1100
     parser.add_argument("--colorbar-length", "--colorbar-width", "--colorbar_width",
                         dest="colorbar_width", type=int,
                         help=f"vertical colorbar length in pixels (default: {default_colorbar_length}, or shorter with row cropping)")
@@ -104,7 +104,7 @@ def main() -> None:
                         help="horizontal gap between images and colorbar (default: 80)")
     # 色带图位置
     parser.add_argument("--colorbar-position", "--colorbar_position", nargs=2, type=int,
-                        default=(4750, 1680), metavar=("X", "Y"),
+                        default=(4750, 1450), metavar=("X", "Y"),
                         help="colorbar top-left pixel coordinates; origin is image top-left (default: 3500 1500)")
     args = parser.parse_args()
     if len(args.clim) not in (1, 2):

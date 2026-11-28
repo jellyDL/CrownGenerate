@@ -667,6 +667,21 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
 
 \hspace{2em}We present a case-conditioned framework for generating the external morphology of tooth-supported posterior single crowns. The oriented signed-FDG representation and a sparse VAE efficiently encode local geometry, signed distance, and oriented normals within the crown surface neighborhood, while two-stage conditional flow matching with Structure Flow and Feature Flow separately models global support and local anatomical detail. Global, voxel-aligned, and coordinate-neighborhood conditions further integrate maxillary and mandibular scans, a three-dimensional margin line, and FDI tooth-position information, allowing tooth-type priors, spatial arch relationships, and local boundary constraints to be incorporated during generation. Together with direct FDG mesh extraction, mesh cleanup, and engineering quality control, the framework establishes an end-to-end pathway from case inputs to candidate triangular meshes and provides a technical basis for high-resolution crown design suitable for subsequent CAD refinement. Future work will extend the framework to broader tooth positions, missing-tooth patterns, and restorative settings; enable controllable editing of local crown details; incorporate surface texture information in addition to geometry; incorporate dynamic occlusion, manufacturing constraints, and human-in-the-loop design information; and investigate its use for anterior crowns, implant-supported restorations, and multi-unit prostheses to strengthen integration with digital restorative workflows.
 
+\section*{CRediT Authorship Contribution Statement}
+\textbf{Jialei Wang}: Writing -- original draft, Methodology, Software, Visualization, Investigation.\\
+\textbf{Kang Wang}: Writing -- review \& editing, Methodology.\\
+\textbf{Yan Tian}: Writing -- review \& editing, Resources.\\
+\textbf{Shuyou Zhang}: Supervision, Writing -- review \& editing.
+
+\section*{Declaration of Competing Interest}
+All authors declare that they have no conflicts of interest regarding the publication of this paper.
+
+\section*{Availability of Data and Materials}
+The data that support the findings of this study are available from the corresponding author upon reasonable request.
+
+\section*{Acknowledgements}
+This work was supported by the Natural Science Foundation of Zhejiang Province (No. LZ24F020001), the Opening Foundation of the State Key Laboratory of Oral \& Maxillofacial Reconstruction and Regeneration (NO:2025KA10), and Fujian Key Laboratory of Oral Diseases \& Fujian Provincial Engineering Research Center of Oral Biomaterial \& Institute of oral homeostasis (No. 2026SZA03).
+
 \bibliographystyle{elsarticle-num}
 \renewcommand{\bibfont}{\footnotesize}
 \setlength{\bibsep}{2pt}

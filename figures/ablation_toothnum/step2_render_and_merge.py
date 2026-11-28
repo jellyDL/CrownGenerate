@@ -235,24 +235,24 @@ def main():
     p.add_argument('--limit', type=int, default=None, help='Use first N folders in sorted order for a layout preview')
     p.add_argument('--wspace', type=float, default=.005,
                    help='Horizontal spacing between subplots (default: .005)')
-    p.add_argument('--first-column-gap', '--first-col-gap', dest='first_column_gap', type=float, default=.15,
+    p.add_argument('--first-column-gap', '--first-col-gap', dest='first_column_gap', type=float, default=.22,
                    help='Extra gap after the first column, relative to one panel width (default: .03)')
     p.add_argument('--hspace', type=float, default=.035,
                    help='Vertical spacing between rows (default: .035)')
-    p.add_argument('--font-size', '--label-font-size', dest='label_font_size', type=int, default=90,
+    p.add_argument('--font-size', '--label-font-size', dest='label_font_size', type=int, default=100,
                    help='Top label font size in pixels (default: 80)')
     p.add_argument('--colorbar-font-size', '--colorbar-fontsize', dest='colorbar_font_size',
-                   type=int, default=90, help='Colorbar font size in pixels (default: 80)')
+                   type=int, default=100, help='Colorbar font size in pixels (default: 80)')
     p.add_argument('--colorbar-label-gap', '--colorbar-unit-gap', dest='colorbar_label_gap',
-                   type=int, default=30, help='Gap between colorbar and its label in pixels (default: 30)')
+                   type=int, default=60, help='Gap between colorbar and its label in pixels (default: 30)')
     p.add_argument('--colorbar-length', type=int, default=1350,
                    help='Colorbar length in pixels (default: 1200)')
     p.add_argument('--colorbar-thickness', type=int, default=60,
                    help='Colorbar thickness in pixels (default: 40)')
     p.add_argument('--colorbar-gap', type=int, default=280,
                    help='Fallback gap from the right edge in pixels (default: 100)')
-    p.add_argument('--colorbar-position', nargs=2, type=int, default=(4350,1860), metavar=('X', 'Y'),
-                   help='Colorbar top-left position in pixels; default uses the right edge')
+    p.add_argument('--colorbar-position', nargs=2, type=int, default=(4550,1860), metavar=('X', 'Y'),
+                   help='Colorbar top-left position in pixels; the final export expands to include it')
     a = p.parse_args()
     if a.clim is not None:
         a.vmin, a.vmax = a.clim
@@ -369,8 +369,10 @@ def main():
                 else:
                     bar_x, bar_top = a.colorbar_position
                 bar_y = figure_height_px - bar_top - bar_length
-                if bar_x < 0 or bar_y < 0 or bar_x + a.colorbar_thickness > figure_width_px:
-                    p.error('colorbar-position or colorbar dimensions exceed the figure bounds')
+                # Explicit coordinates use the original panel grid as their
+                # reference. The tight PNG/PDF export includes external axes.
+                if bar_x < 0:
+                    p.error('colorbar-gap and thickness exceed the figure width')
                 cax = fig.add_axes([bar_x / figure_width_px, bar_y / figure_height_px,
                                     a.colorbar_thickness / figure_width_px,
                                     bar_length / figure_height_px])

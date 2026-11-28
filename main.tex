@@ -256,13 +256,6 @@ Personalized crown design \sep Crown generation \sep Conditional flow matching \
 
 \hspace{2em}Implicit-field and diffusion models have further advanced dental shape completion. ToothDIT constructs individualized implicit templates from complete anterior-tooth morphology, whereas ToothCraft performs conditional diffusion over signed-distance-function voxels~\cite{Pukanec2026ToothCraft}. Several other studies investigate point-cloud completion and generative restoration for dental crowns~\cite{Chanintonsongkhla2025PointFlow,Ying2026Tooth3dNet,Shu2026AIDrivenCrown,Zhao2026ToothGAN,tian2026DM-CFO}. However, anterior-tooth template or synthetic-data evaluations may limit applicability to posterior crowns with prepared abutments and surrounding dentition.
 
-\begin{figure*}[t]  % [t] 表示尽量放在页面顶部
-    \centering % 图片居中
-    \includegraphics[width=1.0\textwidth]{./figures/method_framework.pdf}
-    \caption{\textbf{Overall architecture of the dental crown generation framework.} (a) Independent encoders extract multiscale conditions from dental scans, the margin line, and the FDI designation. (b) A sparse VAE learns oriented signed-FDG representations and latent support--feature from reference CAD models. (c) Structure Flow and Feature Flow sequentially generate active support and local features, followed by frozen VAE decoding, direct FDG mesh extraction, and quality assessment. Purple dash-dotted lines indicate conditioning; blue lines indicate generation and support dependencies; solid and dashed orange lines indicate VAE forward computation and training supervision, respectively.}
-    \label{fig:figure_overall_architecture}
-\end{figure*}
-
 %% 2.2
 \subsection{High-Resolution Three-Dimensional Geometry Generation}\label{subsec2_2}
 
@@ -279,13 +272,20 @@ Personalized crown design \sep Crown generation \sep Conditional flow matching \
 
 \hspace{2em}Collectively, the reviewed studies indicate three unresolved requirements for posterior crown generation: a representation that preserves high-resolution local geometry, including partially occluded surfaces; a conditioning mechanism that couples preparation-margin, tooth-position, and dentition-level spatial context; and an evaluation protocol that distinguishes surface fidelity, spatial compatibility, and practical usability. Sections~\ref{sec3} and~\ref{sec4} describe the proposed framework and its evaluation, respectively.
 
+\begin{figure*}[t]  % [t] 表示尽量放在页面顶部
+    \centering % 图片居中
+    \includegraphics[width=1.0\textwidth]{./figures/method_framework.pdf}
+    \caption{\textbf{Overall architecture of the dental crown generation framework.} (a) Independent encoders extract multiscale conditions from dental scans, margin line, and FDI designation. (b) A sparse VAE learns oriented signed-FDG representations and latent features from reference CAD models. (c) Structure Flow and Feature Flow generate active support and local features, followed by frozen VAE decoding, mesh extraction, and quality assessment.}
+    \label{fig:figure_overall_architecture}
+\end{figure*}
+
 %% 3
 \section{Method}\label{sec3}
 
 %% 3.1
 \subsection{Overview}\label{subsec3_1}
 
-\hspace{2em}The overall framework is illustrated in Fig.~\ref{fig:figure_overall_architecture}, which takes registered maxillary and mandibular scans, a three-dimensional margin line, and the FDI tooth designation as input and generates a CAD draft mesh of the external crown. Panel (a) shows independent encoders extracting dental conditions for both generation stages; panel (b) shows a sparse variational autoencoder that learns active-support and local-feature representations; and panel (c) shows the sequential flow-matching stages, frozen VAE decoding, and direct FDG mesh extraction. The following subsections detail representation learning, multiscale dental conditioning, two-stage generation, and training objectives.
+\hspace{2em}Fig.~\ref{fig:figure_overall_architecture} illustrates the overall framework, which takes registered maxillary and mandibular scans, a three-dimensional margin line, and the FDI tooth designation as input and generates a CAD draft mesh of the external crown. The following subsections detail representation learning, multiscale dental conditioning, two-stage generation, and training objectives.
 
 %% 3.2
 \subsection{Sparse Geometric Encoding}\label{subsec3_2}

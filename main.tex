@@ -350,7 +350,7 @@ where subtracting \(0.5\) centers the offset and intersection channels. These at
 %% 3.4
 \subsection{Two-Stage Conditional Flow Matching}\label{subsec3_4}
 
-\hspace{2em}The two-stage generation architecture shown in Fig.~\ref{fig:figure_feature_condition_detail} decomposes crown generation into support prediction and local feature generation. Structure Flow predicts the active latent-grid support \(\hat O\), and Feature Flow generates the local feature field \(\hat F\) on this support. Here, \(O\) and \(\hat O\) denote the reference and predicted active supports, respectively. The stages use independent condition encoders and velocity networks while sharing the flow-matching probability path defined in Sec.~\ref{subsec3_5}.
+\hspace{2em}The two-stage generation architecture shown in Fig.~\ref{fig:figure_feature_condition_detail} decomposes crown generation into support prediction and local feature generation. Structure Flow predicts the active latent-grid support \(\hat O\), and Feature Flow generates the local feature field \(\hat F\) on this support. Here, \(O\) and \(\hat O\) denote the reference and predicted active supports, respectively. The stages use independent condition encoders and velocity networks while sharing the flow-matching probability path.
 
 %% 3.4.1
 \subsubsection{Structure Flow}\label{subsec3_4_1}

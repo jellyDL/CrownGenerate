@@ -410,7 +410,7 @@ v_{\theta_S}(x_t^S,t;G_S,V_S),u_t^S
 \right],
 \label{eq:structure_training_objective}
 \end{equation}
-where \(v_{\theta_S}\) is the Structure DiT velocity field with parameters \(\theta_S\), conditioned on the features \(G_S, V_S\). The target \(x_0^S\), noisy \(x_t^S\), and velocity \(u_t^S\) follow Eq.~\eqref{eq:flow_training_path}. MSE averages over latent entries. At inference, the ODE solver integrates the predicted field. After denormalization, the frozen decoder and occupancy selection yield \(\hat{O}\).
+where \(v_{\theta_S}\) is the Structure DiT velocity field with parameters \(\theta_S\), conditioned on the features \(G_S, V_S\). The target \(x_0^S\), noisy \(x_t^S\), and velocity \(u_t^S\) follow Eq.~\eqref{eq:flow_training_path}. MSE averages over latent entries.
 
 
 \hspace{2em}Feature Flow minimizes a flow-matching (FM) loss on the reference support with latent and decoded supervision:

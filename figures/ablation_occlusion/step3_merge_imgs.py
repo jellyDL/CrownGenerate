@@ -42,7 +42,7 @@ def main() -> None:
     parser.add_argument("--colorbar-thickness", type=int, default=50)
     parser.add_argument("--colorbar-gap", type=int, default=120)
     parser.add_argument("--colorbar-position", nargs=2, type=int, 
-            default=(3550, 1580), metavar=("X", "Y"), help="colorbar top-left position; default is right of images")
+            default=(3550, 2200), metavar=("X", "Y"), help="colorbar top-left position; default is right of images")
     args = parser.parse_args()
     if len(args.clim) not in (1, 2): parser.error("--clim expects MAX or MIN MAX")
     vmin, vmax = (0.0, args.clim[0]) if len(args.clim) == 1 else args.clim

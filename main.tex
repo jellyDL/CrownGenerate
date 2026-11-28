@@ -343,7 +343,7 @@ where subtracting \(0.5\) centers the offset and intersection channels. These at
 \begin{figure*}[t]  % [t] 表示尽量放在页面顶部
     \centering % 图片居中
     \includegraphics[width=1.0\textwidth]{./figures/feature_condition_detail.pdf}
-    \caption{\textbf{Two-stage conditional flow matching.} Top: Structure Flow uses the global condition \(G_S\) and voxel-aligned condition \(V_S\) to generate structural latents, which a frozen decoder maps to active support \(\hat O\). Bottom: Feature Flow uses its corresponding conditions \(G_F\) and \(V_F\), together with neighborhood geometry and support context, to generate local features \(\hat F\). The stages use independent condition encoders and velocity networks. Purple denotes conditioning, blue latent representations, teal active support, and yellow ODE integration. Solid/dashed arrows denote data flow/conditioning; circled plus sign indicates addition, and the lock marks the frozen decoder.}
+    \caption{\textbf{Two-stage conditional flow matching.} Top: Structure Flow uses the global condition \(G_S\) and voxel-aligned condition \(V_S\) to generate structural latents, which a frozen decoder maps to active support \(\hat O\). Bottom: Feature Flow uses its corresponding conditions \(G_F\) and \(V_F\), together with neighborhood geometry and support context, to generate local features \(\hat F\). The stages use independent condition encoders and velocity networks. Purple denotes conditioning, blue latent representations, teal active support, and yellow ODE integration.}
     \label{fig:figure_feature_condition_detail}
 \end{figure*}
 
@@ -604,8 +604,8 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.8\linewidth]{figures/ablation_occlusion/merged_heatmaps.png}
-  \caption{Representative visualization of the antagonist-conditioning ablation. Columns show the reference crown, I-Opposing (without antagonist-dentition conditioning), and the full model. The color map encodes the signed distance between crown and antagonist surfaces, with negative values indicating local penetration. Removing the antagonist condition leads to incomplete occlusal contact regions and localized premature contacts.}
+  \includegraphics[width=\linewidth]{figures/ablation_occlusion/merged_heatmaps.png}
+  \caption{\textbf{Ablation of antagonist conditioning under static occlusion.} Each row shows one case. The first three columns map crown-to-antagonist clearance for the reference crown, I-Opposing (without antagonist conditioning), and the full model. Violet indicates penetration. The fourth column reports the maximum penetration depth for each crown in millimeters, computed as the magnitude of the most negative signed vertex-to-antagonist distance, or zero if all distances are nonnegative.}
   \label{fig:ablation_occlusion}
 \end{figure}
 
@@ -614,8 +614,8 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.8\linewidth]{figures/ablation_adjacent/merged_heatmaps.png}
-  \caption{\textbf{Qualitative visualization of hierarchical structure generation.} Rows are arranged as the reference crown, and the outputs of the single-stage and two-stage models, respectively. Colors indicate the implicit distance between the crown and adjacent or opposing surfaces. Without the Structure Flow occupancy stage, the model can preserve the overall crown morphology but may leave empty regions near adjacent teeth.}
+  \includegraphics[width=\linewidth]{figures/ablation_adjacent/merged_heatmaps.png}
+  \caption{\textbf{Proximity to the same-arch dentition in the hierarchical generation ablation.} Two opposite views show each reference crown and its single-stage and two-stage predictions. Colors indicate the absolute distance to the same-arch scan surface. The fourth column reports the percentage of eligible crown surface area within \(0.20\,\mathrm{mm}\) of that surface, computed once per crown across both views. The eligible surface lies more than \(1.3\,\mathrm{mm}\) above the fitted margin plane.}
   \label{fig:ablation_adjacent}
 \end{figure}
 

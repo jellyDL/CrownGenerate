@@ -275,7 +275,7 @@ Personalized crown design \sep Crown generation \sep Conditional flow matching \
 \begin{figure*}[t]  % [t] 表示尽量放在页面顶部
     \centering % 图片居中
     \includegraphics[width=1.0\textwidth]{./figures/method_framework.pdf}
-    \caption{\textbf{Overall architecture of the dental crown generation framework.} (a) Independent encoders extract multiscale conditions from dental scans, margin line, and FDI designation. (b) A sparse VAE compresses reference CAD geometry into latent space. (c) Structure Flow and Feature Flow generate active support and local features, followed by frozen VAE decoding, mesh extraction, and quality assessment.}
+    \caption{\textbf{Overall architecture of the dental crown generation framework.} (a) Independent encoders extract multiscale conditions from dental scans, margin line, and FDI designation. (b) Sparse VAE training that compresses reference CAD geometry into the sparse latent. (c) Two-stage generation of active support and local features, followed by frozen VAE decoding, mesh extraction, and quality assessment.}
     \label{fig:figure_overall_architecture}
 \end{figure*}
 
@@ -319,7 +319,7 @@ where subtracting \(0.5\) centers the offset and intersection channels. These at
 \begin{figure*}[t]  % [t] 表示尽量放在页面顶部
     \centering % 图片居中
     \includegraphics[width=0.95\textwidth]{./figures/oriented_signed_fdg_detail.pdf}
-    \caption{\textbf{Sparse representation and latent encoding of the oriented signed-FDG.} (a) Active cells are restricted to the crown surface neighborhood. (b) Nearest-surface queries provide truncated signed distances and interpolated normals, complementing vertex offsets and axis-aligned intersection indicators. Distance signs are determined by nearest-face normals and indicate local surface sides for non-watertight meshes. (c) The sparse geometric VAE compresses these attributes into \(Z=(O,F)\), where \(O\) is the latent support and \(F\) is the local feature field.}
+    \caption{\textbf{Sparse representation and latent encoding of the oriented signed-FDG.} (a) Active cells concentrate near the crown surface, each storing its grid coordinate and geometry code. (b) Nearest-surface queries that assign truncated signed distances, interpolated normals, and connectivity attributes to each active cell; signs follow nearest-face normals. (c) The sparse geometric VAE compressing these attributes into the latent \(Z=(O,F)\).}
     \label{fig:figure_oriented_signed_fdg_detail}
 \end{figure*}
 

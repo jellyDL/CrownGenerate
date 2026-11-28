@@ -492,12 +492,12 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
 
 \textbf{Geometric and Static Spatial Evaluation.} As shown in Table~\ref{tab:main_comparison}, the proposed model achieved the lowest CD-$L_1$, HD95, Margin P95, and severe-penetration rate, together with the highest F-score at \(0.10\,\mathrm{mm}\) among the evaluated methods. CD-$L_1$ and HD95 quantify overall and upper-tail surface agreement, respectively. A lower Margin P95 indicates closer correspondence to the preparation-margin line, whereas a higher F-score indicates greater surface coverage within the prescribed tolerance. A lower severe-penetration rate indicates improved compatibility with the registered opposing dentition under static occlusion. Fig.~\ref{fig:method_comparison_preview} compares representative cases using color-coded deviations around cusps, central grooves, and cervical margins. Smaller deviations and fewer artifacts indicate closer agreement with the reference morphology while preserving anatomical features and proximal and occlusal relationships under registered static occlusion.
 
-\begin{figure}[H]
+\begin{figure*}[H]
     \centering
     \includegraphics[width=0.9\linewidth]{./figures/figure5_technician_score_distribution.pdf}
     \caption{\textbf{Technician assessment of generated crown designs.} Three dental technicians independently rated the same 80 generated crowns using a five-level ordinal scale from 1 (unusable) to 5 (no modification). Each stacked bar represents one technician's ratings, and the right-hand labels indicate the percentage requiring no or only minor modifications (scores 4--5).}
     \label{fig:technician_evaluation}
-\end{figure}
+\end{figure*}
 
 
 \textbf{Technician and Workflow Evaluation.} We consecutively included 80 additional posterior single-crown cases meeting prespecified criteria, with no overlap with the training, validation, or test sets. Eligible cases required complete maxillary and mandibular scans, a clearly delineated preparation margin, an FDI designation, and valid occlusal registration. Three dental technicians, each with at least five years of crown design experience, independently evaluated all 80 generated crowns. Each technician rated every crown using a five-level ordinal scale: 1 (unusable), 2 (major modification), 3 (moderate modification), 4 (minor modification), and 5 (no modification). Score distributions were summarized by technician, and the pooled proportion of scores of 4 or 5 was calculated across all 240 ratings (Fig.~\ref{fig:technician_evaluation}). Overall, 137 ratings (57.1\%) indicated no modification and 53 (22.1\%) indicated minor modification, yielding a combined proportion of 79.2\% (190/240), which ranged from 77.5\% to 81.3\% across technicians. These findings support the usability of the generated crowns as CAD drafts for posterior single-crown restorations.
@@ -588,32 +588,32 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
 %%%% Ablation Study 2
 \textbf{Ablation of Tooth-Position Conditioning.} To isolate the contribution of the FDI tooth-position (TP) condition, we compared models with and without TP in the global conditioning branch. As shown in Table~\ref{table_multi_condition_ablation}, adding TP improved all four metrics, yielding lower CD-\(L_1\), HD95, and Margin P95 and a higher F-score. Although these changes were modest, the limited numerical effect was expected because the cervical margin and antagonist dentition still provide implicit positional cues even without explicit TP conditioning. Qualitatively, removing TP reduced occlusal-surface detail and made the morphology less organized, with larger prediction-to-reference distances indicated by the yellow regions in Fig.~\ref{fig:ablation_toothnum}.
 
-\begin{figure}[H]
+\begin{figure*}[H]
   \centering
   \includegraphics[width=0.8\linewidth]{figures/ablation_toothnum/ablation_toothnum.png}
   \caption{\textbf{Qualitative effect of tooth-position conditioning.} Columns show the reference crown (RC), the crown generated without TP, its distance to RC, the crown generated with TP, and its distance to RC. Yellow regions indicate larger prediction-to-RC surface distances.}
   \label{fig:ablation_toothnum}
-\end{figure}
+\end{figure*}
 
 %%%% Ablation Study 3
 \textbf{Ablation of Antagonist Conditioning.} To assess the role of antagonist conditioning in modeling static occlusal relationships, we removed the antagonist input (I-Opposing) while keeping all other settings unchanged. As shown in Table~\ref{table_multi_condition_ablation}, this ablation largely preserved overall crown morphology and cervical-margin accuracy but reduced the F-score, indicating poorer local surface coverage. Consistently, Fig.~\ref{fig:ablation_occlusion} shows local penetration, fragmented contact regions, spatial displacement, and premature contacts in I-Opposing. These findings confirm the contribution of antagonist conditioning to interarch spatial modeling, without establishing dynamic occlusal function.
 
-\begin{figure}[H]
+\begin{figure*}[H]
   \centering
   \includegraphics[width=0.8\linewidth]{figures/ablation_occlusion/merged_heatmaps.png}
   \caption{\textbf{Representative visualization of the antagonist-conditioning ablation.} Columns show the reference crown, I-Opposing (without antagonist-dentition conditioning), and the full model. The color map encodes the signed distance between crown and antagonist surfaces, with negative values indicating local penetration. Removing the antagonist condition leads to incomplete occlusal contact regions and localized premature contacts.}
   \label{fig:ablation_occlusion}
-\end{figure}
+\end{figure*}
 
 %%%% Ablation Study 4
 \textbf{Ablation of Cervical-Margin Conditioning.} The full model was compared with a variant in which the cervical-margin conditioning was removed; all other experimental settings were kept identical. With the VAE frozen, both flow stages were retrained independently. As shown in Table~\ref{table_multi_condition_ablation}, this ablation degraded all four metrics, with the largest degradation observed for Margin P95. The finding confirms that cervical-margin conditioning directly constrains the cervical boundary, whereas the increases in CD-$L_1$ and HD95 and the reduction in F-score indicate broader deterioration in surface accuracy and coverage.
 
-\begin{figure}[H]
+\begin{figure*}[H]
   \centering
   \includegraphics[width=0.8\linewidth]{figures/ablation_adjacent/merged_heatmaps.png}
   \caption{\textbf{Qualitative visualization of hierarchical structure generation.} Rows are arranged as the reference crown, and the outputs of the single-stage and two-stage models, respectively. Colors indicate the implicit distance between the crown and adjacent or opposing surfaces. Without the Structure Flow occupancy stage, the model can preserve the overall crown morphology but may leave empty regions near adjacent teeth.}
   \label{fig:ablation_adjacent}
-\end{figure}
+\end{figure*}
 
 %%%% Ablation Study 5
 \textbf{Ablation of Hierarchical Generation.} We tested whether separating global support prediction from local feature generation improved posterior crown reconstruction. The single-stage baseline jointly predicts support and features with one conditional flow network, whereas the proposed two-stage model assigns them to Structure Flow and Feature Flow, respectively (Table~\ref{table_hierarchical_ablation}). The single-stage model yielded larger surface errors, as simultaneous prediction of global occupancy and fine detail degraded both; HD95 was particularly sensitive to local omissions, and the reduced F-score reflected poorer surface coverage. Without the explicit support stage, the model still produced a plausible overall morphology but left empty regions near adjacent teeth (Fig.~\ref{fig:ablation_adjacent}), indicating that missing structural priors manifest as spatial voids in proximal areas.
@@ -654,12 +654,12 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
 
 \hspace{2em}Automated posterior crown generation is significant for digital restorative dentistry because it can reduce the manual effort required for template adjustment and improve the consistency of patient-specific designs. The proposed method outperformed the evaluated baselines in geometric fidelity and static spatial compatibility, and 79.2\% of the technician ratings indicated that the generated crowns required no or only minor modifications. The ablation results suggest that these improvements arise from separating global support prediction from local feature generation, using signed-distance and normal cues to describe local surfaces, and incorporating margin and antagonist information at different spatial scales. Nevertheless, inadequate preparations, incomplete scans, and atypical morphologies remain challenging, and localized pit-and-fissure artifacts and sliver faces may occur; together with the non-unique nature of technician-designed references, these limitations require generated crowns to be treated as CAD drafts requiring inspection rather than fabrication-ready restorations (Fig.~\ref{fig:false_cases}). Future work will investigate controllable editing of local crown details, explicit pit-and-fissure continuity constraints, and surface texture modeling, followed by independent laboratory validation and prospective workflow studies.
 
-\begin{figure}[H]
+\begin{figure*}[H]
     \centering
     \includegraphics[width=0.7\linewidth]{./figures/false_cases/merged_heatmaps_annotated.png}
     \caption{\textbf{Failure cases.} Each row shows one case. The columns show the generated crown with the dental arch, the generated crown alone, the reference crown with the arch, and the reference crown alone. Some generated crowns exhibit hole-like defects in the occlusal pits and fissures, likely attributable to the absence of an explicit pit-and-fissure morphology constraint.}
     \label{fig:false_cases}
-\end{figure}
+\end{figure*}
 
 
 %% 5

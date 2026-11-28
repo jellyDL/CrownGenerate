@@ -490,8 +490,6 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
     \end{minipage}
 \end{table*}
 
-\bigskip
-
 \textbf{Geometric and Static Spatial Evaluation.} As shown in Table~\ref{tab:main_comparison}, the proposed model achieved the lowest CD-$L_1$, HD95, Margin P95, and severe-penetration rate, together with the highest F-score at \(0.10\,\mathrm{mm}\) among the evaluated methods. CD-$L_1$ and HD95 quantify overall and upper-tail surface agreement, respectively. A lower Margin P95 indicates closer correspondence to the preparation-margin line, whereas a higher F-score indicates greater surface coverage within the prescribed tolerance. A lower severe-penetration rate indicates improved compatibility with the registered opposing dentition under static occlusion. Fig.~\ref{fig:method_comparison_preview} compares representative cases using color-coded deviations around cusps, central grooves, and cervical margins. Smaller deviations and fewer artifacts indicate closer agreement with the reference morphology while preserving anatomical features and proximal and occlusal relationships under registered static occlusion.
 
 \begin{figure}[H]
@@ -506,11 +504,6 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
 
 %% 4.4.2
 \subsubsection{Ablation Study}\label{subsubsec4_4_2}
-
-\bigskip
-
-%%%% Ablation Study 1
-\textbf{Ablation of Oriented Signed-FDG.} This experiment examined the effects of truncated signed distances, oriented normals, and the reconstruction strategy. With all other settings fixed, Table~\ref{tab:table_oriented_signed_fdg_ablation} compares three configurations: standard FDG with direct mesh extraction, oriented signed-FDG with direct mesh extraction (adopted here), and oriented signed-FDG with oriented-field reconstruction. With direct mesh extraction fixed, the oriented representation adds signed distances and oriented normals that distinguish surface sides and constrain local direction; with the distance--normal consistency term in Eq.~\eqref{eq:distance_normal_residual}, these cues yielded lower CD-$L_1$, HD95, and Margin P95 and a higher F-score than standard FDG. With the representation fixed, direct mesh extraction used quadratic error function (QEF) fitting to convert local attributes into a mesh, avoiding global completion while preserving sharp features, and yielded lower HD95 and Margin P95 than oriented-field reconstruction, which may smooth high-curvature ridges and attenuate fine crown details despite enforcing watertight topology.
 
 \begin{table*}[htbp]
     \captionsetup{position=top,justification=raggedright,singlelinecheck=false,margin=0cm,skip=6pt}
@@ -551,8 +544,8 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
     \end{minipage}
 \end{table*}
 
-%%%% Ablation Study 2
-\textbf{Ablation of Tooth-Position Conditioning.} To isolate the contribution of the FDI tooth-position (TP) condition, we compared models with and without TP in the global conditioning branch. As shown in Table~\ref{table_multi_condition_ablation}, adding TP improved all four metrics, yielding lower CD-\(L_1\), HD95, and Margin P95 and a higher F-score. Although these changes were modest, the limited numerical effect was expected because the cervical margin and antagonist dentition still provide implicit positional cues even without explicit TP conditioning. Qualitatively, removing TP reduced occlusal-surface detail and made the morphology less organized, with larger prediction-to-reference distances indicated by the yellow regions in Fig.~\ref{fig:ablation_toothnum}.
+%%%% Ablation Study 1
+\textbf{Ablation of Oriented Signed-FDG.} This experiment examined the effects of truncated signed distances, oriented normals, and the reconstruction strategy. With all other settings fixed, Table~\ref{tab:table_oriented_signed_fdg_ablation} compares three configurations: standard FDG with direct mesh extraction, oriented signed-FDG with direct mesh extraction (adopted here), and oriented signed-FDG with oriented-field reconstruction. With direct mesh extraction fixed, the oriented representation adds signed distances and oriented normals that distinguish surface sides and constrain local direction; with the distance--normal consistency term in Eq.~\eqref{eq:distance_normal_residual}, these cues yielded lower CD-$L_1$, HD95, and Margin P95 and a higher F-score than standard FDG. With the representation fixed, direct mesh extraction used quadratic error function (QEF) fitting to convert local attributes into a mesh, avoiding global completion while preserving sharp features, and yielded lower HD95 and Margin P95 than oriented-field reconstruction, which may smooth high-curvature ridges and attenuate fine crown details despite enforcing watertight topology.
 
 \begin{table*}[htbp]
     \captionsetup{position=top,justification=raggedright,singlelinecheck=false,margin=0cm,skip=6pt}
@@ -592,6 +585,9 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
     \end{minipage}
 \end{table*}
 
+%%%% Ablation Study 2
+\textbf{Ablation of Tooth-Position Conditioning.} To isolate the contribution of the FDI tooth-position (TP) condition, we compared models with and without TP in the global conditioning branch. As shown in Table~\ref{table_multi_condition_ablation}, adding TP improved all four metrics, yielding lower CD-\(L_1\), HD95, and Margin P95 and a higher F-score. Although these changes were modest, the limited numerical effect was expected because the cervical margin and antagonist dentition still provide implicit positional cues even without explicit TP conditioning. Qualitatively, removing TP reduced occlusal-surface detail and made the morphology less organized, with larger prediction-to-reference distances indicated by the yellow regions in Fig.~\ref{fig:ablation_toothnum}.
+
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.8\linewidth]{figures/ablation_toothnum/ablation_toothnum.png}
@@ -604,7 +600,7 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=\linewidth]{figures/ablation_occlusion/merged_heatmaps.png}
+  \includegraphics[width=0.8\linewidth]{figures/ablation_occlusion/merged_heatmaps.png}
   \caption{\textbf{Representative visualization of the antagonist-conditioning ablation.} Columns show the reference crown, I-Opposing (without antagonist-dentition conditioning), and the full model. The color map encodes the signed distance between crown and antagonist surfaces, with negative values indicating local penetration. Removing the antagonist condition leads to incomplete occlusal contact regions and localized premature contacts.}
   \label{fig:ablation_occlusion}
 \end{figure}
@@ -614,7 +610,7 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=\linewidth]{figures/ablation_adjacent/merged_heatmaps.png}
+  \includegraphics[width=0.8\linewidth]{figures/ablation_adjacent/merged_heatmaps.png}
   \caption{\textbf{Qualitative visualization of hierarchical structure generation.} Rows are arranged as the reference crown, and the outputs of the single-stage and two-stage models, respectively. Colors indicate the implicit distance between the crown and adjacent or opposing surfaces. Without the Structure Flow occupancy stage, the model can preserve the overall crown morphology but may leave empty regions near adjacent teeth.}
   \label{fig:ablation_adjacent}
 \end{figure}

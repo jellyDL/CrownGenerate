@@ -314,7 +314,7 @@ where subtracting \(0.5\) centers the offset and intersection channels. These at
 %% 3.2.2
 \subsubsection{Sparse VAE for Latent Compression}\label{subsubsec3_2_2}
 
-\hspace{2em}The sparse geometric VAE compresses the high-resolution oriented signed-FDG representation into a latent for generative modeling. Its multilevel encoder progressively reduces the active support. The symmetric decoder reconstructs vertex offsets, axial-intersection logits, truncated signed distances, and normalized normals at the original resolution. The bottleneck latent \(Z=(O,F)\) comprises the active latent-grid support \(O\) and its local feature field \(F\). Structure Flow predicts \(O\), Feature Flow generates \(F\) on this support. The decoder predicts quadrilateral triangulation weights for differentiable FDG mesh extraction. During generation, the frozen decoder reconstructs crown geometry from the predicted latent.
+\hspace{2em}The sparse geometric VAE compresses the high-resolution oriented signed-FDG representation into a latent for generative modeling. Its multilevel encoder progressively reduces the active support. The symmetric decoder reconstructs vertex offsets, axial-intersection logits, truncated signed distances, and normalized normals at the original resolution. The bottleneck latent \(Z=(O,F)\) comprises the active latent-grid support \(O\) and its local feature field \(F\). The decoder predicts quadrilateral triangulation weights for differentiable FDG mesh extraction. During generation, the frozen decoder reconstructs crown geometry from the predicted latent.
 
 \begin{figure*}[t]  % [t] 表示尽量放在页面顶部
     \centering % 图片居中
@@ -350,7 +350,7 @@ where subtracting \(0.5\) centers the offset and intersection channels. These at
 %% 3.4
 \subsection{Two-Stage Conditional Flow Matching}\label{subsec3_4}
 
-\hspace{2em}The two-stage generation architecture shown in Fig.~\ref{fig:figure_feature_condition_detail} decomposes crown generation into support prediction and local feature generation. Structure Flow predicts the active latent-grid support \(\hat O\), and Feature Flow generates the local feature field \(\hat F\) on this support. Here, \(O\) and \(\hat O\) denote the reference and predicted active supports, respectively. The stages use independent condition encoders and velocity networks while sharing the flow-matching probability path.
+\hspace{2em}The two-stage generation architecture shown in Fig.~\ref{fig:figure_feature_condition_detail} decomposes crown generation into support prediction and local feature generation. Structure Flow predicts the active latent-grid support \(\hat O\), and Feature Flow generates the local feature field \(\hat F\) on this support. Here, \(O\) and \(\hat O\) denote the reference and predicted active supports, respectively. The stages use independent velocity networks while sharing the flow-matching probability path.
 
 %% 3.4.1
 \subsubsection{Structure Flow}\label{subsec3_4_1}

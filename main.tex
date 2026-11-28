@@ -238,7 +238,7 @@ Personalized crown design \sep Crown generation \sep Conditional flow matching \
 
 % \hspace{1em}• Validate the method through geometric evaluations and independent technician assessments on an in-house dataset. Compared with the baselines, it achieves better geometric consistency and spatial compatibility, with favorable ratings for design quality and laboratory usability.
 
-\hspace{2em}The remainder of this paper is organized as follows. Section~\ref{sec2} reviews data-driven dental crown generation, high-resolution three-dimensional geometry modeling, and dental spatial conditioning. Section~\ref{sec3} presents the proposed framework, including oriented signed-FDG representation learning, sparse VAE compression, multiscale dental conditioning, two-stage conditional flow matching, and training objectives. Section~\ref{sec4} describes the dataset, preprocessing, evaluation metrics, implementation details, experimental results, and discussion. Section~\ref{sec5} concludes the paper and discusses directions for future work.
+\hspace{2em}The remainder of this paper is organized as follows. Section~\ref{sec2} reviews related work on dental crown generation and three-dimensional shape modeling; Section~\ref{sec3} presents the proposed framework; Section~\ref{sec4} reports the experiments and discussion; and Section~\ref{sec5} concludes with future work.
 
 % Accordingly, this study focuses on the generation of a case-adapted CAD draft mesh conditioned on registered full-arch maxillary and mandibular scans, a three-dimensional margin line, and the FDI tooth designation. The scope is limited to the external morphology of tooth-supported posterior single crowns and excludes intaglio-surface design, cement-space definition, manufacturing compensation, and fabrication-ready restoration generation.
 
@@ -614,7 +614,7 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.9\linewidth]{figures/ablation_adjacent/merged_heatmaps.png}
+  \includegraphics[width=0.8\linewidth]{figures/ablation_adjacent/merged_heatmaps.png}
   \caption{\textbf{Qualitative visualization of hierarchical structure generation.} Rows are arranged as the reference crown, and the outputs of the single-stage and two-stage models, respectively. Colors indicate the implicit distance between the crown and adjacent or opposing surfaces. Without the Structure Flow occupancy stage, the model can preserve the overall crown morphology but may leave empty regions near adjacent teeth.}
   \label{fig:ablation_adjacent}
 \end{figure}
@@ -660,7 +660,7 @@ where \(\lambda_1,\ldots,\lambda_4\) weight the auxiliary losses. \(L_{\mathrm{F
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{./figures/false_cases/merged_heatmaps_annotated.png}
+    \includegraphics[width=0.7\linewidth]{./figures/false_cases/merged_heatmaps_annotated.png}
     \caption{\textbf{Failure cases.} Each row shows one case. The columns show the generated crown with the dental arch, the generated crown alone, the reference crown with the arch, and the reference crown alone. Some generated crowns exhibit hole-like defects in the occlusal pits and fissures, likely attributable to the absence of an explicit pit-and-fissure morphology constraint.}
     \label{fig:false_cases}
 \end{figure}

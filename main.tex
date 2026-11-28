@@ -275,7 +275,7 @@ Personalized crown design \sep Crown generation \sep Conditional flow matching \
 \begin{figure*}[t]  % [t] 表示尽量放在页面顶部
     \centering % 图片居中
     \includegraphics[width=1.0\textwidth]{./figures/method_framework.pdf}
-    \caption{\textbf{Overall architecture of the dental crown generation framework.} (a) Independent encoders extract multiscale conditions from dental scans, margin line, and FDI designation. (b) A sparse VAE learns oriented signed-FDG representations and latent features from reference CAD models. (c) Structure Flow and Feature Flow generate active support and local features, followed by frozen VAE decoding, mesh extraction, and quality assessment.}
+    \caption{\textbf{Overall architecture of the dental crown generation framework.} (a) Independent encoders extract multiscale conditions from dental scans, margin line, and FDI designation. (b) A sparse VAE compresses reference CAD geometry into latent space. (c) Structure Flow and Feature Flow generate active support and local features, followed by frozen VAE decoding, mesh extraction, and quality assessment.}
     \label{fig:figure_overall_architecture}
 \end{figure*}
 
